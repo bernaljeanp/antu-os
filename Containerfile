@@ -7,11 +7,14 @@ ARG BOOTC_VERSION=v1.17.3
 FROM docker.io/archlinux/archlinux:latest AS base
 
 # bootc no está en los repositorios de Arch: se compila desde una versión fijada.
+# Sin la función selinux (activada por defecto; Arch no trae libselinux) y sin manuales,
+# con las opciones que documenta el Makefile de bootc para distribuciones sin SELinux.
 FROM base AS bootc
 ARG BOOTC_VERSION
-RUN pacman -Syu --noconfirm make git rust go-md2man ostree glibc pkgconf
+RUN pacman -Syu --noconfirm make git rust ostree glibc pkgconf
 RUN git clone --depth 1 --branch "${BOOTC_VERSION}" https://github.com/bootc-dev/bootc.git /src && \
-    make -C /src bin install-all DESTDIR=/output
+    make -C /src bin install-all DESTDIR=/output DISABLE_DOCS=1 \
+      CARGO_OPTIONS='--no-default-features --features "install-to-disk pre-6.15"'
 
 FROM base
 
