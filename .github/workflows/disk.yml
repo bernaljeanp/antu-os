@@ -1,0 +1,42 @@
+# Genera un disco VMware (.vmdk) con la imagen publicada, para probar Antu en una VM desde Windows.
+name: disco-vm
+on:
+  workflow_dispatch:
+
+jobs:
+  disk:
+    name: Disco VMware
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Liberar espacio en disco
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+
+      - uses: bootc-dev/actions/bootc-ubuntu-setup@main
+
+      - name: Instalar en una imagen de disco
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:latest"
+          echo "$GITHUB_TOKEN" | sudo podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
+          sudo podman pull "$image"
+          sudo ANTU_IMAGE="$image" bash scripts/install-to-disk.sh "$PWD/antu.img"
+
+      - name: Convertir a VMware
+        run: |
+          sudo apt-get install -y qemu-utils
+          qemu-img convert -O vmdk -o subformat=streamOptimized antu.img antu-nvidia.vmdk
+          ls -lh antu-nvidia.vmdk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: antu-nvidia-vmdk
+          path: antu-nvidia.vmdk
+          retention-days: 3
+          compression-level: 0

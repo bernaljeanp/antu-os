@@ -38,7 +38,8 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       pipewire pipewire-pulse wireplumber noto-fonts openssh && \
     pacman -S --clean --noconfirm
 
-RUN systemctl enable sddm NetworkManager systemd-timesyncd && \
+# systemd-homed-firstboot pide crear el primer usuario en la consola, antes de que arranque SDDM.
+RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed systemd-homed-firstboot && \
     systemctl mask systemd-firstboot.service && \
     echo "uninitialized" > /etc/machine-id && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
@@ -53,9 +54,10 @@ RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
     printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
     kver="$(ls /usr/lib/modules)" && dracut --force "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
 
-# Solo para la prueba de arranque en CI: SSH permite revisar la VM. La imagen publicada no lo activa.
-ARG ANTU_DEV_SSH=0
-RUN if [ "${ANTU_DEV_SSH}" = 1 ]; then systemctl enable sshd; fi
+# Solo para la prueba de arranque en CI: SSH para revisar la VM y sin el asistente de primer
+# arranque, que esperaría en la consola para siempre. La imagen publicada no lleva ninguno de los dos cambios.
+ARG ANTU_CI=0
+RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask systemd-homed-firstboot.service; fi
 
 # Estructura que espera un sistema por imágenes: todo lo mutable vive en /var.
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \

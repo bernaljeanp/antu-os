@@ -34,7 +34,7 @@ jobs:
 
       # Sin sudo: bcvk busca la imagen en el almacenamiento de podman del usuario.
       - name: Compilar imagen de prueba
-        run: podman build --build-arg ANTU_DEV_SSH=1 -t localhost/antu-test:latest .
+        run: podman build --build-arg ANTU_CI=1 -t localhost/antu-test:latest .
 
       - name: Prueba de arranque en VM
         run: |

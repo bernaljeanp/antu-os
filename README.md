@@ -12,7 +12,7 @@ Distro gamer chilena: Arch atómico para portátiles gamer con NVIDIA.</p>
 Antu significa *sol* en mapudungun, y es también el nombre de uno de los telescopios VLT de Paranal.
 
 **Estado: Hito 0 (prueba de concepto).** Arch Linux atómico con [bootc](https://github.com/bootc-dev/bootc),
-NVIDIA open y KDE Plasma, con la identidad Antu. Todavía no hay instalador ni usuario de primer arranque.
+NVIDIA open y KDE Plasma, con la identidad Antu. Todavía no hay instalador gráfico: se instala con un script.
 
 ## Por qué así
 
@@ -41,7 +41,33 @@ En cada push y cada día, GitHub Actions:
    fallo, NetworkManager y SDDM activos, módulo `nvidia` presente para el kernel, tema Antu configurado, bootc funcional.
 3. Solo si pasa, publica `ghcr.io/<dueño>/antu-nvidia:latest` y una etiqueta con la fecha (para volver atrás).
 
-La imagen de prueba activa SSH para poder revisar la VM; la publicada no.
+La imagen de prueba activa SSH y desactiva el asistente de primer arranque (esperaría en la consola);
+la publicada no tiene ninguno de los dos cambios.
+
+## Primer arranque
+
+`systemd-homed` pide crear el primer usuario en la consola (nombre y contraseña) antes de que aparezca SDDM.
+El teclado de la consola es inglés (US) por ahora.
+
+## Probar en una VM desde Windows (VMware)
+
+1. En GitHub: *Actions → disco-vm → Run workflow*. Al terminar, descarga el artefacto `antu-nvidia-vmdk`.
+2. En VMware Workstation: nueva VM personalizada → Linux 6.x 64-bit → usar disco existente → `antu-nvidia.vmdk`.
+3. Antes de arrancarla, en *VM → Settings → Options → Advanced* elige firmware **UEFI** y desactiva Secure Boot.
+
+## Probar en el Alienware (SSD o USB externo, sin tocar Windows)
+
+1. Desactiva **Secure Boot** en la BIOS (F2). Las imágenes aún no están firmadas.
+2. Crea un USB de Fedora Workstation (por ejemplo con USBoot) y arranca en modo en vivo (F12).
+3. Conecta el SSD externo, abre una terminal y ejecuta:
+   ```bash
+   curl -LO https://raw.githubusercontent.com/bernaljeanp/antu-os/main/scripts/install-to-disk.sh
+   lsblk
+   sudo bash install-to-disk.sh /dev/sdX
+   ```
+   `/dev/sdX` es el SSD externo: **se borra entero**. El script se niega a usar discos montados o el disco del
+   sistema en ejecución, y pide escribir el nombre del disco para confirmar.
+4. Arranca desde el SSD externo con F12.
 
 ## Publicar
 
@@ -56,7 +82,7 @@ La imagen de prueba activa SSH para poder revisar la VM; la publicada no.
 | 1 | La imagen se compila | Workflow en GitHub |
 | 2 | Arranca hasta SDDM | Prueba de arranque en VM del workflow |
 | 3 | `bootc upgrade` pasa a una imagen nueva y `bootc rollback` vuelve | En una VM, con dos imágenes publicadas |
-| 4 | Arranca en el Alienware desde un SSD externo y la RTX 5070 funciona | Manual; necesita el usuario de primer arranque |
+| 4 | Arranca en el Alienware desde un SSD externo y la RTX 5070 funciona | Manual, con `scripts/install-to-disk.sh` |
 
 Si el criterio 3 falla con bootc, el plan B es systemd-sysupdate (el modelo de KDE Linux).
 
@@ -71,7 +97,7 @@ python scripts/check_colors.py   # contraste WCAG >= 4.5:1 en ambos esquemas
 | Hito | Contenido |
 |---|---|
 | **0** | Arch + bootc + NVIDIA + KDE + identidad, con prueba de arranque automática (en curso) |
-| **0b** | Usuario de primer arranque e instalación en disco (`bootc install`) para probar en hardware real |
+| **0b** | Usuario de primer arranque (systemd-homed) e instalación en disco o VM (en curso) |
 | **1** | Instalador, Secure Boot, capa de juegos (Steam, Gamescope, multilib), canales `testing` / `stable`, firma de imágenes |
 | **1** | Zenit en Linux (perfiles térmicos, AlienFX, teclas Fn, límite de carga) y USBoot como instalador |
 | **2** | Inicio (primer arranque en español), Biblioteca (compatibilidad antes de instalar), modo Familia |
