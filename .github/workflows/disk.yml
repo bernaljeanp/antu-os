@@ -12,12 +12,12 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Liberar espacio en disco
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
 
-      - uses: bootc-dev/actions/bootc-ubuntu-setup@main
+      - uses: bootc-dev/actions/bootc-ubuntu-setup@de95828443214c605662555316955bd1425b448d # main, 2026-10-18
 
       - name: Instalar en una imagen de disco
         env:
@@ -34,7 +34,7 @@ jobs:
           qemu-img convert -O vmdk -o subformat=streamOptimized antu.img antu-nvidia.vmdk
           ls -lh antu-nvidia.vmdk
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: antu-nvidia-vmdk
           path: antu-nvidia.vmdk

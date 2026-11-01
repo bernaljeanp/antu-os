@@ -1,0 +1,7 @@
+# La imagen solo usa Containerfile y files/; el resto no se envía al contexto de compilación.
+.git
+.github
+brand
+scripts
+third_party
+*.md

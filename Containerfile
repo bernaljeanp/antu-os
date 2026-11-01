@@ -4,7 +4,8 @@
 
 ARG BOOTC_VERSION=v1.17.3
 
-FROM docker.io/archlinux/archlinux:latest AS base
+# Base fijada por digest para un punto de partida reproducible; pacman -Syu trae los paquetes del día.
+FROM docker.io/archlinux/archlinux:latest@sha256:837194727013a6e81fb55be11e61d6dcfe7fdd095b3313f8f3cff9bb3f9b182d AS base
 
 # bootc no está en los repositorios de Arch: se compila desde una versión fijada.
 # Sin la función selinux (activada por defecto; Arch no trae libselinux) y sin manuales,
