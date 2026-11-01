@@ -49,6 +49,9 @@ la publicada no tiene ninguno de los dos cambios.
 `systemd-homed` pide crear el primer usuario en la consola (nombre y contraseña) antes de que aparezca SDDM.
 El teclado de la consola es inglés (US) por ahora.
 
+Ese usuario es administrador (grupo `wheel`). La cuenta root está bloqueada: para tareas de sistema se usa
+`run0`, el reemplazo de `sudo` de systemd, por ejemplo `run0 bootc upgrade`.
+
 ## Probar en una VM desde Windows (VMware)
 
 1. En GitHub: *Actions → disco-vm → Run workflow*. Al terminar, descarga el artefacto `antu-nvidia-vmdk`.
