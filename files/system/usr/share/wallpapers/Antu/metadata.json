@@ -1,0 +1,12 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Antu OS"
+            }
+        ],
+        "Id": "Antu",
+        "License": "CC-BY-SA-4.0",
+        "Name": "Antu"
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Antu OS"
+            }
+        ],
+        "Description": "Noche cobalto, tipografía Sora y Public Sans, fondo Órbita.",
+        "Id": "org.antuos.desktop",
+        "License": "GPL-3.0-or-later",
+        "Name": "Antu",
+        "Version": "0.1"
+    }
+}

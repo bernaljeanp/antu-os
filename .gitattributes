@@ -1,0 +1,4 @@
+# Todo lo que entra en la imagen debe tener finales de línea LF, también si se hace commit desde Windows.
+* text=auto eol=lf
+*.png binary
+*.ttf binary

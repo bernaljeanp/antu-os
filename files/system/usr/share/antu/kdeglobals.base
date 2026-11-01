@@ -1,0 +1,16 @@
+[KDE]
+LookAndFeelPackage=org.antuos.desktop
+
+[General]
+font=Public Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+menuFont=Public Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+toolBarFont=Public Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+smallestReadableFont=Public Sans,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+fixed=JetBrains Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+
+[WM]
+activeFont=Sora,10,-1,5,600,0,0,0,0,0,0,0,0,0,0,1
+
+[Icons]
+Theme=breeze-dark
+

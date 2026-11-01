@@ -1,0 +1,2 @@
+# nvidia-utils ya bloquea nouveau en modprobe.d; esto lo asegura también dentro del initramfs.
+kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau"]

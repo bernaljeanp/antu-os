@@ -1,0 +1,66 @@
+name: antu
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+  pull_request:
+  schedule:
+    - cron: "00 06 * * *" # diario: recoge las actualizaciones de Arch
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compilar, probar arranque y publicar
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Liberar espacio en disco
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+
+      # Instala podman reciente, bcvk y libvirt (las mismas herramientas que usa bootcrew).
+      - uses: bootc-dev/actions/bootc-ubuntu-setup@main
+        with:
+          libvirt: "true"
+
+      # Sin sudo: bcvk busca la imagen en el almacenamiento de podman del usuario.
+      - name: Compilar imagen de prueba
+        run: podman build --build-arg ANTU_DEV_SSH=1 -t localhost/antu-test:latest .
+
+      - name: Prueba de arranque en VM
+        run: |
+          bcvk ephemeral run-ssh localhost/antu-test:latest -- sh -c '
+            set -e
+            systemctl is-system-running --wait || true
+            failed="$(systemctl --failed --no-legend --plain)"
+            [ -z "$failed" ] || { echo "Unidades con fallo:"; echo "$failed"; exit 1; }
+            systemctl is-active NetworkManager sddm
+            modinfo -n nvidia
+            grep -q "LookAndFeelPackage=org.antuos.desktop" /etc/xdg/kdeglobals
+            bootc --version
+            echo "ANTU: prueba de arranque OK"
+          '
+
+      - name: Compilar imagen publicable (sin SSH)
+        if: github.event_name != 'pull_request'
+        run: podman build -t antu-nvidia:latest .
+
+      - name: Publicar en ghcr.io
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia"
+          echo "$GITHUB_TOKEN" | podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
+          for tag in latest "$(date -u +%Y%m%d)"; do
+            podman push antu-nvidia:latest "$image:$tag"
+          done
