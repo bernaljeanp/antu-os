@@ -46,6 +46,10 @@ jobs:
             systemctl is-active NetworkManager sddm
             modinfo -n nvidia
             grep -q "LookAndFeelPackage=org.antuos.desktop" /etc/xdg/kdeglobals
+            # Seguridad: ninguna cuenta sin contraseña y root bloqueado (SSH de CI entra con llave).
+            empty="$(awk -F: '\''$2 == "" {print $1}'\'' /etc/shadow)"
+            [ -z "$empty" ] || { echo "Cuentas sin contraseña: $empty"; exit 1; }
+            passwd -S root | awk '\''{exit ($2 == "L" || $2 == "LK") ? 0 : 1}'\''
             bootc --version
             echo "ANTU: prueba de arranque OK"
           '

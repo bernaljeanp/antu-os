@@ -3,6 +3,8 @@
 # ver third_party/bootcrew-LICENSE.
 
 ARG BOOTC_VERSION=v1.17.3
+# Las etiquetas git se pueden mover: el commit se verifica después de clonar.
+ARG BOOTC_COMMIT=6d7893f2dbdd289a4a04a5727e4df29433d43024
 
 # Base fijada por digest para un punto de partida reproducible; pacman -Syu trae los paquetes del día.
 FROM docker.io/archlinux/archlinux:latest@sha256:837194727013a6e81fb55be11e61d6dcfe7fdd095b3313f8f3cff9bb3f9b182d AS base
@@ -12,8 +14,10 @@ FROM docker.io/archlinux/archlinux:latest@sha256:837194727013a6e81fb55be11e61d6d
 # con las opciones que documenta el Makefile de bootc para distribuciones sin SELinux.
 FROM base AS bootc
 ARG BOOTC_VERSION
+ARG BOOTC_COMMIT
 RUN pacman -Syu --noconfirm make git rust ostree glibc pkgconf
 RUN git clone --depth 1 --branch "${BOOTC_VERSION}" https://github.com/bootc-dev/bootc.git /src && \
+    test "$(git -C /src rev-parse HEAD)" = "${BOOTC_COMMIT}" && \
     make -C /src bin install-all DESTDIR=/output DISABLE_DOCS=1 \
       CARGO_OPTIONS='--no-default-features --features "install-to-disk pre-6.15"'
 
@@ -45,6 +49,7 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
 # systemd-homed-firstboot pide crear el primer usuario en la consola, antes de que arranque SDDM.
 RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed systemd-homed-firstboot && \
     systemctl mask systemd-firstboot.service && \
+    passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 

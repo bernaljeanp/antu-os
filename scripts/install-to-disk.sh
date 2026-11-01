@@ -32,9 +32,9 @@ if [ -b "$TARGET" ]; then
     root_disk="$(lsblk -no PKNAME "$(findmnt -no SOURCE /)" 2>/dev/null || true)"
     [ "/dev/${root_disk}" != "$TARGET" ] || die "$TARGET es el disco del sistema que está corriendo."
 
-    if lsblk -no MOUNTPOINTS "$TARGET" | grep -q .; then
-        die "$TARGET tiene particiones montadas. Desmóntalas antes."
-    fi
+    # Si lsblk falla, se detiene: un fallo nunca debe leerse como "nada montado".
+    mounts="$(lsblk -no MOUNTPOINT "$TARGET")" || die "no se pudo leer el estado de $TARGET."
+    [ -z "$(printf '%s' "$mounts" | tr -d '[:space:]')" ] || die "$TARGET tiene particiones montadas. Desmóntalas antes."
 
     echo "Se va a BORRAR por completo este disco:"
     lsblk -o NAME,SIZE,MODEL,TRAN,FSTYPE,LABEL "$TARGET"
