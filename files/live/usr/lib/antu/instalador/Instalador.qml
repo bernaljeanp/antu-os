@@ -37,7 +37,7 @@ ApplicationWindow {
         stage = 0
         lastLine = ""
         screen = 2
-        backend.install(disk.path)
+        backend.install(disk.path, disk.huella || "")
     }
 
     // Cerrar a mitad de la copia dejaría el disco a medias.

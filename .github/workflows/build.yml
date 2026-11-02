@@ -17,7 +17,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
+  # Solo se cancelan los PR: cortar una publicación a medias dejaría una versión publicada sin firmar.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -30,6 +31,8 @@ jobs:
       id-token: write  # firma sin llaves de cosign con la identidad de este workflow
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Liberar espacio en disco
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
@@ -59,10 +62,11 @@ jobs:
             test -f /usr/lib/systemd/system/antu-apps.service
             test -f /usr/lib/systemd/system/antu-craft-apps.service
             # Inicio: cuenta de sistema, ayudante ejecutable, regla de polkit y sin el asistente de consola anterior.
+            # (Las negaciones van como if/exit o test !: un «! comando» no detiene el script con set -e.)
             getent passwd antu-inicio > /dev/null
             test -x /usr/lib/antu/inicio-helper && test -x /usr/lib/antu/inicio/inicio.py
             test -f /usr/share/polkit-1/rules.d/50-antu-inicio.rules
-            ! systemctl is-enabled systemd-homed-firstboot > /dev/null 2>&1
+            if systemctl is-enabled systemd-homed-firstboot > /dev/null 2>&1; then echo "Asistente de consola activo"; exit 1; fi
             # Utilidades, USBoot, IA opcional y energía/suspensión de NVIDIA.
             command -v ark gwenview spectacle kate kcalc 7z > /dev/null
             test -x /usr/lib/usboot/AppRun && test -x /usr/bin/antu-ia
@@ -83,6 +87,8 @@ jobs:
             # La app de actualizaciones: su ayudante responde con un estado legible y tiene su regla de permisos.
             /usr/lib/antu/actualizar-helper estado | python3 -c "import json, sys; json.load(sys.stdin)"
             test -f /usr/share/polkit-1/rules.d/50-antu-actualizar.rules
+            # La llave pública con la que se comprobará cada actualización.
+            grep -q "BEGIN PUBLIC KEY" /etc/pki/containers/antu.pub
             # Seguridad del sistema: firewall activo en la zona antu y el kernel endurecido.
             systemctl is-active firewalld
             [ "$(firewall-cmd --get-default-zone)" = antu ]
@@ -94,8 +100,12 @@ jobs:
             swapon --show=NAME --noheadings | grep -q zram
             # Programar: Git y las cajas de desarrollo (Podman y Distrobox), y el armado del entorno de Inicio.
             command -v git podman distrobox > /dev/null && test -x /usr/lib/antu/programar
+            # Nada del sistema en vivo en la imagen instalada, ni archivos con permisos especiales en USBoot.
+            test ! -e /usr/share/polkit-1/rules.d/49-antu-live.rules
+            if getent passwd antu > /dev/null; then echo "La cuenta del sistema en vivo está en la imagen"; exit 1; fi
+            [ -z "$(find /usr/lib/usboot \( -perm /6000 -o ! -uid 0 \) -print -quit)" ]
             # Sin relleno: ni LibreOffice ni Firefox en la imagen.
-            ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
+            if pacman -Qq | grep -qE "^(libreoffice|firefox)"; then echo "LibreOffice o Firefox en la imagen"; exit 1; fi
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]
             # Seguridad: ninguna cuenta sin contraseña y root bloqueado (SSH de CI entra con llave).
             empty="$(awk -F: '\''$2 == "" {print $1}'\'' /etc/shadow)"
@@ -150,10 +160,22 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTU_FIRMA_PEM: ${{ secrets.ANTU_FIRMA_PEM }}
         run: |
           image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia"
           echo "$GITHUB_TOKEN" | podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
-          podman push --digestfile digest localhost/antu-nvidia:latest "$image:testing"
+          # Firma con la llave de Antu en el formato que comprueba containers/image en cada equipo (adjuntos sigstore;
+          # la llave pública va en /etc/pki/containers/antu.pub). La privada solo vive en el secreto ANTU_FIRMA_PEM.
+          mkdir -p ~/.config/containers/registries.d
+          printf 'docker:\n  %s:\n    use-sigstore-attachments: true\n' "$image" > ~/.config/containers/registries.d/antu.yaml
+          export COSIGN_PASSWORD="$(openssl rand -hex 24)"
+          umask 077
+          printf '%s\n' "$ANTU_FIRMA_PEM" > "$RUNNER_TEMP/antu.pem"
+          cosign import-key-pair --key "$RUNNER_TEMP/antu.pem" --output-key-prefix "$RUNNER_TEMP/antu" > /dev/null
+          printf '%s' "$COSIGN_PASSWORD" > "$RUNNER_TEMP/clave"
+          podman push --digestfile digest --sign-by-sigstore-private-key "$RUNNER_TEMP/antu.key" \
+            --sign-passphrase-file "$RUNNER_TEMP/clave" localhost/antu-nvidia:latest "$image:testing"
+          rm -f "$RUNNER_TEMP/antu.pem" "$RUNNER_TEMP/antu.key" "$RUNNER_TEMP/clave"
           podman push localhost/antu-nvidia:latest "$image:testing-$(date -u +%Y%m%d)"
           echo "$GITHUB_TOKEN" | cosign login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           cosign sign --yes "$image@$(cat digest)"

@@ -3,7 +3,8 @@
 # informa por la consola y apaga el equipo. El sistema instalado escribe su arranque en la consola serie para que
 # la prueba sepa si llegó a la pantalla gráfica.
 dev="$(sed -n 's/.*antu\.prueba-instalar=\([^ ]*\).*/\1/p' /proc/cmdline)"
-if ANTU_KARGS="console=ttyS0,115200 systemd.show_status=1" /usr/lib/antu/instalador-helper instalar "$dev"; then
+huella="$(lsblk -bdno SERIAL,SIZE "$dev" | xargs)"
+if ANTU_KARGS="console=ttyS0,115200 systemd.show_status=1" /usr/lib/antu/instalador-helper instalar "$dev" "$huella"; then
     echo "ANTU-INSTALAR: OK"
 else
     echo "ANTU-INSTALAR: FALLO"

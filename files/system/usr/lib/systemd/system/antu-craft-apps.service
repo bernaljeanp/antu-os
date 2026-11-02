@@ -1,11 +1,13 @@
 [Unit]
 Description=Instala WordCraft, DeckCraft, GridCraft y PdfCraft (ArtCraft) en el primer arranque con internet
 After=network.target
+ConditionPathExists=/var/lib/antu/oficina-solicitada
 ConditionPathExists=!/var/lib/antu/craft-apps-v1
 
-# El repositorio de ArtCraft está en vista previa sin firma (GPGVerify=false): por eso sus apps entran como
-# Flatpak aislados y no como paquetes del sistema base. Unidad aparte de antu-apps para que un fallo de ArtCraft
-# no bloquee el resto. En segundo plano, como antu-apps: el arranque no la espera.
+# El repositorio de ArtCraft está en vista previa sin firma (GPGVerify=false): nada confirma que sus paquetes sean
+# auténticos, y los permisos de cada app los define la propia app. Por eso se instala solo si se elige en Inicio
+# (casilla «Oficina»), nunca por sí sola. Unidad aparte de antu-apps para que un fallo de ArtCraft no bloquee el resto.
+# En segundo plano, como antu-apps: el arranque no la espera.
 [Service]
 Type=exec
 ExecStartPre=/usr/bin/flatpak remote-add --system --if-not-exists artcraft-oci /usr/share/antu/artcraft-oci.flatpakrepo
@@ -14,6 +16,12 @@ ExecStart=/bin/sh -c 'flatpak install --system --noninteractive --or-update artc
     && mkdir -p /var/lib/antu && touch /var/lib/antu/craft-apps-v1'
 Restart=on-failure
 RestartSec=120
+# Protección básica que no estorba a bootc ni a Flatpak (ni ProtectSystem ni PrivateTmp: los dos escriben fuera).
+NoNewPrivileges=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+RestrictRealtime=yes
 
 [Install]
 WantedBy=multi-user.target

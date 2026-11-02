@@ -88,6 +88,7 @@ ApplicationWindow {
 
     component Nota: Text {
         Layout.fillWidth: true
+        textFormat: Text.PlainText  // nombres de juegos que vienen de procesos ajenos
         wrapMode: Text.WordWrap
         color: root.ink2
         font.family: "Inter"

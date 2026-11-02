@@ -146,8 +146,9 @@ contraseña o si root no está bloqueado.
 con [chunkah](https://github.com/coreos/chunkah), así una actualización solo baja lo que cambió), se firma y se
 publica en el canal de prueba `antu-nvidia:testing`. Después `iso.yml` crea la ISO con esa misma versión y la prueba
 entera: arranque en vivo, instalación sin internet y arranque del disco instalado. Solo si pasa, la versión sube al
-canal estable `antu-nvidia:stable`, el que siguen los equipos instalados. La firma es de cosign sin llaves, con la
-identidad del workflow de este repositorio, y cualquiera puede comprobarla:
+canal estable `antu-nvidia:stable`, el que siguen los equipos instalados. Cada versión lleva dos firmas: la de la
+llave de Antu (la privada solo vive en los secretos del repositorio; la pública va en `/etc/pki/containers/antu.pub`)
+y una de cosign sin llaves, con la identidad del workflow de este repositorio, que cualquiera puede comprobar:
 
 ```bash
 cosign verify ghcr.io/bernaljeanp/antu-nvidia:stable \

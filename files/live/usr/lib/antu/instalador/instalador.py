@@ -55,6 +55,8 @@ def describe(dev):
         reason = ""
     return {
         "path": dev["path"],
+        # El ayudante la compara antes de borrar: si el disco cambió, no se toca.
+        "huella": " ".join(x for x in ((dev.get("serial") or "").strip(), str(dev["size"])) if x),
         "name": (dev.get("model") or "").strip() or "Disco sin nombre",
         "detail": " · ".join(x for x in (TRANSPORTS.get(dev.get("tran") or "", ""), size_label(dev["size"])) if x),
         "kind": "usb" if dev.get("tran") == "usb" else "disco",
@@ -69,7 +71,7 @@ def describe(dev):
 
 def disks():
     """Discos completos donde se puede instalar; primero los internos, al final los que no sirven."""
-    out = subprocess.run(["lsblk", "-J", "-b", "-o", "PATH,SIZE,MODEL,TRAN,TYPE,RO,FSTYPE,LABEL,MOUNTPOINTS"],
+    out = subprocess.run(["lsblk", "-J", "-b", "-o", "PATH,SIZE,MODEL,SERIAL,TRAN,TYPE,RO,FSTYPE,LABEL,MOUNTPOINTS"],
                          capture_output=True, text=True, check=True).stdout
     found = [describe(d) for d in json.loads(out)["blockdevices"]
              if d["type"] == "disk" and not d["ro"] and d["size"] and not d["path"].startswith("/dev/zram")]
@@ -98,8 +100,8 @@ class Backend(QObject):
         except (OSError, subprocess.CalledProcessError, ValueError, KeyError):
             return []
 
-    @pyqtSlot(str)
-    def install(self, path):
+    @pyqtSlot(str, str)
+    def install(self, path, huella):
         self.tail = []
         self.stage_index = 0
         if self.demo:
@@ -109,7 +111,7 @@ class Backend(QObject):
         self.proc.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
         self.proc.readyReadStandardOutput.connect(self._read)
         self.proc.finished.connect(self._done)
-        self.proc.start("pkexec", [HELPER, "instalar", path])
+        self.proc.start("pkexec", [HELPER, "instalar", path, huella])
 
     @pyqtSlot()
     def reboot(self):

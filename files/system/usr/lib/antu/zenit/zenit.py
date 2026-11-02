@@ -28,7 +28,7 @@ import sys
 import tempfile
 import time
 
-RAIZ = os.environ.get("ZENIT_RAIZ", "")  # para la autoprueba: un árbol /sys y /proc de mentira
+RAIZ = ""  # la autoprueba lo cambia por un árbol /sys y /proc de mentira; el servicio nunca lo lee del entorno
 SOCKET = "/run/zenit.sock"
 ESTADO = "/var/lib/zenit/estado.json"
 PERFILES = {
@@ -355,6 +355,8 @@ class Zenit:
 
     def orden(self, args):
         """Una orden de `zenit` o de una tecla. Devuelve un diccionario para el cliente."""
+        if not isinstance(args, list) or len(args) > 3 or not all(isinstance(a, str) and len(a) <= 64 for a in args):
+            return {"ok": False, "error": "Orden no válida."}
         o = args[0] if args else "estado"
         if o == "estado":
             temps, fans = sensores()
@@ -438,9 +440,9 @@ def demonio():
                 with conexion:
                     conexion.settimeout(2)
                     try:
-                        args = json.loads(conexion.makefile().readline())
+                        args = json.loads(conexion.recv(4096).split(b"\n")[0])  # una sola lectura, acotada
                         respuesta = zenit.orden(args)
-                    except (OSError, RuntimeError, ValueError, TypeError) as e:
+                    except (OSError, RuntimeError, ValueError, TypeError, KeyError, AttributeError) as e:
                         respuesta = {"ok": False, "error": str(e)}
                     try:
                         conexion.sendall((json.dumps(respuesta, ensure_ascii=False) + "\n").encode())
@@ -449,7 +451,9 @@ def demonio():
                 continue
             try:
                 datos = os.read(fd, evento.size * 32)
-            except OSError:
+            except OSError:  # teclado desconectado: deja de vigilarlo (si no, select lo da por listo para siempre)
+                teclas.remove(fd)
+                os.close(fd)
                 continue
             for i in range(0, len(datos) - evento.size + 1, evento.size):
                 _, _, tipo, codigo, valor = evento.unpack_from(datos, i)

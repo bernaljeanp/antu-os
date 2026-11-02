@@ -36,6 +36,7 @@ podman image unmount localhost/antu-live > /dev/null
 cat > "$OUT/esp/loader/loader.conf" <<CONF
 default antu.conf
 timeout 5
+editor no
 CONF
 cat > "$OUT/esp/loader/entries/antu.conf" <<CONF
 title   Antu OS en vivo

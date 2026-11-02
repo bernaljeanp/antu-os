@@ -29,7 +29,7 @@ ApplicationWindow {
 
     readonly property bool userValid: /^[a-z][a-z0-9_-]{0,30}$/.test(userField.text)
     readonly property bool accountValid: realName.text.trim().length > 0 && userValid
-                                         && password.text.length > 0 && password.text === confirm.text
+                                         && password.text.length >= 8 && password.text === confirm.text
 
     function start() {
         if (!accountValid) {
@@ -39,7 +39,7 @@ ApplicationWindow {
         working = true
         failed = false
         backend.apply(language.currentValue, keyboard.currentValue, zone.currentText, realName.text.trim(),
-                      userField.text, password.text, desktopChoice, ai.checked, dev.checked)
+                      userField.text, password.text, desktopChoice, ai.checked, dev.checked, oficina.checked)
     }
 
     Connections {
@@ -243,11 +243,12 @@ ApplicationWindow {
                     wrapMode: Text.WordWrap
                     font.family: "Inter"
                     font.pixelSize: 21 * root.u
-                    color: userField.invalid || confirm.invalid ? root.negative : root.ink2
+                    color: userField.invalid || confirm.invalid || (password.text.length > 0 && password.text.length < 8)
+                       ? root.negative : root.ink2
                     text: userField.invalid ? "El usuario empieza con una letra y solo usa minúsculas, números, - y _."
                         : confirm.invalid ? "Las contraseñas no coinciden."
                         : password.text.length > 0 && password.text.length < 8
-                          ? "Contraseña corta: funciona, pero te recomendamos 8 caracteres o más."
+                          ? "La contraseña necesita al menos 8 caracteres: con ella también administras el equipo."
                           : "Esta cuenta será la administradora del equipo."
                 }
                 LavaButton {
@@ -356,11 +357,24 @@ ApplicationWindow {
             Section {
                 u: root.u
                 title: "Extras"
-                summary: [ai.checked ? "IA local" : "", dev.checked ? "Programar" : ""].filter(x => x).join(" y ") || "Sin extras"
+                summary: [oficina.checked ? "Oficina" : "", ai.checked ? "IA local" : "", dev.checked ? "Programar" : ""]
+                         .filter(x => x).join(", ") || "Sin extras"
                 done: root.openSection > 4
                 open: root.openSection === 4
                 onHeaderClicked: root.openSection = 4
 
+                Switch {
+                    id: oficina
+                    checked: true
+                    text: "Oficina: WordCraft, DeckCraft, GridCraft y PdfCraft (en desarrollo y aún sin firma digital)"
+                    font.family: "Inter"
+                    font.pixelSize: 23 * root.u
+                    palette.windowText: root.ink
+                    palette.text: root.ink
+                    palette.highlight: "#E2480F"
+                    palette.mid: Qt.rgba(1, 1, 1, 0.3)
+                    Accessible.name: text
+                }
                 Switch {
                     id: ai
                     text: "Instalar IA local (Alpaca con Ollama, unos 4 GB)"

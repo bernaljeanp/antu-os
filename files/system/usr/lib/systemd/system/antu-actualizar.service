@@ -9,3 +9,11 @@ ExecStart=/usr/lib/antu/actualizar
 # Sin molestar mientras juegas: la descarga va con la prioridad más baja de procesador y disco.
 Nice=19
 IOSchedulingClass=idle
+# Una descarga colgada no bloquea el temporizador para siempre.
+TimeoutStartSec=2h
+# Protección básica que no estorba a bootc ni a Flatpak (ni ProtectSystem ni PrivateTmp: los dos escriben fuera).
+NoNewPrivileges=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+RestrictRealtime=yes

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <zone target="default">
   <short>Antu</short>
-  <description>Equipo personal: bloquea las conexiones que llegan sin pedirlas. Deja pasar solo lo que usan los
-  juegos y el escritorio en la red local: Steam Remote Play, los nombres de la red local (mDNS) y DHCPv6. Todo lo
-  que el equipo abre hacia afuera (juegos en línea, navegador, descargas) funciona igual.</description>
+  <description>Equipo personal: bloquea las conexiones que llegan sin pedirlas. Steam Remote Play solo se acepta
+  desde redes locales (domésticas y privadas), nunca desde Internet. Todo lo que el equipo abre hacia afuera (juegos
+  en línea, navegador, descargas) funciona igual.</description>
   <service name="dhcpv6-client"/>
-  <service name="mdns"/>
-  <service name="steam-streaming"/>
+  <rule family="ipv4"><source address="10.0.0.0/8"/><service name="steam-streaming"/><accept/></rule>
+  <rule family="ipv4"><source address="172.16.0.0/12"/><service name="steam-streaming"/><accept/></rule>
+  <rule family="ipv4"><source address="192.168.0.0/16"/><service name="steam-streaming"/><accept/></rule>
+  <rule family="ipv6"><source address="fe80::/10"/><service name="steam-streaming"/><accept/></rule>
+  <rule family="ipv6"><source address="fc00::/7"/><service name="steam-streaming"/><accept/></rule>
 </zone>

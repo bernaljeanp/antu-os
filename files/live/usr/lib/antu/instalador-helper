@@ -13,6 +13,7 @@ die() { echo "$*" >&2; exit 1; }
 [ "$(id -u)" = 0 ] || die "El instalador necesita privilegios de administrador."
 [ "${1:-}" = instalar ] || die "Acción desconocida."
 dev="${2:-}"
+huella="${3:-}"  # número de serie y tamaño del disco que se eligió en la ventana
 
 [[ "$dev" =~ ^/dev/(nvme[0-9]+n[0-9]+|sd[a-z]+|vd[a-z]+|mmcblk[0-9]+)$ ]] && [ -b "$dev" ] || die "Disco no válido."
 [ "$(lsblk -dno TYPE "$dev")" = disk ] || die "$dev no es un disco completo."
@@ -21,11 +22,14 @@ mounts="$(lsblk -no MOUNTPOINT "$dev")" || die "No se pudo leer el estado de $de
 [ -z "$(printf '%s' "$mounts" | tr -d '[:space:]')" ] || die "$dev está en uso: tiene algo montado."
 [ "$(lsblk -bdno SIZE "$dev")" -ge "$MIN_BYTES" ] || die "El disco es demasiado pequeño: Antu necesita al menos 40 GB."
 [ -f "$SOURCE/index.json" ] || die "No se encontró la imagen de Antu en el USB."
+# Si alguien cambió de disco entre elegirlo y confirmar (otro USB en la misma ranura), no se borra nada.
+[ "$(lsblk -bdno SERIAL,SIZE "$dev" | xargs)" = "$huella" ] || die "El disco cambió desde que lo elegiste. Vuelve a elegirlo."
 
 # Solo para las pruebas automáticas (prueba-instalar corre como root): argumentos extra del kernel del sistema
 # instalado. pkexec borra el entorno, así que el instalador gráfico no puede pasarlos.
 kargs=()
-for karg in ${ANTU_KARGS:-}; do kargs+=(--karg "$karg"); done
+read -ra extra <<< "${ANTU_KARGS:-}"
+for karg in "${extra[@]}"; do kargs+=(--karg "$karg"); done
 
 # Sin suspender ni apagar por la tapa a mitad de la copia. Sin comprobar el registro: se instala sin internet y
 # las actualizaciones lo usarán después.

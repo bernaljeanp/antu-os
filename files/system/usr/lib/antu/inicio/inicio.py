@@ -56,8 +56,8 @@ class Backend(QObject):
     def suggestUser(self, real_name):
         return suggest_user(real_name)
 
-    @pyqtSlot(str, str, str, str, str, str, str, bool, bool)
-    def apply(self, locale, keyboard, zone, real_name, user, password, desktop, ai, dev):
+    @pyqtSlot(str, str, str, str, str, str, str, bool, bool, bool)
+    def apply(self, locale, keyboard, zone, real_name, user, password, desktop, ai, dev, oficina):
         steps = [
             ("Idioma", ["idioma", locale], None),
             ("Teclado", ["teclado", keyboard], None),
@@ -67,6 +67,8 @@ class Backend(QObject):
         ]
         if ai:
             steps.append(("IA local", ["ia", "si"], None))
+        if oficina:
+            steps.append(("Oficina", ["oficina", "si"], None))
         if dev:
             steps.append(("Programación", ["programar", "si"], None))
         steps.append(("Terminando", ["terminar"], None))

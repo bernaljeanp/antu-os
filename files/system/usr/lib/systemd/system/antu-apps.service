@@ -18,6 +18,12 @@ ExecStart=/bin/sh -c 'flatpak install --system --noninteractive --or-update flat
     && mkdir -p /var/lib/antu && touch /var/lib/antu/apps-v1'
 Restart=on-failure
 RestartSec=60
+# Protección básica que no estorba a bootc ni a Flatpak (ni ProtectSystem ni PrivateTmp: los dos escriben fuera).
+NoNewPrivileges=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+RestrictRealtime=yes
 
 [Install]
 WantedBy=multi-user.target

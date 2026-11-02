@@ -18,9 +18,16 @@ hay_usuarios() {
 cmd="${1:-}"
 shift || true
 
-if [ "$cmd" = sin-usuarios ]; then  # condición de antu-inicio-prepare.service
-    ! hay_usuarios && [ ! -e "$DONE" ]
-    exit
+if [ "$cmd" = preparar ]; then  # antu-inicio-prepare.service, en cada arranque
+    # Con una cuenta ya creada o la configuración terminada, Inicio no debe volver: se quita el autologin aunque el
+    # equipo se haya apagado entre «crear-usuario» y «terminar» (si no, quedaría en un bucle sin salida).
+    if hay_usuarios || [ -e "$DONE" ]; then
+        rm -f "$AUTOLOGIN"
+        exit 0
+    fi
+    mkdir -p "$(dirname "$AUTOLOGIN")"
+    printf '[Autologin]\nUser=antu-inicio\nSession=antu-inicio.desktop\nRelogin=false\n' > "$AUTOLOGIN"
+    exit 0
 fi
 
 [ ! -e "$DONE" ] || die "La configuración inicial ya terminó."
@@ -54,7 +61,7 @@ case "$cmd" in
         [ "${#real}" -ge 1 ] && [ "${#real}" -le 64 ] && ! [[ "$real" =~ [[:cntrl:]:] ]] || die "Nombre no válido."
         hay_usuarios && die "Ya existe una cuenta en este equipo."
         IFS= read -r password || die "Falta la contraseña."
-        [ -n "$password" ] || die "La contraseña no puede estar vacía."
+        [ "${#password}" -ge 8 ] || die "La contraseña necesita al menos 8 caracteres: es la de administrador."
         NEWPASSWORD="$password" homectl create "$user" --real-name="$real" --member-of=wheel \
             --storage=directory --enforce-password-policy=no
         ;;
@@ -71,6 +78,12 @@ case "$cmd" in
         mkdir -p /var/lib/antu
         touch /var/lib/antu/ia-solicitada
         systemctl start --no-block antu-ia.service
+        ;;
+    oficina)
+        [ "${1:-}" = si ] || die "Opción no válida."
+        mkdir -p /var/lib/antu
+        touch /var/lib/antu/oficina-solicitada
+        systemctl start --no-block antu-craft-apps.service
         ;;
     programar)
         [ "${1:-}" = si ] || die "Opción no válida."

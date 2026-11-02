@@ -12,6 +12,12 @@ ExecStart=/bin/sh -c 'flatpak install --system --noninteractive --or-update flat
     com.jeffser.Alpaca com.jeffser.Alpaca.Plugins.Ollama && touch /var/lib/antu/ia-instalada'
 Restart=on-failure
 RestartSec=120
+# Protección básica que no estorba a bootc ni a Flatpak (ni ProtectSystem ni PrivateTmp: los dos escriben fuera).
+NoNewPrivileges=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+RestrictRealtime=yes
 
 [Install]
 WantedBy=multi-user.target
