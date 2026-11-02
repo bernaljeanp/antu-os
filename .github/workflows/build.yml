@@ -51,6 +51,12 @@ jobs:
             test -x /usr/bin/antu-eclipse
             test -f /usr/lib/systemd/system/antu-apps.service
             test -f /usr/lib/systemd/system/antu-craft-apps.service
+            # Utilidades, USBoot, IA opcional y energía/suspensión de NVIDIA.
+            command -v ark gwenview spectacle kate kcalc 7z > /dev/null
+            test -x /usr/lib/usboot/AppRun && test -x /usr/bin/antu-ia
+            systemctl is-enabled nvidia-suspend nvidia-resume nvidia-hibernate > /dev/null
+            grep -q "NVreg_DynamicPowerManagement=0x02" /usr/lib/modprobe.d/antu-nvidia.conf
+            test -f /usr/lib/nvidia/wine/nvngx_dlssg.dll
             # Sin relleno: ni LibreOffice ni Firefox en la imagen.
             ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]

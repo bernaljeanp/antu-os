@@ -49,7 +49,7 @@ RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && pacman -Sy
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
       pipewire pipewire-pulse wireplumber noto-fonts openssh \
-      discover flatpak && \
+      discover flatpak ark gwenview spectacle kate kcalc 7zip && \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
@@ -58,8 +58,16 @@ RUN pacman -S --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulka
       gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime ttf-liberation && \
     pacman -S --clean --noconfirm
 
+# USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.
+ARG USBOOT_VERSION=v0.2.1
+RUN curl -fsSL -o /tmp/usboot.AppImage \
+      "https://github.com/bernaljeanp/usboot/releases/download/${USBOOT_VERSION}/USBoot_${USBOOT_VERSION#v}_linux-beta_amd64.AppImage" && \
+    chmod +x /tmp/usboot.AppImage && cd /tmp && ./usboot.AppImage --appimage-extract > /dev/null && \
+    mv /tmp/squashfs-root /usr/lib/usboot && chmod -R a+rX /usr/lib/usboot && rm /tmp/usboot.AppImage
+
 # systemd-homed-firstboot pide crear el primer usuario en la consola, antes de que arranque SDDM.
-RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed systemd-homed-firstboot antu-apps antu-craft-apps && \
+RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed systemd-homed-firstboot antu-apps antu-craft-apps \
+      nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl mask systemd-firstboot.service && \
     passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \

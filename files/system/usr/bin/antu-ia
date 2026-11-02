@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# IA local opcional de Antu: instala Alpaca (chat) con Ollama dentro, desde Flathub, solo para este usuario.
+# No viene preinstalada porque ocupa varios GB; Ollama usa la GPU NVIDIA cuando está disponible.
+set -euo pipefail
+
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install --user --noninteractive flathub com.jeffser.Alpaca com.jeffser.Alpaca.Plugins.Ollama
+echo "Listo: abre Alpaca desde el menú y descarga un modelo desde sus ajustes."

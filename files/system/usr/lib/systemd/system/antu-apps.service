@@ -1,5 +1,5 @@
 [Unit]
-Description=Instala las apps de Antu desde Flathub (Brave) en el primer arranque con internet
+Description=Instala las apps de Antu desde Flathub en el primer arranque con internet
 Wants=network-online.target
 After=network-online.target
 ConditionPathExists=!/var/lib/antu/apps-v1
@@ -7,7 +7,13 @@ ConditionPathExists=!/var/lib/antu/apps-v1
 [Service]
 Type=oneshot
 ExecStartPre=/usr/bin/flatpak remote-add --system --if-not-exists flathub /etc/flatpak/remotes.d/flathub.flatpakrepo
-ExecStart=/usr/bin/flatpak install --system --noninteractive --or-update flathub com.brave.Browser
+# Navegador; juegos (Heroic, Lutris, Bottles, ProtonPlus, Discord, Sober para Roblox); básicos (VLC, Mission Center,
+# OBS Studio) y EasyEffects, que reemplaza el ajuste de sonido Dolby de Windows.
+ExecStart=/usr/bin/flatpak install --system --noninteractive --or-update flathub \
+    com.brave.Browser \
+    com.heroicgameslauncher.hgl net.lutris.Lutris com.usebottles.bottles com.vysp3r.ProtonPlus \
+    com.discordapp.Discord org.vinegarhq.Sober \
+    org.videolan.VLC io.missioncenter.MissionCenter com.obsproject.Studio com.github.wwmm.easyeffects
 ExecStartPost=/usr/bin/mkdir -p /var/lib/antu
 ExecStartPost=/usr/bin/touch /var/lib/antu/apps-v1
 # Sin internet en el primer arranque: lo vuelve a intentar cada minuto hasta lograrlo.

@@ -27,15 +27,28 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   vuelves al inicio de sesión.
 - **GameMode** y **MangoHud** están disponibles: en las opciones de lanzamiento de un juego de Steam, escribe
   `gamemoderun mangohud %command%`.
-- **Portátiles híbridos (Intel + NVIDIA):** `prime-run %command%` lanza el juego en la gráfica NVIDIA.
+- **Portátiles híbridos (Intel + NVIDIA):** `prime-run %command%` lanza el juego en la gráfica NVIDIA, que se
+  apaga sola cuando no se usa (RTD3) para cuidar la batería. Dynamic Boost (`nvidia-powerd`) arranca solo si hay
+  NVIDIA. El cambio automático Advanced Optimus de algunos portátiles no existe en Linux: el modo MUX se fija en
+  la BIOS.
+- **NVIDIA:** DLSS (incluida la generación de fotogramas), Reflex y ray tracing en Proton; G-Sync/VRR y HDR en
+  Plasma con Wayland. La suspensión guarda la memoria de la GPU en disco para despertar sin errores.
+- **Más juegos:** Heroic (Epic, GOG, Amazon), Lutris y Bottles (otras tiendas y programas de Windows), ProtonPlus
+  (versiones extra de Proton), Discord y Sober (Roblox, no oficial). Se instalan solas en el primer arranque.
 - **Navegador:** Brave, desde Flathub. Se instala solo en el primer arranque con internet y se actualiza aparte
   del sistema.
 - **Oficina:** WordCraft (documentos), DeckCraft (presentaciones), GridCraft (hojas de cálculo) y PdfCraft (PDF),
   apps de código abierto de [ArtCraft](https://getartcraft.com/apps). Se instalan solas como Flatpak en el primer
   arranque con internet. Están en desarrollo o alfa, y su repositorio aún no firma los paquetes (vista previa):
   por eso van aisladas como Flatpak y no dentro del sistema base.
+- **Básicos:** VLC, Mission Center (administrador de tareas), OBS Studio y EasyEffects (sonido: reemplaza el
+  ajuste Dolby de Windows, que no existe en Linux), desde Flathub en el primer arranque. En la imagen: Ark (abre
+  RAR, 7z y ZIP), Gwenview, Spectacle, Kate, KCalc y USBoot.
+- **IA local opcional:** «Instalar IA local» en el menú (o `antu-ia`) instala Alpaca con Ollama; no viene
+  preinstalada porque ocupa varios GB.
 - **Apps:** Discover instala aplicaciones desde Flathub sin tocar el sistema base. Sin relleno: Antu no trae
   LibreOffice.
+- **Primer arranque:** las apps de Flathub y ArtCraft se descargan solas (varios GB) en cuanto hay internet.
 
 ## Probar en una VM (5 minutos, desde Windows)
 

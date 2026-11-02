@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=USBoot
+Comment=Crea USB de arranque de Linux o Windows y verifica cada byte
+Exec=/usr/lib/usboot/AppRun
+Icon=/usr/lib/usboot/.DirIcon
+Categories=Utility;System;

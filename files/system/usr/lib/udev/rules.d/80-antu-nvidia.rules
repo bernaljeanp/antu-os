@@ -1,0 +1,10 @@
+# Portátiles híbridos (Optimus): gestión de energía en tiempo de ejecución (RTD3) de la GPU NVIDIA, para que se
+# apague cuando nadie la usa. Reglas recomendadas por NVIDIA para Turing y posteriores.
+ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="auto"
+ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="auto"
+ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="on"
+ACTION=="unbind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="on"
+
+# Dynamic Boost (más potencia a la GPU al jugar en portátiles RTX): nvidia-powerd solo arranca cuando el driver
+# NVIDIA toma una tarjeta, así no falla en equipos sin NVIDIA ni en VM.
+ACTION=="add|bind", SUBSYSTEM=="pci", DRIVER=="nvidia", ATTR{class}=="0x030000|0x030200", TAG+="systemd", ENV{SYSTEMD_WANTS}+="nvidia-powerd.service"
