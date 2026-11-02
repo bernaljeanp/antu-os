@@ -75,11 +75,10 @@ COPY files/system/ /
 RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scripts/kde-defaults.sh
 
 # Inicio (asistente gráfico del primer arranque) crea la primera cuenta con systemd-homed antes del inicio de sesión.
+# La red la maneja NetworkManager: el esperador de systemd-networkd se bloquea porque fallaría sin nada que esperar.
 RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
-    systemctl mask systemd-firstboot.service && \
-    # La red la maneja NetworkManager: el esperador de systemd-networkd fallaría al no tener nada que esperar.
-    systemctl mask systemd-networkd-wait-online.service && \
+    systemctl mask systemd-firstboot.service systemd-networkd-wait-online.service && \
     passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
