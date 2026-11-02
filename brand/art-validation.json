@@ -1,0 +1,484 @@
+{
+  "checks": {
+    "native_4096_icon_masters": 5,
+    "installed_icon_pngs": 40,
+    "wallpaper_packages": 3,
+    "quality_90_jpgs_under_4MB": 12,
+    "maximum_wallpaper_bytes": 1609376,
+    "logos_svg_and_python_parse": "pass",
+    "desktop_qml_and_menu_references": "pass",
+    "text_files_LF_without_BOM": 20,
+    "runtime_limit": "Static integration verified on Windows. No Linux/SDDM/Plymouth session was booted.",
+    "wallpaper_resolution_provenance": "User-approved superresolution from 1672x941; Real-ESRGAN x4plus then downsample to 3840x2160. Not native 4K generation."
+  },
+  "assets": [
+    {
+      "path": "brand/masters/icons/antu/4096.png",
+      "width": 4096,
+      "height": 4096,
+      "bytes": 11845027
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/16x16/apps/antu.png",
+      "width": 16,
+      "height": 16,
+      "bytes": 723
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/32x32/apps/antu.png",
+      "width": 32,
+      "height": 32,
+      "bytes": 1963
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/48x48/apps/antu.png",
+      "width": 48,
+      "height": 48,
+      "bytes": 3423
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/64x64/apps/antu.png",
+      "width": 64,
+      "height": 64,
+      "bytes": 5222
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/128x128/apps/antu.png",
+      "width": 128,
+      "height": 128,
+      "bytes": 14659
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/256x256/apps/antu.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 49944
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/512x512/apps/antu.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 169259
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/1024x1024/apps/antu.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 604293
+    },
+    {
+      "path": "brand/masters/icons/antu-inicio/4096.png",
+      "width": 4096,
+      "height": 4096,
+      "bytes": 11938092
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/16x16/apps/antu-inicio.png",
+      "width": 16,
+      "height": 16,
+      "bytes": 758
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/32x32/apps/antu-inicio.png",
+      "width": 32,
+      "height": 32,
+      "bytes": 2080
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/48x48/apps/antu-inicio.png",
+      "width": 48,
+      "height": 48,
+      "bytes": 3548
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/64x64/apps/antu-inicio.png",
+      "width": 64,
+      "height": 64,
+      "bytes": 5424
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/128x128/apps/antu-inicio.png",
+      "width": 128,
+      "height": 128,
+      "bytes": 15849
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/256x256/apps/antu-inicio.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 53451
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/512x512/apps/antu-inicio.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 177622
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-inicio.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 618382
+    },
+    {
+      "path": "brand/masters/icons/antu-instalador/4096.png",
+      "width": 4096,
+      "height": 4096,
+      "bytes": 11610307
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/16x16/apps/antu-instalador.png",
+      "width": 16,
+      "height": 16,
+      "bytes": 655
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/32x32/apps/antu-instalador.png",
+      "width": 32,
+      "height": 32,
+      "bytes": 1734
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/48x48/apps/antu-instalador.png",
+      "width": 48,
+      "height": 48,
+      "bytes": 2862
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/64x64/apps/antu-instalador.png",
+      "width": 64,
+      "height": 64,
+      "bytes": 4419
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/128x128/apps/antu-instalador.png",
+      "width": 128,
+      "height": 128,
+      "bytes": 12707
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/256x256/apps/antu-instalador.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 45556
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/512x512/apps/antu-instalador.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 156541
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-instalador.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 568492
+    },
+    {
+      "path": "brand/masters/icons/antu-eclipse/4096.png",
+      "width": 4096,
+      "height": 4096,
+      "bytes": 11789472
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/16x16/apps/antu-eclipse.png",
+      "width": 16,
+      "height": 16,
+      "bytes": 721
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/32x32/apps/antu-eclipse.png",
+      "width": 32,
+      "height": 32,
+      "bytes": 2029
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/48x48/apps/antu-eclipse.png",
+      "width": 48,
+      "height": 48,
+      "bytes": 3477
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/64x64/apps/antu-eclipse.png",
+      "width": 64,
+      "height": 64,
+      "bytes": 5363
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/128x128/apps/antu-eclipse.png",
+      "width": 128,
+      "height": 128,
+      "bytes": 15356
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/256x256/apps/antu-eclipse.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 50649
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/512x512/apps/antu-eclipse.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 168203
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-eclipse.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 596493
+    },
+    {
+      "path": "brand/masters/icons/antu-ia/4096.png",
+      "width": 4096,
+      "height": 4096,
+      "bytes": 12039827
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/16x16/apps/antu-ia.png",
+      "width": 16,
+      "height": 16,
+      "bytes": 712
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/32x32/apps/antu-ia.png",
+      "width": 32,
+      "height": 32,
+      "bytes": 1908
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/48x48/apps/antu-ia.png",
+      "width": 48,
+      "height": 48,
+      "bytes": 3739
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/64x64/apps/antu-ia.png",
+      "width": 64,
+      "height": 64,
+      "bytes": 5592
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/128x128/apps/antu-ia.png",
+      "width": 128,
+      "height": 128,
+      "bytes": 15779
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/256x256/apps/antu-ia.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 52933
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/512x512/apps/antu-ia.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 177999
+    },
+    {
+      "path": "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-ia.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 628162
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Antu/contents/screenshot.png",
+      "width": 960,
+      "height": 540,
+      "bytes": 577504
+    },
+    {
+      "path": "brand/sources/wallpapers/Antu-dark.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2315469
+    },
+    {
+      "path": "brand/masters/wallpapers/Antu-dark-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 8579830
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 1167294
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Antu/contents/images_dark/2560x1600.jpg",
+      "width": 2560,
+      "height": 1600,
+      "bytes": 633492
+    },
+    {
+      "path": "brand/sources/wallpapers/Antu-light.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2641610
+    },
+    {
+      "path": "brand/masters/wallpapers/Antu-light-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 9365425
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Antu/contents/images/3840x2160.jpg",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 1530832
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Antu/contents/images/2560x1600.jpg",
+      "width": 2560,
+      "height": 1600,
+      "bytes": 846910
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Paranal/contents/screenshot.png",
+      "width": 960,
+      "height": 540,
+      "bytes": 646608
+    },
+    {
+      "path": "brand/sources/wallpapers/Paranal-dark.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2573826
+    },
+    {
+      "path": "brand/masters/wallpapers/Paranal-dark-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 8656447
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 1402121
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Paranal/contents/images_dark/2560x1600.jpg",
+      "width": 2560,
+      "height": 1600,
+      "bytes": 793962
+    },
+    {
+      "path": "brand/sources/wallpapers/Paranal-light.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2034787
+    },
+    {
+      "path": "brand/masters/wallpapers/Paranal-light-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 7741805
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Paranal/contents/images/3840x2160.jpg",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 965268
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Paranal/contents/images/2560x1600.jpg",
+      "width": 2560,
+      "height": 1600,
+      "bytes": 545158
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Salar/contents/screenshot.png",
+      "width": 960,
+      "height": 540,
+      "bytes": 664300
+    },
+    {
+      "path": "brand/sources/wallpapers/Salar-dark.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2436155
+    },
+    {
+      "path": "brand/masters/wallpapers/Salar-dark-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 9014647
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Salar/contents/images_dark/3840x2160.jpg",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 1398965
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Salar/contents/images_dark/2560x1600.jpg",
+      "width": 2560,
+      "height": 1600,
+      "bytes": 753448
+    },
+    {
+      "path": "brand/sources/wallpapers/Salar-light.png",
+      "width": 1672,
+      "height": 941,
+      "bytes": 2529312
+    },
+    {
+      "path": "brand/masters/wallpapers/Salar-light-3840x2160.png",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 9281948
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Salar/contents/images/3840x2160.jpg",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 1609376
+    },
+    {
+      "path": "files/system/usr/share/wallpapers/Salar/contents/images/2560x1600.jpg",
+      "width": 2560,
+      "height": 1600,
+      "bytes": 869579
+    },
+    {
+      "path": "brand/antu-logo.png",
+      "width": 2400,
+      "height": 800,
+      "bytes": 48976
+    },
+    {
+      "path": "brand/antu-logo-4k.png",
+      "width": 3840,
+      "height": 1280,
+      "bytes": 86235
+    },
+    {
+      "path": "brand/antu-logo-light.png",
+      "width": 2400,
+      "height": 800,
+      "bytes": 44280
+    },
+    {
+      "path": "brand/antu-logo-light-4k.png",
+      "width": 3840,
+      "height": 1280,
+      "bytes": 78638
+    },
+    {
+      "path": "brand/antu-icon-256.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 49944
+    },
+    {
+      "path": "files/system/usr/share/plymouth/themes/antu/symbol.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 8553
+    }
+  ]
+}

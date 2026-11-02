@@ -1,0 +1,13 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Antu OS"
+            }
+        ],
+        "Id": "Paranal",
+        "License": "CC-BY-SA-4.0",
+        "Name": "Paranal",
+        "Description": "Cumbre del desierto y observatorios imaginarios bajo las estrellas."
+    }
+}

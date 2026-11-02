@@ -167,9 +167,9 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 - Sin firma de imágenes ni Secure Boot todavía: la ISO y el sistema instalado necesitan Secure Boot desactivado.
 - El instalador usa el disco entero; instalar junto a Windows en el mismo disco aún no está disponible.
 - `bootc upgrade` en un sistema instalado necesita que el paquete `ghcr.io/bernaljeanp/antu-nvidia` sea público.
-- La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) está en construcción: ya hay pantalla de
-  arranque e inicio de sesión; faltan la barra superior y el dock, el símbolo de Antu y un fondo propio (el actual
-  es provisional). Cada compilación sube capturas del inicio de sesión y del arranque (artefacto `capturas`).
+- La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) ya tiene arranque animado «Amanecer», inicio de
+  sesión, Inicio, instalador, íconos y tres fondos (Antu, Paranal y Salar); falta revisarla en hardware real. Cada
+  compilación sube capturas (artefactos `capturas` y `pruebas-iso`).
 
 ## Licencias y terceros
 
@@ -181,6 +181,7 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
   propia licencia.
 - Fuentes Inter (The Inter Project Authors) y JetBrains Mono: SIL OFL, licencias en `files/system/usr/share/fonts/antu/`.
 - Los esquemas de color salen de `scripts/make_colors.py`, la marca y los recursos del arranque de `scripts/make_brand.py`
-  y los fondos de `scripts/make_wallpapers.py`.
+  y los fondos de `scripts/make_wallpapers.py`. Los íconos se renderizan en Blender (`scripts/render_art.py`) y los
+  fondos se generaron con IA y superresolución 4K; el proceso y los prompts están en `brand/ART-DIRECTION.md`.
 - La parte bootc del `Containerfile` está adaptada de [bootcrew/mono](https://github.com/bootcrew/mono)
   (Apache-2.0, Copyright 2025 tulilirockz). Licencia en `third_party/bootcrew-LICENSE`.

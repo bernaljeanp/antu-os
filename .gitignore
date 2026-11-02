@@ -6,3 +6,7 @@ cosign.private
 iso-build/
 pruebas-iso/
 __pycache__/
+# Másteres pesados del arte (4096 px, más de 100 MB) y vistas de revisión: quedan fuera de git. Se rehacen con
+# make_brand.py --render (Blender) y make_wallpapers.py --superresolve desde brand/sources/.
+brand/masters/
+brand/previews/

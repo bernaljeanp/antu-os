@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Prueba la ISO de Antu en QEMU con firmware UEFI (OVMF), sin red y con un disco NVMe vacío, en tres arranques:
-#   1. la ISO arranca hasta la sesión en vivo con el instalador abierto (captura en-vivo.png);
+#   1. la ISO arranca hasta la sesión en vivo con el instalador abierto (arranque.png y en-vivo.png);
 #   2. el instalador copia Antu al disco sin internet (antu.prueba-instalar en la línea del kernel);
 #   3. ese disco arranca solo hasta la pantalla gráfica, con Inicio (captura instalado.png).
 # Uso: sudo ci/iso-test.sh iso-build    (necesita qemu-system-x86, qemu-utils, ovmf, socat e imagemagick)
@@ -37,6 +37,14 @@ wait_for() {  # archivo patrón segundos
 
 echo "== 1. La ISO arranca hasta la sesión en vivo"
 "${QEMU[@]}" -cdrom "$B/antu-live.iso" -serial file:"$OUT/serie-en-vivo.log" &
+# Película del arranque: una captura cada 1,5 s (menú, animación «Amanecer» y llegada al escritorio).
+for i in $(seq -w 1 24); do
+    echo "screendump $OUT/arranque-$i.ppm" | socat - unix:"$OUT/monitor.sock" > /dev/null
+    sleep 1.5
+done
+sleep 2
+montage "$OUT"/arranque-*.ppm -tile 6x4 -geometry 480x270+4+4 -background black "$OUT/arranque.png"
+rm -f "$OUT"/arranque-*.ppm
 if ! wait_for "$OUT/serie-en-vivo.log" "ANTU-LIVE: arranque OK" 600; then
     shot en-vivo-fallo
     stop

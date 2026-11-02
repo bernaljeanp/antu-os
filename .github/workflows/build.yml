@@ -68,6 +68,10 @@ jobs:
             systemctl is-enabled nvidia-suspend nvidia-resume nvidia-hibernate > /dev/null
             grep -q "NVreg_DynamicPowerManagement=0x02" /usr/lib/modprobe.d/antu-nvidia.conf
             test -f /usr/lib/nvidia/wine/nvngx_dlssg.dll
+            # Arte: el fondo que cargan el inicio de sesión, Inicio y el instalador, el ícono del menú y el arranque animado.
+            test -f /usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg
+            test -f /usr/share/icons/hicolor/256x256/apps/antu.png
+            test -f /usr/share/plymouth/themes/antu/cumbre.png
             # Sin relleno: ni LibreOffice ni Firefox en la imagen.
             ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]

@@ -2,6 +2,6 @@
 Type=Application
 Name=Instalar Antu
 Exec=/usr/lib/antu/instalador/instalador.py
-Icon=/usr/share/antu/antu-symbol.svg
+Icon=antu-instalador
 OnlyShowIn=KDE;
 X-KDE-autostart-phase=2

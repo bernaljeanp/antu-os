@@ -1,0 +1,13 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Antu OS"
+            }
+        ],
+        "Id": "Salar",
+        "License": "CC-BY-SA-4.0",
+        "Name": "Salar",
+        "Description": "Sal mineral, aire del altiplano y primera luz del amanecer."
+    }
+}

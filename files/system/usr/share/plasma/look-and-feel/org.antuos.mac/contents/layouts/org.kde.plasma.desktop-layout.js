@@ -7,7 +7,7 @@ bar.floating = false;
 bar.opacity = "translucent";
 var menu = bar.addWidget("org.kde.plasma.kickoff");
 menu.currentConfigGroup = ["General"];
-menu.writeConfig("icon", "/usr/share/antu/antu-symbol.svg");
+menu.writeConfig("icon", "antu");
 bar.addWidget("org.kde.plasma.appmenu");
 bar.addWidget("org.kde.plasma.panelspacer");
 bar.addWidget("org.kde.plasma.systemtray");

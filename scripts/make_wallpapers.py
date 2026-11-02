@@ -1,89 +1,133 @@
-"""Dibuja los fondos de Antu: colinas de obsidiana superpuestas con la cresta encendida en lava.
+"""Package original Antu landscapes. The old flat hill painter is retired.
 
-Uso: python scripts/make_wallpapers.py   (requiere Pillow y numpy)
-Escribe images_dark/ (Obsidiana, noche) e images/ (Salar, día) del paquete de fondo «Antu», y su vista previa.
+python scripts/make_wallpapers.py                  # package approved 4K masters
+python scripts/make_wallpapers.py --superresolve --upscaler /path/to/realesrgan-ncnn-vulkan
+Requires Pillow. Optional reconstruction: official Real-ESRGAN ncnn Vulkan.
+Frozen image_gen originals: brand/sources/wallpapers. The owner approved 4K
+superresolution explicitly; these wallpaper masters are NOT native 4K renders.
+The default export never repaints or regenerates these masters. CC-BY-SA-4.0.
 """
-import pathlib
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
-import numpy as np
-from PIL import Image, ImageFilter
-
-ROOT = pathlib.Path(__file__).parent.parent
-PKG = ROOT / "files/system/usr/share/wallpapers/Antu/contents"
-W, H = 3840, 2160
-X = np.linspace(0.0, 1.0, W)
-Y = np.linspace(0.0, 1.0, H)[:, None]
-
-# Cada colina: altura base, ondulaciones (amplitud, frecuencia, fase) e intensidad de su cresta de lava.
-# De atrás hacia adelante; las de atrás son más claras y su brasa más tenue.
-HILLS = [
-    (0.42, [(0.045, 1.3, 0.2), (0.015, 3.1, 1.0)], 0.35),
-    (0.54, [(0.050, 1.0, 2.1), (0.018, 2.7, 0.4)], 0.55),
-    (0.66, [(0.045, 1.6, 4.0), (0.020, 3.6, 2.2)], 0.80),
-    (0.80, [(0.040, 1.2, 1.3), (0.012, 4.2, 3.3)], 1.00),
-]
-HAZE = 0.65  # cuánto se funden con el cielo las colinas del fondo
-
-THEMES = {
-    "images_dark": dict(sky=("#08080B", "#141018"), hill=("#1B1A21", "#0B0B0E"), rim=("#FF5A1F", "#FFB020"),
-                        glow=1.0),
-    "images": dict(sky=("#F7F5F2", "#ECE7E2"), hill=("#E4DFDA", "#F6F3F0"), rim=("#FF5A1F", "#FF9A3C"),
-                   glow=0.55),
+ROOT = Path(__file__).resolve().parent.parent
+MASTERS = ROOT/"brand/masters/wallpapers"
+PREVIEWS = ROOT/"brand/previews/wallpapers"
+FONT = ROOT/"files/system/usr/share/fonts/antu/Inter-Variable.ttf"
+PACKAGES = {
+    "Antu": "Obsidiana volcánica, luz de lava y cielo del desierto.",
+    "Paranal": "Cumbre del desierto y observatorios imaginarios bajo las estrellas.",
+    "Salar": "Sal mineral, aire del altiplano y primera luz del amanecer.",
 }
 
 
-def rgb(hex_color):
-    h = hex_color.lstrip("#")
-    return np.array([int(h[i:i + 2], 16) for i in (0, 2, 4)], dtype=np.float32)
+def superresolve(binary, work_dir=None):
+    binary = Path(binary).resolve()
+    model_path = binary.parent/"models"
+    if not binary.is_file() or not (model_path/"realesrgan-x4plus.bin").is_file():
+        raise ValueError("Use the official Real-ESRGAN executable and its sibling models directory.")
+    MASTERS.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="antu-superresolution-", dir=work_dir) as work:
+        for name in PACKAGES:
+            for variant in ("dark", "light"):
+                source = ROOT/f"brand/sources/wallpapers/{name}-{variant}.png"
+                dest = MASTERS/f"{name}-{variant}-3840x2160.png"
+                if dest.exists():
+                    print("Preserving approved 4K master:", dest.name, flush=True)
+                    continue
+                raw = Path(work)/f"{name}-{variant}-x4.png"
+                print("Superresolution:", source.name, flush=True)
+                result = subprocess.run([str(binary), "-i", str(source), "-o", str(raw),
+                                         "-m", str(model_path), "-n", "realesrgan-x4plus",
+                                         "-s", "4", "-t", "128", "-j", "1:1:1"],
+                                        capture_output=True, text=True)
+                if result.returncode:
+                    raise RuntimeError(result.stderr[-4000:])
+                image = Image.open(raw).convert("RGB")
+                if image.width < 3840 or image.height < 2160:
+                    raise ValueError("Upscaler output is smaller than the production frame.")
+                ImageOps.fit(image, (3840, 2160), Image.Resampling.LANCZOS).save(dest, optimize=True)
+                print("4K master:", dest.name, flush=True)
 
 
-def mix(a, b, t):
-    return a * (1 - t) + b * t
+def preview(im, title, dest):
+    # Review proof only. Production JPEGs contain no text, panels or dock.
+    out = im.resize((1600, 900), Image.Resampling.LANCZOS).convert("RGB")
+    rect = (490, 160, 1110, 740)
+    mask = Image.new("L", out.size)
+    ImageDraw.Draw(mask).rounded_rectangle(rect, 32, fill=255)
+    glass = out.filter(ImageFilter.GaussianBlur(22))
+    glass = Image.blend(glass, Image.new("RGB", out.size, "#0B0B0E"), 0.72)
+    out.paste(glass, (0, 0), mask)
+    d = ImageDraw.Draw(out)
+    f = lambda size: ImageFont.truetype(str(FONT), size)
+    d.rounded_rectangle(rect, 32, outline=(101, 101, 108), width=1)
+    d.text((550, 220), "Antu", font=f(48), fill="#F5F5F7")
+    d.text((550, 300), "Desde los cielos más claros\nde la Tierra", font=f(29), fill="#F5F5F7", spacing=8)
+    d.text((550, 435), "Inicia tu próxima partida.", font=f(22), fill="#C7C7CC")
+    d.rounded_rectangle((550, 565, 1050, 623), 14, fill="#FF5A1F")
+    d.text((590, 578), "Continuar", font=f(23), fill="#0B0B0E")
+    d.rounded_rectangle((618, 830, 982, 884), 18, fill=(18, 18, 22), outline=(63, 63, 68))
+    names = ("antu", "antu-inicio", "antu-instalador", "antu-eclipse", "antu-ia")
+    for i, name in enumerate(names):
+        p = ROOT/f"files/system/usr/share/icons/hicolor/32x32/apps/{name}.png"
+        if p.exists():
+            icon = Image.open(p)
+            out.paste(icon, (642+i*66, 841), icon)
+    d.text((36, 34), title+" / prueba de vidrio", font=f(22), fill="#F5F5F7")
+    d.text((36, 856), "Vista de revisión · arte final sin texto ni paneles", font=f(16), fill="#C7C7CC")
+    out.save(dest, quality=92)
 
 
-def crest(base, waves):
-    y = np.full(W, base, dtype=np.float32)
-    for amp, freq, phase in waves:
-        y += amp * np.sin(2 * np.pi * freq * X + phase)
-    return y
-
-
-def render(folder, t):
-    sky_top, sky_bottom = rgb(t["sky"][0]), rgb(t["sky"][1])
-    img = mix(sky_top, sky_bottom, Y[..., None] * np.ones((1, W, 1)))
-    rim_a, rim_b = rgb(t["rim"][0]), rgb(t["rim"][1])
-    # Resplandor cálido bajo el horizonte, detrás de la colina del fondo, como un volcán que no se ve.
-    ember = np.exp(-(((X[None, :] - 0.55) / 0.30) ** 2 + ((Y - 0.46) / 0.10) ** 2))
-    img = mix(img, rim_a[None, None, :], (ember * 0.22 * t["glow"])[..., None])
-    glow_layer = np.zeros((H, W, 3), dtype=np.float32)
-
-    for i, (base, waves, heat) in enumerate(HILLS):
-        c = crest(base, waves)
-        depth = i / (len(HILLS) - 1)  # 0 atrás, 1 adelante
-        below = Y >= c[None, :]
-        # Relleno: más claro arriba de la colina, más oscuro hacia abajo; las de atrás, más neblinosas.
-        local = np.clip((Y - c[None, :]) / 0.35, 0, 1)
-        top_color = mix(rgb(t["hill"][0]), sky_bottom, HAZE * (1 - depth))
-        fill = mix(top_color, rgb(t["hill"][1]), local[..., None])
-        img = np.where(below[..., None], fill, img)
-        # Cresta de lava: color que cambia a lo largo de la colina, con una línea fina y un halo suave.
-        line_color = mix(rim_a, rim_b, (0.5 + 0.5 * np.sin(2 * np.pi * (X * 0.8 + 0.3 * i)))[:, None])
-        dist = (Y - c[None, :]) * H  # píxeles respecto de la cresta (positivo = dentro de la colina)
-        line = np.exp(-(dist / 2.2) ** 2) * heat
-        img = mix(img, line_color[None, :, :], np.clip(line, 0, 1)[..., None])
-        halo = np.exp(-np.maximum(-dist, 0) / 60.0) * (dist < 0) * heat * 0.45 * t["glow"]
-        glow_layer += line_color[None, :, :] * halo[..., None]
-
-    glow = Image.fromarray(np.clip(glow_layer, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(24))
-    out = np.clip(img + np.asarray(glow, dtype=np.float32) * (1.0 if folder == "images_dark" else -0.15), 0, 255)
-    # Grano muy leve para evitar bandas en los degradados.
-    out = np.clip(out + np.random.default_rng(7).normal(0, 1.2, out.shape), 0, 255).astype(np.uint8)
-    path = PKG / folder / f"{W}x{H}.png"
-    Image.fromarray(out).save(path, optimize=True)
-    return path
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--superresolve", action="store_true")
+    p.add_argument("--upscaler", default=os.environ.get("REAL_ESRGAN_BIN"))
+    p.add_argument("--work-dir", default=None)
+    a = p.parse_args()
+    if a.superresolve:
+        if not a.upscaler:
+            raise SystemExit("Set REAL_ESRGAN_BIN or pass --upscaler. No binary is downloaded automatically.")
+        superresolve(a.upscaler, a.work_dir)
+    PREVIEWS.mkdir(parents=True, exist_ok=True)
+    for name, description in PACKAGES.items():
+        pkg = ROOT/f"files/system/usr/share/wallpapers/{name}"
+        pkg.mkdir(parents=True, exist_ok=True)
+        meta = {"KPlugin": {"Authors": [{"Name": "Antu OS"}], "Id": name,
+                            "License": "CC-BY-SA-4.0", "Name": name, "Description": description}}
+        (pkg/"metadata.json").write_text(json.dumps(meta, ensure_ascii=False, indent=4)+"\n", encoding="utf-8", newline="\n")
+        for variant, folder in [("dark", "images_dark"), ("light", "images")]:
+            source = MASTERS/f"{name}-{variant}-3840x2160.png"
+            im = Image.open(source).convert("RGB")
+            if im.size != (3840, 2160):
+                raise ValueError(f"Expected approved 3840x2160 master: {source}: {im.size}")
+            dest = pkg/"contents"/folder
+            dest.mkdir(parents=True, exist_ok=True)
+            for w, h in [(3840, 2160), (2560, 1600)]:
+                image = im if (w, h) == im.size else ImageOps.fit(im, (w, h), Image.Resampling.LANCZOS)
+                path = dest/f"{w}x{h}.jpg"
+                image.save(path, quality=90, subsampling=0, optimize=True, progressive=True)
+                if path.stat().st_size >= 4_000_000:
+                    raise ValueError(f"Wallpaper exceeds 4 MB at JPEG quality 90: {path}")
+                print(path.relative_to(ROOT), path.stat().st_size)
+            preview(im, f"{name} / {'oscuro' if variant == 'dark' else 'claro'}", PREVIEWS/f"{name}-{variant}-glass.jpg")
+            if variant == "dark":
+                im.resize((960, 540), Image.Resampling.LANCZOS).save(pkg/"contents/screenshot.png", optimize=True)
+        if name == "Antu":
+            for folder in ("images", "images_dark"):
+                (pkg/"contents"/folder/"3840x2160.png").unlink(missing_ok=True)
+    thumbs = Image.new("RGB", (1920, 1620), "#0B0B0E")
+    for row, name in enumerate(PACKAGES):
+        for col, variant in enumerate(("dark", "light")):
+            im = Image.open(PREVIEWS/f"{name}-{variant}-glass.jpg").resize((960, 540), Image.Resampling.LANCZOS)
+            thumbs.paste(im, (col*960, row*540))
+    thumbs.save(ROOT/"brand/previews/wallpaper-family.jpg", quality=92)
 
 
 if __name__ == "__main__":
-    for folder, theme in THEMES.items():
-        print("escrito", render(folder, theme).relative_to(ROOT))
-    Image.open(PKG / "images_dark" / f"{W}x{H}.png").resize((960, 540), Image.LANCZOS).save(PKG / "screenshot.png")
+    main()

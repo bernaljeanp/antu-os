@@ -1,27 +1,51 @@
-# Antu OS: arranque al estilo macOS en versión gamer: el símbolo al centro y una barra fina que se llena de lava.
-# Los recursos (scripts/make_brand.py) están dibujados para 1600 px de alto y se escalan aquí.
+# Antu OS, «Amanecer»: el sol de lava sube desde el horizonte, la cumbre aparece a su alrededor y, mientras arranca el
+# sistema, el sol respira. Las piezas (scripts/make_brand.py) miden 512 px por las 64 unidades del símbolo.
 
 Window.SetBackgroundTopColor(0, 0, 0);
 Window.SetBackgroundBottomColor(0, 0, 0);
 
 W = Window.GetWidth();
 H = Window.GetHeight();
-S = H / 1600;
+Z = Math.Int(H * 0.16);   # alto del símbolo: 256 px en una pantalla de 1600
+F = Z / 512;
+CX = W / 2;
+CY = H * 0.44;
+SUN_Y = CY + Z * 14 / 64; # el sol se posa en la unidad 46 de 64
+RISE = Z * 0.55;          # y sube desde bien abajo de la base de la cumbre
 
-symbol_src = Image("symbol.png");
-symbol_img = symbol_src.Scale(Math.Int(symbol_src.GetWidth() * S), Math.Int(symbol_src.GetHeight() * S));
-symbol = Sprite(symbol_img);
-symbol.SetPosition(Math.Int((W - symbol_img.GetWidth()) / 2), Math.Int(H * 0.44 - symbol_img.GetHeight() / 2), 2);
+fun scaled(name) {
+    img = Image(name);
+    return img.Scale(Math.Int(img.GetWidth() * global.F), Math.Int(img.GetHeight() * global.F));
+}
 
+cumbre_img = scaled("cumbre.png");
+cumbre = Sprite(cumbre_img);
+cumbre.SetPosition(Math.Int(CX - cumbre_img.GetWidth() / 2), Math.Int(CY - cumbre_img.GetHeight() / 2), 3);
+cumbre.SetOpacity(0);
+
+# El halo va detrás de la cumbre: la A se recorta contra la luz, como un cerro al amanecer.
+halo_img = scaled("halo.png");
+halo = Sprite(halo_img);
+halo.SetOpacity(0);
+sol_img = scaled("sol.png");
+sol = Sprite(sol_img);
+sol.SetOpacity(0);
+
+fun place_sun(y) {
+    global.sol.SetPosition(Math.Int(global.CX - global.sol_img.GetWidth() / 2), Math.Int(y - global.sol_img.GetHeight() / 2), 4);
+    global.halo.SetPosition(Math.Int(global.CX - global.halo_img.GetWidth() / 2), Math.Int(y - global.halo_img.GetHeight() / 2), 2);
+}
+place_sun(SUN_Y + RISE);
+
+# Barra fina de progreso bajo el símbolo; aparece junto con la cumbre.
 bar_w = Math.Int(H * 0.22);
-bar_h = Math.Int(6 * S);
+bar_h = Math.Int(6 * H / 1600);
 if (bar_h < 3) bar_h = 3;
 bar_x = Math.Int((W - bar_w) / 2);
 bar_y = Math.Int(H * 0.58);
-
 track = Sprite(Image("track.png").Scale(bar_w, bar_h));
 track.SetPosition(bar_x, bar_y, 1);
-
+track.SetOpacity(0);
 fill_src = Image("fill.png");
 fill = Sprite();
 fill.SetPosition(bar_x, bar_y, 2);
@@ -32,6 +56,28 @@ fun progress_callback(duration, progress) {
     if (w > 0) global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
 }
 Plymouth.SetBootProgressFunction(progress_callback);
+
+# Salida cúbica: arranca rápido y se posa suave.
+fun ease(x) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    return 1 - (1 - x) * (1 - x) * (1 - x);
+}
+
+t = 0;
+fun refresh_callback() {
+    global.t = global.t + 0.02;  # Plymouth llama 50 veces por segundo
+    rise = ease(global.t / 1.1);
+    place_sun(global.SUN_Y + global.RISE * (1 - rise));
+    global.sol.SetOpacity(rise);
+    show = ease((global.t - 0.55) / 0.9);
+    global.cumbre.SetOpacity(show);
+    global.track.SetOpacity(show);
+    global.fill.SetOpacity(show);
+    # Respiración del sol: el halo late lento, un ciclo cada 2,6 s.
+    global.halo.SetOpacity(rise * (0.6 + 0.3 * Math.Sin(global.t * 2.4)));
+}
+Plymouth.SetRefreshFunction(refresh_callback);
 
 # Mensajes del sistema (por ejemplo, revisión de disco): una línea discreta bajo la barra.
 message = Sprite();

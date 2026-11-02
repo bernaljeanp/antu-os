@@ -3,5 +3,5 @@ Type=Application
 Name=Instalar Antu
 Comment=Copia Antu del USB a un disco de este equipo
 Exec=/usr/lib/antu/instalador/instalador.py
-Icon=/usr/share/antu/antu-symbol.svg
+Icon=antu-instalador
 Categories=System;

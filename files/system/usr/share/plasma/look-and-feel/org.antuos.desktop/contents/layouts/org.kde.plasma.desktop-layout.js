@@ -11,7 +11,7 @@ panel.addWidget("org.kde.plasma.panelspacer");
 
 var menu = panel.addWidget("org.kde.plasma.kickoff");
 menu.currentConfigGroup = ["General"];
-menu.writeConfig("icon", "/usr/share/antu/antu-symbol.svg");
+menu.writeConfig("icon", "antu");
 
 var tasks = panel.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
