@@ -1,0 +1,2 @@
+# NTSYNC para el usuario de la sesión activa (los juegos corren con su cuenta).
+KERNEL=="ntsync", TAG+="uaccess"

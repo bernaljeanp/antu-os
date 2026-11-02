@@ -87,6 +87,11 @@ jobs:
             systemctl is-active firewalld
             [ "$(firewall-cmd --get-default-zone)" = antu ]
             [ "$(sysctl -n kernel.dmesg_restrict)" = 1 ] && [ "$(sysctl -n kernel.yama.ptrace_scope)" = 1 ]
+            # Juegos: memoria para títulos exigentes, sin penalización por split lock, NTSYNC y memoria comprimida.
+            [ "$(sysctl -n vm.max_map_count)" = 2147483642 ]
+            [ ! -e /proc/sys/kernel/split_lock_mitigate ] || [ "$(sysctl -n kernel.split_lock_mitigate)" = 0 ]
+            test -e /dev/ntsync
+            swapon --show=NAME --noheadings | grep -q zram
             # Sin relleno: ni LibreOffice ni Firefox en la imagen.
             ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]

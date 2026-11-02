@@ -56,10 +56,11 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
-# nvidia-prime da prime-run para portátiles híbridos; vulkan-intel cubre la gráfica integrada.
+# nvidia-prime da prime-run para portátiles híbridos; vulkan-intel cubre la gráfica integrada. zram-generator: memoria
+# comprimida en vez de swap en disco (ver usr/lib/systemd/zram-generator.conf).
 # -Sy: la limpieza de capas anteriores (pacman -Sc) puede borrar la base de datos sincronizada de multilib.
 RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel \
-      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime ttf-liberation && \
+      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime ttf-liberation zram-generator && \
     pacman -S --clean --noconfirm
 
 # USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.
