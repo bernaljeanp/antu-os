@@ -1,0 +1,9 @@
+// Actualizaciones de Antu: las cuentas administradoras (grupo wheel) en una sesión local activa consultan, buscan y
+// vuelven a la versión anterior sin escribir la contraseña. El ayudante solo acepta esas tres órdenes.
+polkit.addRule(function (action, subject) {
+    if (action.id == "org.freedesktop.policykit.exec" &&
+        action.lookup("program") == "/usr/lib/antu/actualizar-helper" &&
+        subject.isInGroup("wheel") && subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});

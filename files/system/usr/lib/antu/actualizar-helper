@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Ayudante de Actualizaciones de Antu. Corre como root vía pkexec; la regla de polkit 50-antu-actualizar deja usarlo
+sin contraseña a las cuentas administradoras (grupo wheel) en una sesión local activa. Solo acepta tres órdenes:
+
+  estado   versión instalada, si hay una lista para el próximo arranque, si hay una anterior y si está buscando (JSON)
+  buscar   busca y baja la versión nueva en segundo plano (antu-actualizar.service)
+  volver   deja la versión anterior para el próximo arranque (bootc rollback)
+"""
+import json
+import subprocess
+import sys
+
+
+def estado():
+    try:
+        salida = subprocess.run(["bootc", "status", "--format", "json"], capture_output=True, text=True,
+                                timeout=30).stdout
+        st = json.loads(salida or "{}").get("status") or {}
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        st = {}
+
+    def imagen(entrada):
+        return (entrada or {}).get("image") or {}
+
+    instalada = imagen(st.get("booted"))
+    referencia = (instalada.get("image") or {}).get("image") or ""
+    activo = subprocess.run(["systemctl", "is-active", "antu-actualizar.service"],
+                            capture_output=True, text=True).stdout.strip()
+    return {
+        "disponible": bool(st.get("booted")),
+        "instalada": instalada.get("timestamp"),
+        "canal": "prueba" if referencia.endswith(":testing") else "estable",
+        "lista": bool(st.get("staged")),
+        "fecha_lista": imagen(st.get("staged")).get("timestamp"),
+        "anterior": bool(st.get("rollback")),
+        "buscando": activo in ("active", "activating"),
+    }
+
+
+orden = sys.argv[1] if len(sys.argv) > 1 else ""
+if orden == "estado":
+    print(json.dumps(estado()))
+elif orden == "buscar":
+    subprocess.run(["systemctl", "start", "--no-block", "antu-actualizar.service"], check=True)
+elif orden == "volver":
+    r = subprocess.run(["bootc", "rollback"], capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit("No se pudo preparar la versión anterior: " + (r.stderr.strip().splitlines() or ["sin detalles"])[-1])
+else:
+    sys.exit("Orden desconocida.")

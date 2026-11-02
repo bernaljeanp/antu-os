@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Zenit: la app de Antu para el rendimiento, la temperatura, los juegos, las luces, la batería y las actualizaciones.
+"""Zenit: la app de Antu para el rendimiento, la temperatura, los juegos, las luces y la batería del equipo.
 
 La interfaz vive en Zenit.qml y habla con el servicio zenit (zenit.py demonio) por /run/zenit.sock.
   --bandeja  arranca junto al reloj, sin ventana; un clic en el ícono la abre
@@ -14,7 +14,7 @@ import re
 import socket
 import sys
 
-from PyQt6.QtCore import QObject, QProcess, QTimer, QUrl, pyqtProperty, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QTimer, QUrl, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIcon
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 from PyQt6.QtQml import QQmlApplicationEngine
@@ -35,8 +35,6 @@ DEMO = {
     "perfiles": ["quiet", "balanced", "balanced-performance", "performance"],
     "juegos": {"cyberpunk 2077": "performance"},
 }
-DEMO_ACTUALIZACION = {"ok": True, "disponible": True, "instalada": "2026-11-02T06:14:00Z", "lista": None,
-                      "anterior": True, "buscando": False}
 
 
 def pedir(args):
@@ -66,14 +64,12 @@ def juegos_de_steam():
 
 class Backend(QObject):
     cambio = pyqtSignal()
-    actualizacionCambio = pyqtSignal()
     aviso = pyqtSignal(str)
 
     def __init__(self, demo):
         super().__init__()
         self.demo = demo
         self._estado = dict(DEMO) if demo else {}
-        self._actualizacion = dict(DEMO_ACTUALIZACION) if demo else {}
         self.reloj = QTimer(self, interval=2000)
         self.reloj.timeout.connect(self.refrescar)
         self.reloj.start()
@@ -86,10 +82,6 @@ class Backend(QObject):
     @pyqtProperty(bool, notify=cambio)
     def conectado(self):
         return bool(self._estado)
-
-    @pyqtProperty("QVariant", notify=actualizacionCambio)
-    def actualizacion(self):
-        return self._actualizacion
 
     @pyqtProperty("QVariant", constant=True)
     def nombresPerfil(self):
@@ -112,15 +104,6 @@ class Backend(QObject):
         except (OSError, ValueError):
             self._estado = {}
         self.cambio.emit()
-
-    @pyqtSlot()
-    def refrescarActualizacion(self):
-        if not self.demo:
-            try:
-                self._actualizacion = pedir(["actualizacion"])
-            except (OSError, ValueError):
-                self._actualizacion = {}
-        self.actualizacionCambio.emit()
 
     def orden(self, args, demo_cambio=None):
         if self.demo:
@@ -170,21 +153,6 @@ class Backend(QObject):
     @pyqtSlot(result=list)
     def juegosSteam(self):
         return ["Cyberpunk 2077", "Hades II", "Counter-Strike 2", "Elden Ring"] if self.demo else juegos_de_steam()
-
-    @pyqtSlot()
-    def buscar(self):
-        if self.orden(["buscar"]):
-            self.refrescarActualizacion()
-
-    @pyqtSlot()
-    def volver(self):
-        if self.orden(["volver"]):
-            self.refrescarActualizacion()
-
-    @pyqtSlot()
-    def reiniciar(self):
-        if not self.demo:
-            QProcess.startDetached("systemctl", ["reboot"])
 
 
 def main():

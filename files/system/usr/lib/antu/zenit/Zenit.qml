@@ -1,5 +1,5 @@
 // Zenit en Antu: tablero de instrumentos del equipo. Temperaturas y perfil arriba, luego refrigeración, luces,
-// batería, juegos y actualizaciones. Mismo mundo visual que Inicio y el instalador: vidrio de obsidiana y lava.
+// batería y perfil por juego. Mismo mundo visual que Inicio y el instalador: vidrio de obsidiana y lava.
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
@@ -37,7 +37,6 @@ ApplicationWindow {
 
     // Cerrar la ventana la deja junto al reloj; el servicio y el ícono siguen.
     onClosing: (close) => { close.accepted = false; root.hide() }
-    onVisibleChanged: if (visible) backend.refrescarActualizacion()
 
     Connections {
         target: backend
@@ -51,12 +50,6 @@ ApplicationWindow {
             root.avisoTexto = texto
             avisoReloj.restart()
         }
-    }
-    Timer {
-        interval: 10000
-        repeat: true
-        running: root.visible
-        onTriggered: backend.refrescarActualizacion()
     }
 
     // ---------- Piezas ----------
@@ -264,7 +257,7 @@ ApplicationWindow {
                         font.weight: Font.Bold
                     }
                     Text {
-                        text: "Rendimiento, luces, batería y actualizaciones de tu equipo"
+                        text: "Rendimiento, luces y batería de tu equipo"
                         color: root.ink2
                         font.family: "Inter"
                         font.pixelSize: 21 * root.u
@@ -646,139 +639,58 @@ ApplicationWindow {
                 }
             }
 
-            // 5. Juegos y actualizaciones.
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 26 * root.u
-                Panel {
-                    id: panelJuegos
-                    Layout.horizontalStretchFactor: 3
-                    Layout.alignment: Qt.AlignTop
-                    titulo: "Perfil por juego"
-                    readonly property var lista: {
-                        const steam = backend.juegosSteam()
-                        const otros = Object.keys(root.e.juegos || {}).filter(j => !steam.some(s => s.toLowerCase() === j))
-                        return steam.concat(otros)
-                    }
-                    Repeater {
-                        model: panelJuegos.lista
-                        delegate: RowLayout {
-                            id: filaJuego
-                            required property string modelData
-                            readonly property string clave: modelData.toLowerCase()
+            // 5. Perfil por juego.
+            Panel {
+                id: panelJuegos
+                titulo: "Perfil por juego"
+                readonly property var lista: {
+                    const steam = backend.juegosSteam()
+                    const otros = Object.keys(root.e.juegos || {}).filter(j => !steam.some(s => s.toLowerCase() === j))
+                    return steam.concat(otros)
+                }
+                Repeater {
+                    model: panelJuegos.lista
+                    delegate: RowLayout {
+                        id: filaJuego
+                        required property string modelData
+                        readonly property string clave: modelData.toLowerCase()
+                        Layout.fillWidth: true
+                        spacing: 16 * root.u
+                        Text {
                             Layout.fillWidth: true
-                            spacing: 16 * root.u
-                            Text {
-                                Layout.fillWidth: true
-                                elide: Text.ElideRight
-                                text: filaJuego.modelData
-                                color: root.ink
-                                font.family: "Inter"
-                                font.pixelSize: 23 * root.u
-                                font.weight: Font.Medium
-                            }
-                            Chip {
-                                visible: root.e.juego === filaJuego.clave
-                                texto: "Jugando ahora"
-                                encendido: true
-                            }
-                            GlassCombo {
-                                u: root.u
-                                Layout.preferredWidth: 360 * root.u
-                                textRole: "text"
-                                valueRole: "value"
-                                Accessible.name: "Perfil para " + filaJuego.modelData
-                                model: [
-                                    { text: "Automático", value: "auto" },
-                                    { text: "Rendimiento", value: "performance" },
-                                    { text: "Equilibrado+", value: "balanced-performance" },
-                                    { text: "Equilibrado", value: "balanced" },
-                                    { text: "Silencioso", value: "quiet" }
-                                ]
-                                currentIndex: Math.max(0, indexOfValue((root.e.juegos || {})[filaJuego.clave] || "auto"))
-                                onActivated: backend.juego(filaJuego.clave, currentValue)
-                            }
+                            elide: Text.ElideRight
+                            text: filaJuego.modelData
+                            color: root.ink
+                            font.family: "Inter"
+                            font.pixelSize: 23 * root.u
+                            font.weight: Font.Medium
                         }
-                    }
-                    Nota {
-                        visible: panelJuegos.lista.length === 0
-                        text: "Aún no hay juegos. Los de Steam aparecen solos; los de Heroic, Lutris o Bottles, la primera vez que los juegues."
+                        Chip {
+                            visible: root.e.juego === filaJuego.clave
+                            texto: "Jugando ahora"
+                            encendido: true
+                        }
+                        GlassCombo {
+                            u: root.u
+                            Layout.preferredWidth: 360 * root.u
+                            textRole: "text"
+                            valueRole: "value"
+                            Accessible.name: "Perfil para " + filaJuego.modelData
+                            model: [
+                                { text: "Automático", value: "auto" },
+                                { text: "Rendimiento", value: "performance" },
+                                { text: "Equilibrado+", value: "balanced-performance" },
+                                { text: "Equilibrado", value: "balanced" },
+                                { text: "Silencioso", value: "quiet" }
+                            ]
+                            currentIndex: Math.max(0, indexOfValue((root.e.juegos || {})[filaJuego.clave] || "auto"))
+                            onActivated: backend.juego(filaJuego.clave, currentValue)
+                        }
                     }
                 }
-                Panel {
-                    id: panelActualizacion
-                    Layout.horizontalStretchFactor: 2
-                    Layout.alignment: Qt.AlignTop
-                    titulo: "Actualizaciones de Antu"
-                    readonly property var a: backend.actualizacion
-                    property bool confirmando: false
-                    function fecha(ts) {
-                        return ts ? Qt.locale("es_CL").toString(new Date(ts), "d 'de' MMMM 'de' yyyy") : ""
-                    }
-                    Text {
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        text: !panelActualizacion.a.disponible ? "No se pudo leer el estado"
-                            : panelActualizacion.a.buscando ? "Buscando actualizaciones…"
-                            : panelActualizacion.a.lista ? "Actualización lista" : "Antu está al día"
-                        color: root.ink
-                        font.family: "Inter"
-                        font.pixelSize: 34 * root.u
-                        font.weight: Font.Bold
-                    }
-                    Nota {
-                        text: panelActualizacion.a.lista
-                              ? "La versión del " + panelActualizacion.fecha(panelActualizacion.a.lista) + " se aplica la próxima vez que reinicies."
-                              : panelActualizacion.a.instalada
-                                ? "Tienes la versión del " + panelActualizacion.fecha(panelActualizacion.a.instalada) + ". Antu busca cada 6 horas, baja todo en segundo plano y nunca reinicia solo."
-                                : "Antu busca cada 6 horas, baja todo en segundo plano y nunca reinicia solo."
-                    }
-                    Flow {
-                        Layout.fillWidth: true
-                        spacing: 14 * root.u
-                        visible: !panelActualizacion.confirmando
-                        LavaButton {
-                            u: root.u
-                            visible: !!panelActualizacion.a.lista
-                            text: "Reiniciar ahora"
-                            onClicked: backend.reiniciar()
-                        }
-                        LavaButton {
-                            u: root.u
-                            primary: false
-                            enabled: !panelActualizacion.a.buscando
-                            text: "Buscar ahora"
-                            onClicked: backend.buscar()
-                        }
-                        LavaButton {
-                            u: root.u
-                            primary: false
-                            visible: !!panelActualizacion.a.anterior
-                            text: "Volver a la versión anterior"
-                            onClicked: panelActualizacion.confirmando = true
-                        }
-                    }
-                    ColumnLayout {
-                        visible: panelActualizacion.confirmando
-                        spacing: 14 * root.u
-                        Nota { text: "Antu arrancará con la versión anterior la próxima vez que reinicies. Tus archivos y apps no cambian." }
-                        Flow {
-                            Layout.fillWidth: true
-                            spacing: 14 * root.u
-                            LavaButton {
-                                u: root.u
-                                destructive: true
-                                text: "Volver a la anterior"
-                                onClicked: { backend.volver(); panelActualizacion.confirmando = false }
-                            }
-                            LavaButton {
-                                u: root.u
-                                primary: false
-                                text: "Cancelar"
-                                onClicked: panelActualizacion.confirmando = false
-                            }
-                        }
-                    }
+                Nota {
+                    visible: panelJuegos.lista.length === 0
+                    text: "Aún no hay juegos. Los de Steam aparecen solos; los de Heroic, Lutris o Bottles, la primera vez que los juegues."
                 }
             }
         }

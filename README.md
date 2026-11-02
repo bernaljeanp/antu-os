@@ -37,7 +37,7 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **Zenit** (portátiles Alienware y Dell), la app de control del equipo, siempre junto al reloj: temperaturas del
   procesador y la gráfica, ventiladores, perfil térmico (automático: Equilibrado+ con cargador, Equilibrado con batería
   y Rendimiento al abrir un juego), un perfil para cada juego, color y brillo de las luces del teclado, límite de carga
-  de la batería y las actualizaciones de Antu. Las teclas F6 (Performance Boost), F7 (Sigilo) y F9 (luces) funcionan sin
+  de la batería. Las teclas F6 (Performance Boost), F7 (Sigilo) y F9 (luces) funcionan sin
   Alienware Command Center. Es el mismo Zenit Engine de Windows sobre las interfaces del kernel; falta probarlo en
   hardware real.
 - **Más juegos:** Heroic (Epic, GOG, Amazon), Lutris y Bottles (otras tiendas y programas de Windows), ProtonPlus
@@ -108,7 +108,8 @@ escritorio (barra inferior centrada o barra superior y dock) y extras como la IA
 terminar aparece el inicio de sesión con tu cuenta. Corre en una cuenta de sistema sin privilegios; las acciones de
 administrador las hace un ayudante que valida cada dato y deja de funcionar en cuanto existe una cuenta.
 
-**Actualizaciones:** Antu se actualiza solo (en Zenit ves el estado, buscas una ahora o vuelves a la versión anterior). Cada 6 horas busca la versión nueva, la baja en segundo plano (con la
+**Actualizaciones:** Antu se actualiza solo (en la app «Actualizaciones de Antu» ves qué versión tienes, buscas una
+ahora o vuelves a la anterior). Cada 6 horas busca la versión nueva, la baja en segundo plano (con la
 prioridad más baja, para no molestar mientras juegas, y nunca con datos móviles) y te avisa cuando está lista. Se
 aplica la próxima vez que reinicias; si algo falla, en el menú de arranque eliges la versión anterior.
 

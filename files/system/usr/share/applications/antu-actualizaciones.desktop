@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Actualizaciones de Antu
+GenericName=Actualizaciones del sistema
+Comment=Qué versión de Antu tienes, buscar una nueva y volver a la anterior
+Exec=/usr/lib/antu/actualizaciones/actualizaciones.py
+Icon=antu
+Categories=System;Settings;
+Keywords=actualizar;actualización;versión;sistema;volver;anterior;reiniciar;

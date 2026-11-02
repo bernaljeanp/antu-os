@@ -79,6 +79,9 @@ jobs:
             # Actualizaciones automáticas: el temporizador está activo y el script existe.
             systemctl is-enabled antu-actualizar.timer
             test -x /usr/lib/antu/actualizar
+            # La app de actualizaciones: su ayudante responde con un estado legible y tiene su regla de permisos.
+            /usr/lib/antu/actualizar-helper estado | python3 -c "import json, sys; json.load(sys.stdin)"
+            test -f /usr/share/polkit-1/rules.d/50-antu-actualizar.rules
             # Sin relleno: ni LibreOffice ni Firefox en la imagen.
             ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]
