@@ -52,7 +52,7 @@ RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && \
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
       pipewire pipewire-pulse wireplumber noto-fonts openssh \
-      discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 && \
+      discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 firewalld plasma-firewall && \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
@@ -64,8 +64,10 @@ RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulk
 
 # USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.
 ARG USBOOT_VERSION=v0.2.1
+ARG USBOOT_SHA256=d6d1dcf714f65b586c5838b0b3962344d13f98b0d735c9faa27d82f0d0678c66
 RUN curl -fsSL --retry 5 --retry-all-errors -o /tmp/usboot.AppImage \
       "https://github.com/bernaljeanp/usboot/releases/download/${USBOOT_VERSION}/USBoot_${USBOOT_VERSION#v}_linux-beta_amd64.AppImage" && \
+    echo "${USBOOT_SHA256}  /tmp/usboot.AppImage" | sha256sum -c - && \
     chmod +x /tmp/usboot.AppImage && cd /tmp && ./usboot.AppImage --appimage-extract > /dev/null && \
     mv /tmp/squashfs-root /usr/lib/usboot && chmod -R a+rX /usr/lib/usboot && rm /tmp/usboot.AppImage
 
@@ -77,10 +79,12 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scrip
 # Inicio (asistente gráfico del primer arranque) crea la primera cuenta con systemd-homed antes del inicio de sesión.
 # Zenit controla perfiles térmicos, luces, carga y teclas del portátil (Alienware y Dell). antu-actualizar baja
 # cada versión nueva en segundo plano y la deja lista para el próximo reinicio.
+# Firewall: zona antu (solo lo que llega sin pedirlo se bloquea; ver usr/lib/firewalld/zones/antu.xml).
 # La red la maneja NetworkManager: systemd-networkd queda apagado, también en el primer arranque (10-antu.preset).
-RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer \
+RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer firewalld \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl disable systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service && \
+    sed -i 's/^DefaultZone=.*/DefaultZone=antu/' /etc/firewalld/firewalld.conf && \
     systemctl mask systemd-firstboot.service && \
     passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \

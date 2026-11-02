@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<zone target="default">
+  <short>Antu</short>
+  <description>Equipo personal: bloquea las conexiones que llegan sin pedirlas. Deja pasar solo lo que usan los
+  juegos y el escritorio en la red local: Steam Remote Play, los nombres de la red local (mDNS) y DHCPv6. Todo lo
+  que el equipo abre hacia afuera (juegos en línea, navegador, descargas) funciona igual.</description>
+  <service name="dhcpv6-client"/>
+  <service name="mdns"/>
+  <service name="steam-streaming"/>
+</zone>
