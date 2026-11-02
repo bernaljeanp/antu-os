@@ -64,7 +64,7 @@ RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulk
 
 # USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.
 ARG USBOOT_VERSION=v0.2.1
-RUN curl -fsSL -o /tmp/usboot.AppImage \
+RUN curl -fsSL --retry 5 --retry-all-errors -o /tmp/usboot.AppImage \
       "https://github.com/bernaljeanp/usboot/releases/download/${USBOOT_VERSION}/USBoot_${USBOOT_VERSION#v}_linux-beta_amd64.AppImage" && \
     chmod +x /tmp/usboot.AppImage && cd /tmp && ./usboot.AppImage --appimage-extract > /dev/null && \
     mv /tmp/squashfs-root /usr/lib/usboot && chmod -R a+rX /usr/lib/usboot && rm /tmp/usboot.AppImage
