@@ -12,6 +12,7 @@ RUN mkdir -p /var/home && useradd -m -G wheel -c "Antu en vivo" antu && passwd -
     systemctl enable antu-live-listo.service antu-prueba-instalar.service
 
 # Initramfs del USB: monta la imagen comprimida (squashfs) con una capa de escritura en memoria (overlayfs).
+# --tmpdir: la imagen base no trae /var/tmp (todo /var se crea al arrancar).
 RUN kver="$(ls /usr/lib/modules)" && mkdir -p /usr/lib/antu/live && \
-    dracut --force --no-hostonly --omit " bootc ostree " --add " dmsquash-live " \
+    dracut --force --no-hostonly --tmpdir /tmp --omit " bootc ostree " --add " dmsquash-live " \
       /usr/lib/antu/live/initramfs.img "$kver"

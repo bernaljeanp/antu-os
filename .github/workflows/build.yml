@@ -4,6 +4,12 @@ on:
     branches: [main]
     paths-ignore:
       - "**.md"
+      # Solo el USB en vivo: lo compila iso.yml sobre la imagen ya publicada.
+      - Containerfile.live
+      - "files/live/**"
+      - scripts/make-iso.sh
+      - ci/iso-test.sh
+      - .github/workflows/iso.yml
   pull_request:
   schedule:
     - cron: "00 06 * * *" # diario: recoge las actualizaciones de Arch
