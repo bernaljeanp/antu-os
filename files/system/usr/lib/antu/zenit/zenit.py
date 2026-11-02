@@ -43,6 +43,8 @@ PARECIDOS = {
 # Procesos de Wine que existen mientras corre cualquier programa de Windows, no solo juegos.
 WINE_SISTEMA = {"explorer.exe", "services.exe", "winedevice.exe", "plugplay.exe", "svchost.exe", "rpcss.exe",
                 "conhost.exe", "tabtip.exe", "start.exe", "rundll32.exe", "steam.exe", "steamwebhelper.exe"}
+# Juegos que corren con su propio programa, fuera de Steam y de Wine: su ejecutable y el nombre que muestra Zenit.
+PROGRAMAS_DE_JUEGO = {"sober": "roblox"}  # Sober (VinegarHQ): Roblox en Linux, desde Flathub
 # Carpetas de Steam que no son juegos: Proton y el entorno donde corren.
 STEAM_HERRAMIENTAS = ("proton", "steamlinuxruntime", "steamworks")
 KEY_F17, KEY_F18, KEY_F20 = 187, 188, 190  # F6 Performance Boost, F9 luces y F7 Sigilo en el teclado Alienware
@@ -94,13 +96,15 @@ def en_cargador():
 
 def juego_de(cmdline):
     """El juego que corre en este proceso, o None. Steam nativo por su carpeta; Proton, Heroic, Lutris y Bottles
-    por el .exe que ejecuta Wine."""
+    por el .exe que ejecuta Wine; Roblox por Sober."""
     partes = cmdline.replace("\\", "/").split("\0")  # Proton: rutas con barras de Windows
     for p in partes:
         if "/steamapps/common/" in p:
             carpeta = p.split("/steamapps/common/")[1].split("/")[0].lower()
             if carpeta and not carpeta.startswith(STEAM_HERRAMIENTAS):
                 return carpeta
+    if partes and os.path.basename(partes[0]) in PROGRAMAS_DE_JUEGO:
+        return PROGRAMAS_DE_JUEGO[os.path.basename(partes[0])]
     for p in partes:
         nombre = re.split(r"[\\/]", p)[-1].lower()
         if nombre.endswith(".exe") and nombre not in WINE_SISTEMA:
@@ -544,6 +548,7 @@ def autoprueba():
         assert juego_de("Z:\\s\\steamapps\\common\\Elden Ring\\eldenring.exe\0") == "elden ring"
         assert juego_de("C:\\windows\\system32\\services.exe\0") is None
         assert juego_de("/usr/bin/kate\0") is None
+        assert juego_de("/app/bin/sober\0--\0") == "roblox"
         assert elegir("balanced-performance", ["quiet", "balanced", "performance"]) == "performance"
 
         assert umbrales(80) == (75, 80) and umbrales(60) == (55, 60) and umbrales(100) == (95, 100)
