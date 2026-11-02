@@ -1,2 +1,4 @@
 cosign.key
 cosign.private
+# Estado temporal del panel de decisión de impeccable (PID, puerto, registros)
+.impeccable/questions/

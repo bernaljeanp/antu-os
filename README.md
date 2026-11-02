@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="brand/symbol-white.png" width="96" alt="Antu">
-</p>
-
 <h1 align="center">Antu OS</h1>
 
 <p align="center"><b>Desde los cielos más claros de la Tierra.</b><br>
