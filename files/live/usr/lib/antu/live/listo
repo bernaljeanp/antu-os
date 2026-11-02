@@ -1,0 +1,9 @@
+#!/bin/sh
+# Avisa por la consola serie que Antu en vivo arrancó hasta el inicio de sesión (pruebas en QEMU), si el arranque seguro
+# está activo (último byte de la variable SecureBoot) y qué responde NVIDIA: el núcleo de Arch no exige módulos firmados,
+# así que sin tarjeta debe decir «No such device», nunca «Key was rejected».
+{
+    echo "ANTU-LIVE: arranque OK"
+    echo "ANTU-LIVE: arranque seguro=$(od -An -tu1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c | awk '{print $NF}')"
+    echo "ANTU-LIVE: nvidia: $(modprobe nvidia 2>&1 | tail -n 1)"
+} > /dev/ttyS0

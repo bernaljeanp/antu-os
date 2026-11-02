@@ -47,7 +47,9 @@ jobs:
 
       # Sin sudo: bcvk busca la imagen en el almacenamiento de podman del usuario.
       - name: Compilar imagen de prueba
-        run: podman build --build-arg ANTU_CI=1 -t localhost/antu-test:latest .
+        run: |
+          : > "$RUNNER_TEMP/sin-llave"  # esta imagen no se publica: no recibe la llave de arranque
+          podman build --build-arg ANTU_CI=1 --secret id=antu_arranque,src="$RUNNER_TEMP/sin-llave" -t localhost/antu-test:latest .
 
       - name: Prueba de arranque en VM
         run: |
@@ -58,6 +60,10 @@ jobs:
             [ -z "$failed" ] || { echo "Unidades con fallo:"; echo "$failed"; exit 1; }
             systemctl is-active NetworkManager sddm
             modinfo -n nvidia
+            # Arranque seguro: shim y su registro de llaves, con la herramienta que crea la entrada del equipo.
+            test -f /usr/lib/antu/arranque/shimx64.efi && test -f /usr/lib/antu/arranque/mmx64.efi
+            test -f /usr/share/antu/arranque-seguro.cer
+            command -v efibootmgr > /dev/null
             grep -q "LookAndFeelPackage=org.antuos.desktop" /etc/xdg/kdeglobals
             # Juegos: Steam, Gamescope, GameMode y MangoHud presentes, y NVIDIA de 32 y 64 bits iguales.
             command -v steam gamescope gamemoded mangohud prime-run flatpak > /dev/null
@@ -135,7 +141,22 @@ jobs:
 
       - name: Compilar imagen publicable (sin SSH)
         if: github.event_name != 'pull_request'
-        run: podman build -t localhost/antu-nvidia:sin-reempaquetar .
+        env:
+          ANTU_ARRANQUE_PEM: ${{ secrets.ANTU_ARRANQUE_PEM }}
+        run: |
+          umask 077
+          printf '%s' "$ANTU_ARRANQUE_PEM" > "$RUNNER_TEMP/arranque.pem"
+          podman build --secret id=antu_arranque,src="$RUNNER_TEMP/arranque.pem" -t localhost/antu-nvidia:sin-reempaquetar .
+          rm -f "$RUNNER_TEMP/arranque.pem"
+          # Nunca se publica una versión sin firmar: con el arranque seguro activo, no arrancaría en ningún equipo.
+          sudo apt-get install -y -qq sbsigntool > /dev/null
+          imagen() { podman run --rm localhost/antu-nvidia:sin-reempaquetar sh -c "cat $1"; }
+          imagen /usr/share/antu/arranque-seguro.cer | openssl x509 -inform DER -out "$RUNNER_TEMP/arranque.crt"
+          imagen "/usr/lib/modules/*/vmlinuz" > "$RUNNER_TEMP/vmlinuz"
+          imagen /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed > "$RUNNER_TEMP/cargador.efi"
+          sbverify --cert "$RUNNER_TEMP/arranque.crt" "$RUNNER_TEMP/vmlinuz"
+          sbverify --cert "$RUNNER_TEMP/arranque.crt" "$RUNNER_TEMP/cargador.efi"
+          rm -f "$RUNNER_TEMP/vmlinuz" "$RUNNER_TEMP/cargador.efi"
 
       # Reempaqueta por paquetes con chunkah: cada paquete de Arch en su capa (por el atributo user.component que pone
       # files/scripts/componentes.py), así una actualización solo baja los paquetes que cambiaron.

@@ -33,6 +33,32 @@ for karg in "${extra[@]}"; do kargs+=(--karg "$karg"); done
 
 # Sin suspender ni apagar por la tapa a mitad de la copia. Sin comprobar el registro: se instala sin internet y
 # las actualizaciones lo usarán después.
-exec systemd-inhibit --what=sleep:idle:handle-lid-switch --who="Instalador de Antu" --why="Copiando Antu al disco" \
+systemd-inhibit --what=sleep:idle:handle-lid-switch --who="Instalador de Antu" --why="Copiando Antu al disco" \
     bootc install to-disk --composefs-backend --bootloader systemd --filesystem ext4 --wipe --skip-fetch-check \
     --source-imgref "oci:$SOURCE" --target-imgref "$TARGET_IMAGE" "${kargs[@]}" "$dev"
+
+# Arranque seguro: bootctl dejó systemd-boot firmado con la llave de Antu; delante va shim, firmado por Microsoft. Queda
+# también en la ruta de reserva EFI/BOOT, para equipos que olviden su entrada, y la llave pública a mano en la raíz.
+udevadm settle
+esp="$(lsblk -nrpo PATH,PARTTYPE "$dev" | awk 'tolower($2) == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" {print $1; exit}')"
+[ -b "$esp" ] || die "No se encontró la partición de arranque del disco instalado."
+cadena=/usr/lib/antu/arranque
+punto="$(mktemp -d)"
+mount "$esp" "$punto"
+cp /usr/share/antu/arranque-seguro.cer "$punto/antu.cer"
+mkdir -p "$punto/EFI/antu" "$punto/EFI/BOOT"
+cp "$cadena/shimx64.efi" "$punto/EFI/antu/shimx64.efi"
+cp "$cadena/shimx64.efi" "$punto/EFI/BOOT/BOOTX64.EFI"
+for carpeta in antu BOOT; do
+    cp "$cadena/mmx64.efi" "$punto/EFI/$carpeta/mmx64.efi"
+    cp /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed "$punto/EFI/$carpeta/grubx64.efi"
+done
+umount "$punto"
+rmdir "$punto"
+
+# Entrada «Antu OS» en el menú de arranque del equipo. Si el firmware no la acepta, arranca igual por EFI/BOOT.
+for vieja in $(efibootmgr | sed -n 's/^Boot\([0-9A-Fa-f]\{4\}\)\*\{0,1\} \(Linux Boot Manager\|Antu OS\).*/\1/p'); do
+    efibootmgr -q -b "$vieja" -B || true
+done
+efibootmgr -q -c -d "$dev" -p "$(lsblk -no PARTN "$esp")" -L "Antu OS" -l '\EFI\antu\shimx64.efi' ||
+    echo "Aviso: el equipo no aceptó la entrada «Antu OS»; arrancará por la ruta de reserva." >&2

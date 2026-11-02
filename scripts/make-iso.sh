@@ -28,7 +28,11 @@ mnt="$(podman image mount localhost/antu-live)"
 kver="$(ls "$mnt/usr/lib/modules")"
 cp "$mnt/usr/lib/modules/$kver/vmlinuz" "$OUT/vmlinuz"
 cp "$mnt/usr/lib/antu/live/initramfs.img" "$OUT/initramfs-live.img"
-cp "$mnt/usr/lib/systemd/boot/efi/systemd-bootx64.efi" "$OUT/BOOTX64.EFI"
+# Cadena de arranque seguro: shim (firmado por Microsoft) carga systemd-boot (firmado con la llave de Antu).
+cp "$mnt/usr/lib/antu/arranque/shimx64.efi" "$OUT/BOOTX64.EFI"
+cp "$mnt/usr/lib/antu/arranque/mmx64.efi" "$OUT/mmx64.efi"
+cp "$mnt/usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed" "$OUT/grubx64.efi"
+cp "$mnt/usr/share/antu/arranque-seguro.cer" "$OUT/antu.cer"
 mksquashfs "$mnt" "$OUT/iso/LiveOS/squashfs.img" -noappend -no-progress -comp zstd -Xcompression-level 15 -b 1M
 podman image unmount localhost/antu-live > /dev/null
 
@@ -54,8 +58,11 @@ esp="$OUT/efiboot.img"
 size_mb=$(( ($(stat -c %s "$OUT/vmlinuz") + $(stat -c %s "$OUT/initramfs-live.img")) / 1048576 + 32 ))
 truncate -s 0 "$esp" && truncate -s "${size_mb}M" "$esp"
 mkfs.vfat -n ANTU_EFI "$esp" > /dev/null
+mcopy -i "$esp" "$OUT/antu.cer" ::/antu.cer  # primero: encabeza la lista cuando se registra la llave
 mmd -i "$esp" ::/EFI ::/EFI/BOOT ::/loader ::/loader/entries ::/antu
 mcopy -i "$esp" "$OUT/BOOTX64.EFI" ::/EFI/BOOT/BOOTX64.EFI
+mcopy -i "$esp" "$OUT/grubx64.efi" ::/EFI/BOOT/grubx64.efi
+mcopy -i "$esp" "$OUT/mmx64.efi" ::/EFI/BOOT/mmx64.efi
 mcopy -i "$esp" "$OUT/vmlinuz" ::/antu/vmlinuz
 mcopy -i "$esp" "$OUT/initramfs-live.img" ::/antu/initramfs.img
 mcopy -i "$esp" "$OUT/esp/loader/loader.conf" ::/loader/loader.conf

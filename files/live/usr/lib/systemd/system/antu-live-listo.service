@@ -5,7 +5,7 @@ ConditionPathExists=/dev/ttyS0
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/sh -c 'echo "ANTU-LIVE: arranque OK" > /dev/ttyS0 || true'
+ExecStart=-/usr/lib/antu/live/listo
 
 [Install]
 WantedBy=graphical.target

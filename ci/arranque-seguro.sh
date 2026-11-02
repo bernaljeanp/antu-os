@@ -10,8 +10,7 @@
 # dosfstools, openssl y libarchive-tools)
 set -euo pipefail
 
-SHIM_VERSION=16.1-10
-SHIM_SHA256=50ca8ad0f0893a9b69d257b232cc38fe572d7f2c814bc9aec4df5e492800cdc7
+eval "$(grep -E '^SHIM_(VERSION|SHA256)=' files/scripts/firmar-arranque.sh)"  # el mismo shim que lleva la imagen
 ARCH_IMAGE=docker.io/archlinux/archlinux:latest@sha256:837194727013a6e81fb55be11e61d6dcfe7fdd095b3313f8f3cff9bb3f9b182d
 
 OUT="$PWD/pruebas-arranque-seguro"

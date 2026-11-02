@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - ci/arranque-seguro.sh
+      - files/scripts/firmar-arranque.sh
       - .github/workflows/arranque-seguro.yml
   workflow_dispatch:
 

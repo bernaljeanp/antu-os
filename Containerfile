@@ -37,7 +37,7 @@ RUN sed -i 's/^[[:space:]]*NoExtract/#&/' /etc/pacman.conf && \
 
 # Sistema base atómico.
 RUN pacman -S --noconfirm base bubblewrap dracut linux linux-firmware intel-ucode amd-ucode \
-      ostree btrfs-progs e2fsprogs xfsprogs dosfstools skopeo dbus dbus-glib glib2 shadow && \
+      ostree btrfs-progs e2fsprogs xfsprogs dosfstools efibootmgr skopeo dbus dbus-glib glib2 shadow && \
     pacman -S --clean --noconfirm
 
 # multilib: Steam y las librerías de 32 bits que usan casi todos los juegos. La imagen Docker de Arch no siempre
@@ -101,6 +101,11 @@ RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
 # arranque, que esperaría en la consola para siempre. La imagen publicada no lleva ninguno de los dos cambios.
 ARG ANTU_CI=0
 RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service; fi
+
+# Arranque seguro: shim firmado por Microsoft, y núcleo y cargador con la llave de Antu. Va después de ANTU_CI para que la
+# imagen publicable no reutilice esta capa de la imagen de prueba, que se compila sin la llave.
+RUN --mount=type=secret,id=antu_arranque --mount=type=bind,source=files/scripts,target=/antu-scripts \
+    bash /antu-scripts/firmar-arranque.sh
 
 # Estructura que espera un sistema por imágenes: todo lo mutable vive en /var.
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \
