@@ -1,0 +1,11 @@
+[Unit]
+Description=Avisa por la consola serie que Antu en vivo arrancó hasta el inicio de sesión (pruebas en QEMU)
+After=display-manager.service
+ConditionPathExists=/dev/ttyS0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh -c 'echo "ANTU-LIVE: arranque OK" > /dev/ttyS0 || true'
+
+[Install]
+WantedBy=graphical.target

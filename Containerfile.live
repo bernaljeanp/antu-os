@@ -1,0 +1,17 @@
+# Antu OS en vivo: la imagen publicada más lo que necesita el USB de instalación (usuario en vivo, instalador gráfico
+# e initramfs que arranca desde el USB). La compila scripts/make-iso.sh; no se publica como imagen.
+ARG BASE=ghcr.io/bernaljeanp/antu-nvidia:latest
+FROM ${BASE}
+
+COPY files/live/ /
+
+# Usuario en vivo sin contraseña que entra solo al escritorio; el instalador se abre al entrar. Sin Inicio ni descargas
+# de primer arranque: en vivo todo lo que se escribe va a la memoria RAM.
+RUN mkdir -p /var/home && useradd -m -G wheel -c "Antu en vivo" antu && passwd -d antu && \
+    systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service antu-ia.service && \
+    systemctl enable antu-live-listo.service antu-prueba-instalar.service
+
+# Initramfs del USB: monta la imagen comprimida (squashfs) con una capa de escritura en memoria (overlayfs).
+RUN kver="$(ls /usr/lib/modules)" && mkdir -p /usr/lib/antu/live && \
+    dracut --force --no-hostonly --omit " bootc ostree " --add " dmsquash-live " \
+      /usr/lib/antu/live/initramfs.img "$kver"

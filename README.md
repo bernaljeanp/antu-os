@@ -17,7 +17,8 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **Arch:** kernel y drivers recientes para hardware nuevo; las actualizaciones bajan solo las capas que cambian.
 
 > **Estado: prueba de concepto.** Arranca con KDE Plasma y la interfaz «macOS gamer» de Antu, y trae Steam, el modo
-> juego Eclipse, Brave y Discover. Todavía no tiene instalador gráfico. No la uses aún como sistema principal.
+> juego Eclipse, Brave, Discover, un USB en vivo con instalador gráfico e Inicio para el primer arranque. Aún no se ha
+> probado en hardware real: no la uses todavía como sistema principal.
 
 ## Jugar
 
@@ -50,16 +51,35 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   LibreOffice.
 - **Primer arranque:** las apps de Flathub y ArtCraft se descargan solas (varios GB) en cuanto hay internet.
 
-## Probar en una VM (5 minutos, desde Windows)
+## Instalar desde un USB
 
-1. En este repositorio: *Actions → disco-vm → Run workflow*. Al terminar, descarga el artefacto `antu-nvidia-vmdk`.
-2. En VMware Workstation: nueva VM personalizada → Linux 6.x 64-bit → usar disco existente → `antu-nvidia.vmdk`.
-3. Antes de arrancarla, en *VM → Settings → Options → Advanced* elige firmware **UEFI** y desactiva Secure Boot.
-4. Arranca y crea tu usuario (ver [Primer arranque](#primer-arranque)).
+1. Descarga la ISO: en este repositorio, *Actions → iso →* la última ejecución verde *→* artefacto `antu-live-iso`
+   (unos 7 GB). Trae `antu-live.iso.sha256` para comprobar la descarga.
+2. Grábala en un USB de 16 GB o más con [USBoot](https://github.com/bernaljeanp/usboot), o con cualquier grabador en
+   modo imagen (DD). El USB se borra entero.
+3. Desactiva **Secure Boot** en la BIOS: la ISO aún no está firmada.
+4. Arranca desde el USB (en Alienware y Dell, con F12). Antu arranca en vivo, sin tocar el disco, y abre
+   **Instalar Antu**. Si la pantalla se queda negra, elige en el menú de arranque *modo seguro: sin NVIDIA*.
+5. Elige el disco, confirma el borrado y espera entre 5 y 20 minutos. No hace falta internet: la imagen viaja en el USB.
+6. Reinicia y quita el USB. Inicio te pide idioma, zona horaria y tu cuenta (ver [Primer arranque](#primer-arranque)).
 
-`disco-vm` usa la última imagen publicada en `ghcr.io/bernaljeanp/antu-nvidia`.
+El instalador ocupa el disco entero. Para conservar Windows, instala Antu en otro disco: la instalación junto a Windows
+en el mismo disco aún no existe.
 
-## Instalar en un PC (SSD o USB externo, sin tocar tu disco)
+Cada ISO se prueba sola en una VM antes de publicarse: arranca en vivo, se instala en un disco virtual vacío y ese
+disco arranca hasta Inicio. Las capturas quedan en el artefacto `pruebas-iso`.
+
+## Probar en una VM (desde Windows)
+
+- **Con la ISO:** en VMware Workstation, nueva VM → Linux 6.x 64-bit, 8 GB de RAM y un disco de 64 GB. En *VM →
+  Settings → Options → Advanced*, firmware **UEFI** sin Secure Boot. Arranca con `antu-live.iso` y sigue los pasos de
+  arriba.
+- **Con un disco ya instalado:** *Actions → disco-vm → Run workflow* y descarga el artefacto `antu-nvidia-vmdk`. En
+  VMware, nueva VM personalizada → usar disco existente → `antu-nvidia.vmdk`, también con UEFI y sin Secure Boot.
+
+Las dos usan la última imagen publicada en `ghcr.io/bernaljeanp/antu-nvidia`.
+
+## Instalar desde otro Linux (SSD o USB externo)
 
 1. Desactiva **Secure Boot** en la BIOS. Las imágenes aún no están firmadas.
 2. Arranca un USB de Fedora Workstation en modo en vivo (puedes crearlo con [USBoot](https://github.com/bernaljeanp/usboot)).
@@ -94,11 +114,16 @@ run0 bootc rollback    # volver a la versión anterior
 
 ```
 Containerfile                 la imagen: Arch + bootc + NVIDIA + KDE + identidad Antu
+Containerfile.live            el sistema en vivo del USB: la imagen + usuario en vivo + instalador
 files/system/                 archivos que se copian tal cual a la raíz de la imagen
+files/live/                   lo que añade el sistema en vivo (instalador gráfico, su ayudante, autologin)
 files/scripts/                scripts que corren al compilar
-scripts/install-to-disk.sh    instala en un disco externo o en un .img
+scripts/make-iso.sh           crea la ISO híbrida UEFI con la imagen dentro para instalar sin internet
+scripts/install-to-disk.sh    instala en un disco externo o en un .img desde otro Linux
 scripts/check_colors.py       contraste WCAG de los esquemas de color
+ci/iso-test.sh                prueba la ISO en QEMU: en vivo, instalación y arranque del disco instalado
 .github/workflows/build.yml   compila, arranca la imagen en una VM y la publica en ghcr.io
+.github/workflows/iso.yml     crea y prueba la ISO después de cada imagen publicada
 .github/workflows/disk.yml    genera el disco VMware de prueba
 third_party/                  licencias de terceros
 ```
@@ -116,8 +141,8 @@ la publicada no tiene ninguno de los dos cambios.
 | Hito | Contenido |
 |---|---|
 | **0** | Arch + bootc + NVIDIA + KDE + identidad, con prueba de arranque automática *(en curso)* |
-| **0b** | Usuario de primer arranque e instalación en disco o VM *(en curso)* |
-| **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalador gráfico, Secure Boot y firma de imágenes, canales `testing` / `stable` |
+| **0b** | Inicio (primer arranque gráfico), USB en vivo e instalador gráfico *(en curso)* |
+| **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalación junto a Windows, Secure Boot y firma de imágenes, canales `testing` / `stable` |
 | **1** | Zenit en Linux (perfiles térmicos, AlienFX, teclas Fn, límite de carga) y USBoot como instalador oficial |
 | **2** | Inicio (primer arranque en español), Biblioteca (compatibilidad antes de instalar), modo Familia |
 | **3** | Asistente local y opcional que explica en español por qué falla un juego |
@@ -138,7 +163,9 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 - La prueba en VM no tiene GPU: comprueba que el módulo NVIDIA existe, no que funcione en una RTX real.
 - La imagen base está fijada por digest, pero los paquetes de Arch se toman del día; faltan canales
   `testing` / `stable` con fecha fija de repositorios.
-- Sin firma de imágenes ni Secure Boot todavía.
+- Sin firma de imágenes ni Secure Boot todavía: la ISO y el sistema instalado necesitan Secure Boot desactivado.
+- El instalador usa el disco entero; instalar junto a Windows en el mismo disco aún no está disponible.
+- `bootc upgrade` en un sistema instalado necesita que el paquete `ghcr.io/bernaljeanp/antu-nvidia` sea público.
 - La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) está en construcción: ya hay pantalla de
   arranque e inicio de sesión; faltan la barra superior y el dock, el símbolo de Antu y un fondo propio (el actual
   es provisional). Cada compilación sube capturas del inicio de sesión y del arranque (artefacto `capturas`).

@@ -34,20 +34,28 @@ if grep -E "themes/antu/|ReferenceError|TypeError|is not a type|is not installed
     exit 1
 fi
 
-# Inicio (asistente del primer arranque) en modo demo: no ejecuta nada. Si no carga o tiene errores, falla.
-python /usr/lib/antu/inicio/inicio.py --demo > "$OUT/inicio.log" 2>&1 &
-inicio=$!
-sleep 10
-if ! kill -0 "$inicio" 2>/dev/null; then
-    echo "::error::Inicio terminó antes de la captura"
-    cat "$OUT/inicio.log"
-    exit 1
-fi
-import -window root "$OUT/inicio.png"
-kill "$inicio" 2>/dev/null
-if grep -E "\.qml:|Traceback|ReferenceError|TypeError|is not a type|is not installed" "$OUT/inicio.log"; then
-    echo "::error::Inicio tiene errores o avisos de QML (ver inicio.log en el artefacto capturas)"
-    exit 1
+# Apps de Antu en modo demo (no ejecutan nada): si no cargan o su QML tiene errores, falla.
+#   capturar NOMBRE VENTANA SCRIPT     VENTANA "root" captura la pantalla entera
+capturar() {
+    python "$3" --demo > "$OUT/$1.log" 2>&1 &
+    local app=$!
+    sleep 10
+    if ! kill -0 "$app" 2>/dev/null; then
+        echo "::error::$1 terminó antes de la captura"
+        cat "$OUT/$1.log"
+        exit 1
+    fi
+    import -window "$2" "$OUT/$1.png"
+    kill "$app" 2>/dev/null
+    if grep -E "\.qml:|Traceback|ReferenceError|TypeError|is not a type|is not installed" "$OUT/$1.log"; then
+        echo "::error::$1 tiene errores o avisos de QML (ver $1.log en el artefacto capturas)"
+        exit 1
+    fi
+}
+capturar inicio root /usr/lib/antu/inicio/inicio.py
+# El instalador solo existe en el sistema en vivo (iso.yml).
+if [ -f /usr/lib/antu/instalador/instalador.py ]; then
+    QT_SCALE_FACTOR=1.5 capturar instalador "Instalar Antu" /usr/lib/antu/instalador/instalador.py
 fi
 
 # El arranque (Plymouth) no se captura aquí: su renderizador X11 no se activa en este contenedor; se prueba en VM.

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Ayudante privilegiado del instalador de Antu, solo en el sistema en vivo. Borra el disco elegido e instala la imagen
+# de Antu que viaja en el USB; las actualizaciones posteriores llegan del registro. Se niega con cualquier cosa que no
+# sea un disco completo, sin nada montado y de 40 GB o más.
+set -euo pipefail
+
+SOURCE=/run/initramfs/live/antu/imagen
+TARGET_IMAGE=ghcr.io/bernaljeanp/antu-nvidia:latest
+MIN_BYTES=40000000000
+
+die() { echo "$*" >&2; exit 1; }
+
+[ "$(id -u)" = 0 ] || die "El instalador necesita privilegios de administrador."
+[ "${1:-}" = instalar ] || die "Acción desconocida."
+dev="${2:-}"
+
+[[ "$dev" =~ ^/dev/(nvme[0-9]+n[0-9]+|sd[a-z]+|vd[a-z]+|mmcblk[0-9]+)$ ]] && [ -b "$dev" ] || die "Disco no válido."
+[ "$(lsblk -dno TYPE "$dev")" = disk ] || die "$dev no es un disco completo."
+# El USB de Antu está montado, así que esto también lo protege. Un fallo de lsblk nunca cuenta como "nada montado".
+mounts="$(lsblk -no MOUNTPOINT "$dev")" || die "No se pudo leer el estado de $dev."
+[ -z "$(printf '%s' "$mounts" | tr -d '[:space:]')" ] || die "$dev está en uso: tiene algo montado."
+[ "$(lsblk -bdno SIZE "$dev")" -ge "$MIN_BYTES" ] || die "El disco es demasiado pequeño: Antu necesita al menos 40 GB."
+[ -f "$SOURCE/index.json" ] || die "No se encontró la imagen de Antu en el USB."
+
+# Sin suspender ni apagar por la tapa a mitad de la copia.
+exec systemd-inhibit --what=sleep:idle:handle-lid-switch --who="Instalador de Antu" --why="Copiando Antu al disco" \
+    bootc install to-disk --composefs-backend --bootloader systemd --filesystem ext4 --wipe \
+    --source-imgref "oci:$SOURCE" --target-imgref "$TARGET_IMAGE" "$dev"

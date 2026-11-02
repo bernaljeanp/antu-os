@@ -1,0 +1,7 @@
+// Solo en el sistema en vivo: la cuenta antu no tiene contraseña, así que administra sin pedirla (como el liveuser de
+// Fedora). Sin esto el instalador y cualquier tarea de administración quedarían bloqueados por una contraseña que no existe.
+polkit.addRule(function (action, subject) {
+    if (subject.user == "antu" && subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});

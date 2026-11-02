@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Prueba automática del instalador en QEMU (ci/iso-test.sh): instala en el disco de antu.prueba-instalar=DISCO,
+# informa por la consola y apaga el equipo.
+dev="$(sed -n 's/.*antu\.prueba-instalar=\([^ ]*\).*/\1/p' /proc/cmdline)"
+if /usr/lib/antu/instalador-helper instalar "$dev"; then
+    echo "ANTU-INSTALAR: OK"
+else
+    echo "ANTU-INSTALAR: FALLO"
+fi
+systemctl poweroff

@@ -49,4 +49,4 @@ else
     run_bootc -v "$dir:/data" "$IMAGE" "${INSTALL_ARGS[@]}" --via-loopback "/data/$(basename "$TARGET")"
 fi
 
-echo "Listo. Al primer arranque se pedirá crear el usuario en la consola; después aparece SDDM."
+echo "Listo. Al primer arranque, Inicio te pedirá idioma, zona horaria y tu cuenta."

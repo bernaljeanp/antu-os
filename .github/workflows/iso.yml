@@ -1,0 +1,76 @@
+# Crea el USB en vivo de Antu (ISO con el instalador gráfico) y lo prueba en QEMU: arranque en vivo, instalación en un
+# disco virtual y arranque del sistema instalado. Corre después de cada compilación publicada de la imagen.
+name: iso
+on:
+  workflow_run:
+    workflows: [antu]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: iso
+  cancel-in-progress: true
+
+jobs:
+  iso:
+    name: Crear y probar la ISO
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Liberar espacio en disco
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/local/share/boost
+          sudo docker system prune --all --force > /dev/null
+          df -h /
+
+      - name: Instalar herramientas
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq podman skopeo squashfs-tools xorriso mtools dosfstools \
+            qemu-system-x86 qemu-utils ovmf socat imagemagick > /dev/null
+
+      - name: Crear la ISO
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GITHUB_TOKEN" | sudo podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
+          sudo bash scripts/make-iso.sh "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:latest"
+          df -h /
+
+      # El instalador en modo demo dentro del sistema en vivo; falla si su interfaz tiene errores de QML.
+      - name: Capturas de la interfaz en vivo
+        run: |
+          mkdir -p capturas
+          sudo podman run --rm -v "$PWD/capturas:/out" -v "$PWD/ci:/ci:ro" localhost/antu-live bash /ci/screenshots.sh
+
+      - name: Probar en QEMU
+        run: sudo bash ci/iso-test.sh iso-build
+
+      - name: Subir capturas y registros
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pruebas-iso
+          path: |
+            capturas/
+            pruebas-iso/*.png
+            pruebas-iso/*.log
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Subir ISO
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: antu-live-iso
+          path: |
+            iso-build/antu-live.iso
+            iso-build/antu-live.iso.sha256
+          retention-days: 7
+          compression-level: 0
