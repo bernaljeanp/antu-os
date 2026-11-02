@@ -69,6 +69,11 @@ RUN curl -fsSL -o /tmp/usboot.AppImage \
     chmod +x /tmp/usboot.AppImage && cd /tmp && ./usboot.AppImage --appimage-extract > /dev/null && \
     mv /tmp/squashfs-root /usr/lib/usboot && chmod -R a+rX /usr/lib/usboot && rm /tmp/usboot.AppImage
 
+# Archivos de Antu: identidad (colores, tema, fuentes, fondo), servicios, Inicio y configuración. Van antes de
+# activar servicios porque varias unidades (antu-*) vienen de aquí.
+COPY files/system/ /
+RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scripts/kde-defaults.sh
+
 # Inicio (asistente gráfico del primer arranque) crea la primera cuenta con systemd-homed antes del inicio de sesión.
 RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
@@ -76,10 +81,6 @@ RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-in
     passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-
-# Identidad Antu: colores, tema global, fuentes y fondo.
-COPY files/system/ /
-RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scripts/kde-defaults.sh
 
 # Initramfs con los módulos de bootc, regenerado después de instalar kernel y NVIDIA.
 RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
