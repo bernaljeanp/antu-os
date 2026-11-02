@@ -94,7 +94,7 @@ RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-in
 # Initramfs con los módulos de bootc, regenerado después de instalar kernel y NVIDIA.
 RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-module.conf && \
-    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc plymouth "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
+    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc plymouth "\nadd_drivers+=" usb_storage uas sd_mod "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
     kver="$(ls /usr/lib/modules)" && dracut --force "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
 
 # Solo para la prueba de arranque en CI: SSH para revisar la VM y sin el asistente de primer

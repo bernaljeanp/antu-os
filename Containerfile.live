@@ -15,6 +15,8 @@ RUN rm /usr/share/applications/antu-actualizaciones.desktop && \
 
 # Initramfs del USB: monta la imagen comprimida (squashfs) con una capa de escritura en memoria (overlayfs).
 # --tmpdir: la imagen base no trae /var/tmp (todo /var se crea al arrancar).
+# --add-drivers: sin usb-storage, el sistema ve el USB pero no puede leerlo y queda en modo de emergencia.
 RUN kver="$(ls /usr/lib/modules)" && mkdir -p /usr/lib/antu/live && \
     dracut --force --no-hostonly --tmpdir /tmp --omit " bootc ostree " --add " dmsquash-live " \
-      /usr/lib/antu/live/initramfs.img "$kver"
+      --add-drivers " usb_storage uas sd_mod sr_mod " /usr/lib/antu/live/initramfs.img "$kver" && \
+    lsinitrd /usr/lib/antu/live/initramfs.img | grep -q "usb-storage.ko"
