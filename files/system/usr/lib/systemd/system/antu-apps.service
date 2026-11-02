@@ -7,10 +7,10 @@ ConditionPathExists=!/var/lib/antu/apps-v1
 # instalación termina bien; sin internet, lo vuelve a intentar cada minuto.
 [Service]
 Type=exec
-ExecStartPre=/usr/bin/flatpak remote-add --system --if-not-exists flathub /etc/flatpak/remotes.d/flathub.flatpakrepo
 # Navegador; juegos (Heroic, Lutris, Bottles, ProtonPlus, Discord, Sober para Roblox); básicos (VLC, Mission Center,
 # OBS Studio) y EasyEffects, que reemplaza el ajuste de sonido Dolby de Windows.
-ExecStart=/bin/sh -c 'flatpak install --system --noninteractive --or-update flathub \
+ExecStart=/bin/sh -c 'flatpak remote-add --system --if-not-exists flathub /etc/flatpak/remotes.d/flathub.flatpakrepo \
+    && flatpak install --system --noninteractive --or-update flathub \
     com.brave.Browser \
     com.heroicgameslauncher.hgl net.lutris.Lutris com.usebottles.bottles com.vysp3r.ProtonPlus \
     com.discordapp.Discord org.vinegarhq.Sober \

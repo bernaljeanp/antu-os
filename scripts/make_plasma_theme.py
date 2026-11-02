@@ -1,5 +1,5 @@
-"""Estilo de Plasma «Antu»: vidrio de obsidiana con esquinas amplias para la barra, los menús, los avisos y las
-descripciones emergentes.
+"""Estilo de Plasma «Antu»: vidrio de obsidiana con esquinas amplias para la barra, los menús, los avisos, las
+descripciones emergentes y el resalte de las apps en la barra.
 
 Uso: python scripts/make_plasma_theme.py   (requiere Pillow)
 Escribe files/system/usr/share/plasma/desktoptheme/antu/. Cada superficie es un marco de 9 piezas en SVG con la
@@ -125,6 +125,69 @@ def marco(r, opacidad, sombra, margen):
             + "\n".join(piezas) + "\n</svg>\n")
 
 
+def tareas():
+    """SVG de widgets/tasks.svg: resaltes de vidrio de las apps en la barra, redondeados y separados de sus bordes."""
+    a, r, C2 = 3, 6, 16  # separación del borde, radio y lado de las piezas centrales
+    b = a + r  # lado de las piezas de borde
+    L = 2 * b + C2
+    P, R = b + C2, L - a  # inicio de la columna derecha y borde exterior del vidrio
+    i = r - 1
+    invisible = 'style="fill:#000000;fill-opacity:0.002"'  # da a cada pieza su tamaño completo, con la separación
+    # Prefijo: (color del esquema, opacidad del vidrio, opacidad del borde)
+    estados = {
+        "normal": ("Text", 0.05, 0.10),
+        "minimized": ("Text", 0.02, 0.06),
+        "hover": ("Text", 0.10, 0.18),
+        "focus": ("Highlight", 0.26, 0.60),
+        "attention": ("Highlight", 0.45, 0.85),
+        "progress": ("Highlight", 0.35, 0.0),
+    }
+    piezas = []
+    for fila, (prefijo, (color, vidrio, linea)) in enumerate(estados.items()):
+        y0 = fila * (L + 4)
+
+        def Y(v):
+            return y0 + v
+
+        def g(nombre, x, y, w, h, *formas):
+            piezas.append(f'<g id="{prefijo}-{nombre}"><rect {invisible} x="{x}" y="{Y(y)}" width="{w}" height="{h}"/>'
+                          f'{"".join(formas)}</g>')
+
+        fondo = f'class="ColorScheme-{color}" style="fill:currentColor;fill-opacity:{vidrio}"'
+        borde = f'class="ColorScheme-{color}" style="fill:currentColor;fill-opacity:{linea}"'
+        g("topleft", 0, 0, b, b,
+          f'<path {fondo} d="M{a + 1},{Y(b)} A{i},{i} 0 0 1 {b},{Y(a + 1)} L{b},{Y(b)} Z"/>',
+          f'<path {borde} d="M{a},{Y(b)} A{r},{r} 0 0 1 {b},{Y(a)} L{b},{Y(a + 1)} A{i},{i} 0 0 0 {a + 1},{Y(b)} Z"/>')
+        g("top", b, 0, C2, b, f'<rect {fondo} x="{b}" y="{Y(a + 1)}" width="{C2}" height="{r - 1}"/>',
+          f'<rect {borde} x="{b}" y="{Y(a)}" width="{C2}" height="1"/>')
+        g("topright", P, 0, b, b,
+          f'<path {fondo} d="M{P},{Y(a + 1)} A{i},{i} 0 0 1 {R - 1},{Y(b)} L{P},{Y(b)} Z"/>',
+          f'<path {borde} d="M{P},{Y(a)} A{r},{r} 0 0 1 {R},{Y(b)} L{R - 1},{Y(b)} A{i},{i} 0 0 0 {P},{Y(a + 1)} Z"/>')
+        g("left", 0, b, b, C2, f'<rect {fondo} x="{a + 1}" y="{Y(b)}" width="{r - 1}" height="{C2}"/>',
+          f'<rect {borde} x="{a}" y="{Y(b)}" width="1" height="{C2}"/>')
+        g("center", b, b, C2, C2, f'<rect {fondo} x="{b}" y="{Y(b)}" width="{C2}" height="{C2}"/>')
+        g("right", P, b, b, C2, f'<rect {fondo} x="{P}" y="{Y(b)}" width="{r - 1}" height="{C2}"/>',
+          f'<rect {borde} x="{R - 1}" y="{Y(b)}" width="1" height="{C2}"/>')
+        g("bottomleft", 0, P, b, b,
+          f'<path {fondo} d="M{b},{Y(R - 1)} A{i},{i} 0 0 1 {a + 1},{Y(P)} L{b},{Y(P)} Z"/>',
+          f'<path {borde} d="M{b},{Y(R)} A{r},{r} 0 0 1 {a},{Y(P)} L{a + 1},{Y(P)} A{i},{i} 0 0 0 {b},{Y(R - 1)} Z"/>')
+        g("bottom", b, P, C2, b, f'<rect {fondo} x="{b}" y="{Y(P)}" width="{C2}" height="{r - 1}"/>',
+          f'<rect {borde} x="{b}" y="{Y(R - 1)}" width="{C2}" height="1"/>')
+        g("bottomright", P, P, b, b,
+          f'<path {fondo} d="M{R - 1},{Y(P)} A{i},{i} 0 0 1 {P},{Y(R - 1)} L{P},{Y(P)} Z"/>',
+          f'<path {borde} d="M{R},{Y(P)} A{r},{r} 0 0 1 {P},{Y(R)} L{P},{Y(R - 1)} A{i},{i} 0 0 0 {R - 1},{Y(P)} Z"/>')
+        # El ícono se mide con estos márgenes, no con el tamaño de las piezas: así no se achica.
+        for lado, (x, y, w, h) in {"top": (b, 0, 4, 5), "bottom": (b, L - 5, 4, 5),
+                                   "left": (0, b, 5, 4), "right": (L - 5, b, 5, 4)}.items():
+            piezas.append(f'<rect id="{prefijo}-hint-{lado}-margin" style="fill:none" x="{x}" y="{Y(y)}" '
+                          f'width="{w}" height="{h}"/>')
+    alto = len(estados) * (L + 4)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{L}" height="{alto}" viewBox="0 0 {L} {alto}">\n'
+            '<defs><style id="current-color-scheme" type="text/css">'
+            '.ColorScheme-Text{color:#f5f5f7}.ColorScheme-Highlight{color:#ff5a1f}</style></defs>\n'
+            + "\n".join(piezas) + "\n</svg>\n")
+
+
 # Superficie: (archivo, radio, margen del contenido, sombra)
 SUPERFICIES = [
     ("dialogs/background.svg", 14, 7, (30, 10, 13)),   # menú, bandeja, avisos, ventanas emergentes
@@ -140,6 +203,7 @@ def main():
             destino = DEST / carpeta / archivo
             destino.parent.mkdir(parents=True, exist_ok=True)
             destino.write_text(marco(r, opacidad, sombra, margen), encoding="utf-8", newline="\n")
+    (DEST / "widgets/tasks.svg").write_text(tareas(), encoding="utf-8", newline="\n")
     (DEST / "metadata.json").write_text(json.dumps({
         "KPackageStructure": "Plasma/Theme",
         "KPlugin": {

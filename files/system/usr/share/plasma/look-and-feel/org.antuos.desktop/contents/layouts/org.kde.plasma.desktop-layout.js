@@ -22,13 +22,15 @@ tasks.writeConfig("launchers", [
     "preferred://filemanager",
     "applications:steam.desktop",
     "applications:org.kde.discover.desktop",
-    "applications:org.kde.konsole.desktop",
+    "applications:zenit.desktop",
     "applications:systemsettings.desktop"
 ]);
 
 panel.addWidget("org.kde.plasma.panelspacer");
 panel.addWidget("org.kde.plasma.systemtray");
-panel.addWidget("org.kde.plasma.digitalclock");
+var reloj = panel.addWidget("org.kde.plasma.digitalclock");
+reloj.currentConfigGroup = ["Appearance"];
+reloj.writeConfig("use24hFormat", 2);  // como el inicio de sesión
 
 var desktops = desktopsForActivity(currentActivity());
 for (var i = 0; i < desktops.length; i++) {

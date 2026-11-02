@@ -41,3 +41,7 @@ ShadowStrength=210
 [breezerc][Windeco]
 TitleAlignment=AlignCenterFullWidth
 ButtonSize=ButtonDefault
+
+# Pantalla de carga de la sesión: la misma para las dos distribuciones.
+[ksplashrc][KSplash]
+Theme=org.antuos.desktop

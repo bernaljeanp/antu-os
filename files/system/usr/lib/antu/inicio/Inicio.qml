@@ -2,7 +2,6 @@
 // resumen; la siguiente se abre. Mismo mundo visual que el inicio de sesión: vidrio de obsidiana y lava.
 import QtQuick
 import QtQuick.Controls.Basic
-import QtQuick.Effects
 import QtQuick.Layouts
 
 ApplicationWindow {
@@ -18,7 +17,6 @@ ApplicationWindow {
     readonly property color ink: "#F5F5F7"
     readonly property color ink2: "#C7C7CC"
     readonly property color negative: "#FF7069"
-    readonly property bool software: GraphicsInfo.api === GraphicsInfo.Software
 
     property int openSection: 0
     property bool userEdited: false
@@ -53,29 +51,17 @@ ApplicationWindow {
         function onFinished() { root.status = "Listo. Abriendo el inicio de sesión…" }
     }
 
-    // Fondo: el de Antu, desenfocado con GPU; sin GPU, solo oscurecido.
+    // Fondo: el de Antu oscurecido, nítido como en el inicio de sesión. Desenfocado se volvía negro con manchas rojas.
     Image {
-        id: wallpaper
         anchors.fill: parent
         source: "file:///usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg"
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
-        visible: root.software
     }
     Rectangle {
         anchors.fill: parent
-        visible: root.software
         color: "#000000"
         opacity: 0.55
-    }
-    MultiEffect {
-        anchors.fill: parent
-        source: wallpaper
-        visible: !root.software && wallpaper.status === Image.Ready
-        blurEnabled: true
-        blurMax: 64
-        blur: 1.0
-        brightness: -0.22
     }
 
     Flickable {

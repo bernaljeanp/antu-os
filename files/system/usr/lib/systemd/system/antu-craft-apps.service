@@ -10,8 +10,8 @@ ConditionPathExists=!/var/lib/antu/craft-apps-v1
 # En segundo plano, como antu-apps: el arranque no la espera.
 [Service]
 Type=exec
-ExecStartPre=/usr/bin/flatpak remote-add --system --if-not-exists artcraft-oci /usr/share/antu/artcraft-oci.flatpakrepo
-ExecStart=/bin/sh -c 'flatpak install --system --noninteractive --or-update artcraft-oci \
+ExecStart=/bin/sh -c 'flatpak remote-add --system --if-not-exists artcraft-oci /usr/share/antu/artcraft-oci.flatpakrepo \
+    && flatpak install --system --noninteractive --or-update artcraft-oci \
     ai.storyteller.wordcraft ai.storyteller.deckcraft ai.storyteller.gridcraft ai.storyteller.pdfcraft \
     && mkdir -p /var/lib/antu && touch /var/lib/antu/craft-apps-v1'
 Restart=on-failure

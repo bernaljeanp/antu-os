@@ -11,7 +11,9 @@ menu.writeConfig("icon", "antu");
 bar.addWidget("org.kde.plasma.appmenu");
 bar.addWidget("org.kde.plasma.panelspacer");
 bar.addWidget("org.kde.plasma.systemtray");
-bar.addWidget("org.kde.plasma.digitalclock");
+var reloj = bar.addWidget("org.kde.plasma.digitalclock");
+reloj.currentConfigGroup = ["Appearance"];
+reloj.writeConfig("use24hFormat", 2);  // como el inicio de sesión
 
 var dock = new Panel;
 dock.location = "bottom";
@@ -30,7 +32,7 @@ tasks.writeConfig("launchers", [
     "preferred://filemanager",
     "applications:steam.desktop",
     "applications:org.kde.discover.desktop",
-    "applications:org.kde.konsole.desktop",
+    "applications:zenit.desktop",
     "applications:systemsettings.desktop"
 ]);
 
