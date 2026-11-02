@@ -52,6 +52,24 @@ wait_for() {  # archivo patrón segundos
 qemu-img create -q -f qcow2 -F raw -b "$(realpath "$B/antu-live.iso")" "$B/usb.qcow2"
 USB=(-drive file="$B/usb.qcow2",if=none,id=usb,format=qcow2 -device qemu-xhci -device usb-storage,drive=usb)
 
+# Si el USB no arranca: cómo ve Linux sus particiones y qué dice el núcleo por la consola.
+diagnostico_usb() {
+    echo "== Diagnóstico del USB"
+    sfdisk -d "$B/antu-live.iso" 2>&1 || true
+    xorriso -indev "$B/antu-live.iso" -report_system_area plain 2>&1 | grep -E "GPT|MBR|Partition|El Torito" || true
+    local lazo
+    lazo="$(losetup --show -Pf "$B/antu-live.iso")"
+    udevadm settle
+    lsblk -o NAME,SIZE,TYPE,FSTYPE,LABEL,PARTTYPE "$lazo" || true
+    blkid -p "$lazo" "$lazo"p* || true
+    ls -l /dev/disk/by-label/ || true
+    losetup -d "$lazo"
+    local linea="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 console=ttyS0,115200 loglevel=7 rd.retry=40 rd.timeout=70"
+    timeout 200 "${QEMU[@]}" "${USB[@]}" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$linea" \
+        -serial file:"$OUT/serie-usb-diagnostico.log" || true
+    grep -aiE "xhci|usb-storage|usb_storage|scsi|sd[a-z]|by-label|ANTU_LIVE|isofs|Warning|Failed|error" "$OUT/serie-usb-diagnostico.log" | tail -n 70 || true
+}
+
 echo "== 1. El USB arranca hasta la sesión en vivo"
 "${QEMU[@]}" "${USB[@]}" -serial file:"$OUT/serie-en-vivo.log" &
 # Película del arranque: una captura cada 0,5 s (menú, animación «Encendido» y llegada al escritorio).
@@ -66,6 +84,7 @@ rm -f "$OUT"/arranque-*.ppm
 if ! wait_for "$OUT/serie-en-vivo.log" "ANTU-LIVE: arranque OK" 600; then
     shot en-vivo-fallo
     stop
+    diagnostico_usb
     echo "::error::La ISO no arrancó hasta el inicio de sesión (ver en-vivo-fallo.png y serie-en-vivo.log)"
     exit 1
 fi
