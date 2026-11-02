@@ -10,6 +10,9 @@ on:
       - scripts/make-iso.sh
       - ci/iso-test.sh
       - .github/workflows/iso.yml
+      # Prueba aparte de la cadena de arranque seguro.
+      - ci/arranque-seguro.sh
+      - .github/workflows/arranque-seguro.yml
   pull_request:
   schedule:
     - cron: "00 06 * * *" # diario: recoge las actualizaciones de Arch

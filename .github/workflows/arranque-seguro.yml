@@ -1,0 +1,39 @@
+# Prueba rápida de la cadena de arranque seguro (ci/arranque-seguro.sh): unos minutos, sin compilar la imagen.
+name: arranque-seguro
+on:
+  push:
+    branches: [main]
+    paths:
+      - ci/arranque-seguro.sh
+      - .github/workflows/arranque-seguro.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probar:
+    name: Probar la cadena de arranque seguro
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Instalar herramientas
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq podman qemu-system-x86 ovmf socat imagemagick sbsigntool mtools dosfstools \
+            gdisk libarchive-tools binutils > /dev/null
+
+      - name: Probar
+        run: sudo bash ci/arranque-seguro.sh
+
+      - name: Subir fotos y registros
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pruebas-arranque-seguro
+          path: pruebas-arranque-seguro
+          retention-days: 14
