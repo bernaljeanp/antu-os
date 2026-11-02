@@ -22,7 +22,20 @@ pinned="${IMAGE%:*}@$digest"
 echo "Imagen: $pinned"
 echo "$digest" > "$OUT/digest"  # la versión exacta que se prueba y se promueve
 podman build -f Containerfile.live --build-arg BASE="$pinned" -t localhost/antu-live .
-skopeo copy --quiet "docker://$pinned" "oci:$OUT/iso/antu/imagen"
+# Se baja como la bajará cada equipo: exigiendo la firma con la llave de Antu. Aviso, no bloqueo, hasta que esté probada.
+cat > "$OUT/politica.json" <<JSON
+{"default": [{"type": "reject"}],
+ "transports": {"docker": {"${IMAGE%:*}": [{"type": "sigstoreSigned", "signedIdentity": {"type": "matchRepository"},
+                                            "keyPath": "$PWD/files/system/etc/pki/containers/antu.pub"}]}}}
+JSON
+if skopeo --policy "$OUT/politica.json" --registries.d files/system/etc/containers/registries.d \
+    copy --quiet "docker://$pinned" "oci:$OUT/iso/antu/imagen"; then
+    echo "Firma con la llave de Antu: correcta"
+else
+    echo "::warning::La versión no pasó la comprobación de firma con la llave de Antu"
+    rm -rf "$OUT/iso/antu/imagen"
+    skopeo copy --quiet "docker://$pinned" "oci:$OUT/iso/antu/imagen"
+fi
 
 mnt="$(podman image mount localhost/antu-live)"
 kver="$(ls "$mnt/usr/lib/modules")"

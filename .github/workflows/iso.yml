@@ -82,9 +82,7 @@ jobs:
           echo "$GITHUB_TOKEN" | cosign login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
           cosign verify "$image@$digest" --certificate-oidc-issuer https://token.actions.githubusercontent.com \
             --certificate-identity-regexp "^https://github.com/${GITHUB_REPOSITORY}/" > /dev/null
-          # La firma con la llave de Antu (la que comprobarán los equipos). Aviso, no bloqueo, hasta que esté probada.
-          cosign verify --key files/system/etc/pki/containers/antu.pub --insecure-ignore-tlog=true "$image@$digest" > /dev/null ||
-            echo "::warning::La versión no trae la firma con la llave de Antu"
+          # La firma con la llave de Antu (la que comprobarán los equipos) ya se comprobó en make-iso.sh.
           for tag in stable latest "$(date -u +%Y%m%d)"; do
             sudo skopeo copy --all --preserve-digests --quiet "docker://$image@$digest" "docker://$image:$tag"
           done
