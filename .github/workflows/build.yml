@@ -54,6 +54,21 @@ jobs:
             echo "ANTU: prueba de arranque OK"
           '
 
+      # Fotografía el inicio de sesión y el arranque en una pantalla virtual; falla si el tema de SDDM tiene errores.
+      - name: Capturas de la interfaz
+        run: |
+          mkdir -p capturas
+          podman run --rm -v "$PWD/capturas:/out" -v "$PWD/ci:/ci:ro" localhost/antu-test:latest bash /ci/screenshots.sh
+
+      - name: Subir capturas
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: capturas
+          path: capturas/
+          retention-days: 7
+          if-no-files-found: warn
+
       - name: Compilar imagen publicable (sin SSH)
         if: github.event_name != 'pull_request'
         run: podman build -t antu-nvidia:latest .

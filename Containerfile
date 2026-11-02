@@ -42,7 +42,7 @@ RUN pacman -S --noconfirm base bubblewrap dracut linux linux-firmware intel-ucod
 
 # Escritorio y NVIDIA. nvidia-open viene compilado para el mismo kernel de arriba.
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
-      plasma-desktop sddm plasma-nm networkmanager konsole dolphin \
+      plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
       pipewire pipewire-pulse wireplumber noto-fonts openssh && \
     pacman -S --clean --noconfirm
 
@@ -60,7 +60,7 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scrip
 # Initramfs con los módulos de bootc, regenerado después de instalar kernel y NVIDIA.
 RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-module.conf && \
-    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
+    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc plymouth "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
     kver="$(ls /usr/lib/modules)" && dracut --force "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
 
 # Solo para la prueba de arranque en CI: SSH para revisar la VM y sin el asistente de primer

@@ -8,37 +8,41 @@ related_targets: []
 # Superficie: encender hasta escritorio
 
 Modo: Operate. Recorrido de los primeros dos minutos: arranque (Plymouth), inicio de sesión (SDDM), primer
-arranque (creación de usuario) y escritorio con su panel (KDE Plasma 6.8).
+arranque (creación de usuario) y escritorio con barra superior y dock (KDE Plasma 6.8).
 
-Audiencia y tarea: gamer con portátil NVIDIA que viene de Windows; quiere saber dónde está y llegar a jugar sin
-aprender Linux. Debe ser propio pero intuitivo; rechazos explícitos: parecer KDE con otro tema, folclore de postal.
+Audiencia y tarea: gamer con portátil NVIDIA que viene de Windows; quiere un sistema que se sienta como un Mac
+hecho para jugar y llegar a su juego sin aprender Linux. Rechazos: parecer KDE con otro tema, folclore de postal,
+copiar marcas de Apple.
 
-Restricciones: todo por mecanismos de KDE/Qt/SDDM/Plymouth, instalado en /usr; ningún efecto que cueste frames;
-controles estándar de la plataforma. Inspirado en la señalética del Metro de Santiago sin copiar su marca:
-colores de línea propios, sin pictogramas ni logotipo del Metro.
+Restricciones: mecanismos de KDE/Qt/SDDM/Plymouth instalados en /usr; el desenfoque se desactiva en el modo
+juego; controles estándar; botones de ventana a la derecha; nada de logotipos ni fuentes propietarias de Apple.
 
-Momento memorable: el arranque avanza como un tren de estación en estación y deja al usuario en su andén.
+Momento memorable: la contraseña fallida sacude la píldora como en macOS, y todo lo que se puede tocar arde en lava.
 
-Sin resolver: pantalla gráfica de primer arranque (hoy es consola de systemd-homed); modo juego Eclipse.
+Sin resolver: símbolo de Antu (hoy el arranque usa la palabra «antu»); fondo de pantalla propio (hoy es el plano
+de metro anterior); pantalla gráfica de primer arranque; modo juego Eclipse.
 
 ## Direction contract
 
-THESIS: Antu como red de metro: cada espacio es una línea con color y número, cada app una estación. Rechaza el
-escritorio gamer negro con neón y el Breeze por defecto recoloreado.
+THESIS: Antu se siente como un Mac en versión gamer: estructura y acabado de macOS (barra superior, dock flotante,
+Spotlight, Mission Control, vidrio y sombras suaves) en obsidiana oscura con un acento de lava. Rechaza el clon de
+Windows, el Breeze por defecto y el negro con neón.
 
-OWN-WORLD: placas esmaltadas de color pleno. Líneas: Jugar rojo esmalte #C8281E, Trabajar mostaza #E9A800, Familia
-verde #138A4B, Sistema azul #1450A0. Noche «Túnel» por defecto (grafito #141517, superficies #1E2023, tinta
-#F2F1EC); día «Andén» (esmalte #F7F6F2, tinta #1C1C1B). Archivo (Omnibus-Type) en ancho semiexpandido para
-nombres de estación, normal para interfaz; numerales tabulares; JetBrains Mono solo en terminal. Firma: el trazo
-grueso de línea con estaciones como círculos.
+OWN-WORLD: vidrio volcánico. Superficies de obsidiana translúcida con desenfoque (vidrio blanco al 14 % sobre
+fondo desenfocado), sombras suaves con desplazamiento, esquinas amplias (controles en píldora, ventanas 12 px,
+dock 22 px). Tinta #F5F5F7, secundaria #C7C7CC sobre vidrio; un solo acento lava #FF5A1F (selección #C93A0C).
+Inter para interfaz, Inter de tamaño óptico grande para reloj y títulos. Firma: la brasa de lava en foco, botón de
+entrar e indicador de app abierta.
 
-STORY: en segundos sabe en qué línea está, confía en que el sistema lo lleva y entra a jugar.
+STORY: llega de Windows, reconoce la calma y el orden de un Mac, nota que está hecho para jugar y entra a su juego.
 
-FIRST VIEWPORT: login SDDM como andén: arriba, la línea de arranque con sus estaciones ya recorridas; al centro,
-placa de usuario con círculo de línea e inicial y campo de contraseña estándar; arriba a la derecha, hora en
-numerales grandes; abajo, apagar, reiniciar y teclado. Escritorio: panel inferior como línea de recorrido con las
-apps como estaciones y el espacio actual como círculo numerado.
+FIRST VIEWPORT: login: fondo desenfocado y oscurecido; arriba al centro la fecha y la hora enorme; al centro el
+avatar circular de lava con la inicial, el nombre y la contraseña en píldora de vidrio con botón de flecha lava
+dentro; abajo al centro Suspender, Reiniciar y Apagar como círculos de vidrio con icono y texto; arriba a la
+derecha, sesión y teclado. Escritorio: barra superior de vidrio y dock flotante centrado con brasa bajo las apps
+abiertas.
 
-FORM: señalética del Metro de Santiago, posición 1 de la lista ordenada (elección de Impeccable), semilla 533d93b9.
+FORM: brief fijado por el usuario («un macOS gamer», vidrio translúcido); reemplaza la dirección Metro (semilla
+533d93b9, solo historia).
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

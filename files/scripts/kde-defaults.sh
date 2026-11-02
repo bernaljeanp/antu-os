@@ -8,4 +8,4 @@ set -euo pipefail
 
 mkdir -p /etc/xdg
 cat /usr/share/antu/kdeglobals.base \
-    /usr/share/color-schemes/AntuTunel.colors >> /etc/xdg/kdeglobals
+    /usr/share/color-schemes/AntuObsidiana.colors >> /etc/xdg/kdeglobals

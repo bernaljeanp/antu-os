@@ -1,0 +1,65 @@
+# Antu OS: arranque al estilo macOS en versión gamer: la marca al centro y una barra fina que se llena de lava.
+# Los recursos (scripts/make_plymouth.py) están dibujados para 1600 px de alto y se escalan aquí.
+
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
+
+W = Window.GetWidth();
+H = Window.GetHeight();
+S = H / 1600;
+
+wordmark_src = Image("wordmark.png");
+wordmark_img = wordmark_src.Scale(Math.Int(wordmark_src.GetWidth() * S), Math.Int(wordmark_src.GetHeight() * S));
+wordmark = Sprite(wordmark_img);
+wordmark.SetPosition(Math.Int((W - wordmark_img.GetWidth()) / 2), Math.Int(H * 0.44 - wordmark_img.GetHeight() / 2), 2);
+
+bar_w = Math.Int(H * 0.22);
+bar_h = Math.Int(6 * S);
+if (bar_h < 3) bar_h = 3;
+bar_x = Math.Int((W - bar_w) / 2);
+bar_y = Math.Int(H * 0.58);
+
+track = Sprite(Image("track.png").Scale(bar_w, bar_h));
+track.SetPosition(bar_x, bar_y, 1);
+
+fill_src = Image("fill.png");
+fill = Sprite();
+fill.SetPosition(bar_x, bar_y, 2);
+
+fun progress_callback(duration, progress) {
+    w = Math.Int(global.bar_w * progress);
+    if (w > global.bar_w) w = global.bar_w;
+    if (w > 0) global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
+}
+Plymouth.SetBootProgressFunction(progress_callback);
+
+# Mensajes del sistema (por ejemplo, revisión de disco): una línea discreta bajo la barra.
+message = Sprite();
+fun message_callback(text) {
+    img = Image.Text(text, 0.78, 0.78, 0.80);
+    global.message.SetImage(img);
+    global.message.SetPosition(Math.Int((global.W - img.GetWidth()) / 2), Math.Int(global.H * 0.66), 3);
+}
+Plymouth.SetMessageFunction(message_callback);
+
+# Contraseña de disco cifrado: indicación y puntos bajo la barra.
+prompt = Sprite();
+bullets = Sprite();
+fun password_callback(text, count) {
+    prompt_img = Image.Text(text, 0.96, 0.96, 0.97);
+    global.prompt.SetImage(prompt_img);
+    global.prompt.SetPosition(Math.Int((global.W - prompt_img.GetWidth()) / 2), Math.Int(global.H * 0.66), 3);
+    dots = "";
+    for (i = 0; i < count; i++) dots = dots + "•";
+    dots_img = Image.Text(dots, 0.96, 0.96, 0.97);
+    global.bullets.SetImage(dots_img);
+    global.bullets.SetPosition(Math.Int((global.W - dots_img.GetWidth()) / 2), Math.Int(global.H * 0.70), 3);
+    global.prompt.SetOpacity(1);
+    global.bullets.SetOpacity(1);
+}
+fun normal_callback() {
+    global.prompt.SetOpacity(0);
+    global.bullets.SetOpacity(0);
+}
+Plymouth.SetDisplayPasswordFunction(password_callback);
+Plymouth.SetDisplayNormalFunction(normal_callback);

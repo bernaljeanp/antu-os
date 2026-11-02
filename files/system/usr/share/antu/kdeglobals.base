@@ -1,17 +1,16 @@
 [KDE]
 LookAndFeelPackage=org.antuos.desktop
 
-# Archivo (Omnibus-Type): ancho normal para la interfaz; semiexpandida (stretch 112) en títulos de ventana,
-# como los nombres de estación.
+# Inter: la alternativa libre más cercana a la tipografía de macOS. Títulos de ventana en seminegrita.
 [General]
-font=Archivo,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
-menuFont=Archivo,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
-toolBarFont=Archivo,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
-smallestReadableFont=Archivo,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+font=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+menuFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+toolBarFont=Inter,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+smallestReadableFont=Inter,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 fixed=JetBrains Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 
 [WM]
-activeFont=Archivo,10,-1,5,600,0,0,0,0,0,0,0,0,0,112,1
+activeFont=Inter,10,-1,5,600,0,0,0,0,0,0,0,0,0,0,1
 
 [Icons]
 Theme=breeze-dark

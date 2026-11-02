@@ -3,5 +3,6 @@
 .github
 brand
 scripts
+ci
 third_party
 *.md

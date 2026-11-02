@@ -53,6 +53,10 @@ charge limit) that other distributions lack.
   is called "Eclipse", the performance profile "Erupción".
 - The StarNovum OS identity (open star, cobalt, pearl surfaces, Sora/Public Sans) is **not binding**: the user chose
   a full redesign; StarNovum is reference only.
+- **User-pinned interface (2026-11-01): "un macOS gamer".** macOS structure and finish (top bar, floating dock,
+  Spotlight-style launcher, Mission Control-style overview) with the macOS aesthetic: translucent glass, blur and
+  soft shadows, dark by default, gamer accents. Window buttons stay on the **right** (Windows habit). This replaces
+  the earlier Metro de Santiago direction. It must not copy Apple trademarks, logos or proprietary fonts.
 
 ## Evidence on Hand
 

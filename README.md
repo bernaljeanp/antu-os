@@ -102,13 +102,15 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 - La imagen base está fijada por digest, pero los paquetes de Arch se toman del día; faltan canales
   `testing` / `stable` con fecha fija de repositorios.
 - Sin firma de imágenes ni Secure Boot todavía.
-- La identidad visual (sistema Metro: esquemas Túnel y Andén, fondos de red, Archivo) está en construcción:
-  faltan el símbolo de Antu, la pantalla de arranque, el inicio de sesión y el panel como línea de recorrido.
+- La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) está en construcción: ya hay pantalla de
+  arranque e inicio de sesión; faltan la barra superior y el dock, el símbolo de Antu y un fondo propio (el actual
+  es provisional). Cada compilación sube capturas del inicio de sesión y del arranque (artefacto `capturas`).
 
 ## Licencias y terceros
 
 - **Por decidir:** licencia del repositorio y de los fondos (los metadatos proponen GPL-3.0 y CC-BY-SA-4.0).
-- Fuentes Archivo (Omnibus-Type) y JetBrains Mono: SIL OFL, licencias en `files/system/usr/share/fonts/antu/`.
-- Los fondos los dibuja `scripts/make_wallpapers.py`; los esquemas de color salen de `scripts/make_colors.py`.
+- Fuentes Inter (The Inter Project Authors) y JetBrains Mono: SIL OFL, licencias en `files/system/usr/share/fonts/antu/`.
+- Los esquemas de color salen de `scripts/make_colors.py`, los recursos del arranque de `scripts/make_plymouth.py`
+  y los fondos de `scripts/make_wallpapers.py`.
 - La parte bootc del `Containerfile` está adaptada de [bootcrew/mono](https://github.com/bootcrew/mono)
   (Apache-2.0, Copyright 2025 tulilirockz). Licencia en `third_party/bootcrew-LICENSE`.

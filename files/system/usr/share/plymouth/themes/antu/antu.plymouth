@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Antu
+Description=Arranque de Antu OS: la marca al centro y una barra fina de lava.
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/antu
+ScriptFile=/usr/share/plymouth/themes/antu/antu.script

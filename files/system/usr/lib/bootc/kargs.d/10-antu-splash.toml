@@ -1,0 +1,2 @@
+# Pantalla de arranque de Antu (Plymouth) en lugar de los mensajes del kernel.
+kargs = ["quiet", "splash"]
