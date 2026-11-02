@@ -1,61 +1,24 @@
-# Antu OS, «Amanecer»: el sol de lava sube desde el horizonte, la cumbre aparece a su alrededor y, mientras arranca el
-# sistema, el sol respira. Las piezas (scripts/make_brand.py) miden 512 px por las 64 unidades del símbolo.
+# Antu OS, «Amanecer»: se enciende el cielo de Atacama, el horizonte se ilumina, el sol de lava nace detrás de él con
+# un destello y la cumbre aparece recortada contra su luz. Mientras arranca el sistema, las estrellas titilan y el sol
+# respira. Piezas en scripts/make_brand.py; cumbre, sol y halo miden 512 px por las 64 unidades del símbolo.
 
 Window.SetBackgroundTopColor(0, 0, 0);
 Window.SetBackgroundBottomColor(0, 0, 0);
 
 W = Window.GetWidth();
 H = Window.GetHeight();
-Z = Math.Int(H * 0.16);   # alto del símbolo: 256 px en una pantalla de 1600
+Z = Math.Int(H * 0.16);      # alto del símbolo: 256 px en una pantalla de 1600
 F = Z / 512;
 CX = W / 2;
 CY = H * 0.44;
-SUN_Y = CY + Z * 14 / 64; # el sol se posa en la unidad 46 de 64
-RISE = Z * 0.55;          # y sube desde bien abajo de la base de la cumbre
+SUN_Y = CY + Z * 14 / 64;    # el sol se posa en la unidad 46 de 64
+HORIZON = CY + Z * 24 / 64;  # la base de la cumbre (unidad 56) es el horizonte
+RISE = Z * 0.55;             # el sol parte bajo el horizonte
 
-fun scaled(name) {
+fun scaled(name, k) {
     img = Image(name);
-    return img.Scale(Math.Int(img.GetWidth() * global.F), Math.Int(img.GetHeight() * global.F));
+    return img.Scale(Math.Int(img.GetWidth() * global.F * k), Math.Int(img.GetHeight() * global.F * k));
 }
-
-cumbre_img = scaled("cumbre.png");
-cumbre = Sprite(cumbre_img);
-cumbre.SetPosition(Math.Int(CX - cumbre_img.GetWidth() / 2), Math.Int(CY - cumbre_img.GetHeight() / 2), 3);
-cumbre.SetOpacity(0);
-
-# El halo va detrás de la cumbre: la A se recorta contra la luz, como un cerro al amanecer.
-halo_img = scaled("halo.png");
-halo = Sprite(halo_img);
-halo.SetOpacity(0);
-sol_img = scaled("sol.png");
-sol = Sprite(sol_img);
-sol.SetOpacity(0);
-
-fun place_sun(y) {
-    global.sol.SetPosition(Math.Int(global.CX - global.sol_img.GetWidth() / 2), Math.Int(y - global.sol_img.GetHeight() / 2), 4);
-    global.halo.SetPosition(Math.Int(global.CX - global.halo_img.GetWidth() / 2), Math.Int(y - global.halo_img.GetHeight() / 2), 2);
-}
-place_sun(SUN_Y + RISE);
-
-# Barra fina de progreso bajo el símbolo; aparece junto con la cumbre.
-bar_w = Math.Int(H * 0.22);
-bar_h = Math.Int(6 * H / 1600);
-if (bar_h < 3) bar_h = 3;
-bar_x = Math.Int((W - bar_w) / 2);
-bar_y = Math.Int(H * 0.58);
-track = Sprite(Image("track.png").Scale(bar_w, bar_h));
-track.SetPosition(bar_x, bar_y, 1);
-track.SetOpacity(0);
-fill_src = Image("fill.png");
-fill = Sprite();
-fill.SetPosition(bar_x, bar_y, 2);
-
-fun progress_callback(duration, progress) {
-    w = Math.Int(global.bar_w * progress);
-    if (w > global.bar_w) w = global.bar_w;
-    if (w > 0) global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
-}
-Plymouth.SetBootProgressFunction(progress_callback);
 
 # Salida cúbica: arranca rápido y se posa suave.
 fun ease(x) {
@@ -64,18 +27,120 @@ fun ease(x) {
     return 1 - (1 - x) * (1 - x) * (1 - x);
 }
 
+# Cielo: estrellas al azar, más densas arriba; cada una se enciende a su tiempo y titila a su ritmo.
+star_src = Image("estrella.png");
+for (k = 0; k < 3; k++) {
+    px = Math.Int((4 + k * k * 4) * H / 1080 + 0.5);  # 4, 8 y 20 px en una pantalla de 1080
+    if (px < 2) px = 2;
+    star_img[k] = star_src.Scale(px, px);
+}
+N = 110;
+for (i = 0; i < N; i++) {
+    r = Math.Random();
+    k = 0;
+    if (r > 0.72) k = 1;
+    if (r > 0.96) k = 2;
+    star_sprite[i] = Sprite(star_img[k]);
+    star_sprite[i].SetPosition(Math.Int(Math.Random() * W), Math.Int(HORIZON * Math.Random() * (0.35 + 0.65 * Math.Random())), 1);
+    star_sprite[i].SetOpacity(0);
+    star_delay[i] = Math.Random() * 1.2;
+    star_phase[i] = Math.Random() * 6.28;
+    star_speed[i] = 1.2 + Math.Random() * 2;
+    star_level[i] = 0.5 + 0.5 * Math.Random();
+}
+
+# Sol, su halo y el destello al llegar. Todo va detrás de la noche y de la cumbre: nace detrás del horizonte y la A se
+# recorta contra su luz, como un cerro al amanecer.
+halo_img = scaled("halo.png", 1);
+halo = Sprite(halo_img);
+halo.SetOpacity(0);
+bloom_img = scaled("halo.png", 1.9);
+bloom = Sprite(bloom_img);
+bloom.SetOpacity(0);
+sol_img = scaled("sol.png", 1);
+sol = Sprite(sol_img);
+
+fun center(sprite, img, x, y, z) {
+    sprite.SetPosition(Math.Int(x - img.GetWidth() / 2), Math.Int(y - img.GetHeight() / 2), z);
+}
+fun place_sun(y) {
+    center(global.halo, global.halo_img, global.CX, y, 2);
+    center(global.bloom, global.bloom_img, global.CX, y, 2);
+    center(global.sol, global.sol_img, global.CX, y, 3);
+}
+place_sun(SUN_Y + RISE);
+
+noche = Sprite(Image("noche.png").Scale(W, Math.Int(H - HORIZON) + 1));
+noche.SetPosition(0, Math.Int(HORIZON), 4);
+
+# Línea del horizonte: se enciende desde el centro hacia los lados.
+horizon_src = Image("horizonte.png");
+HW = Math.Int(Z * 3.4);
+HH = Math.Int(Z * 0.16);
+if (HH < 6) HH = 6;
+horizon = Sprite();
+horizon.SetOpacity(0);
+
+cumbre_img = scaled("cumbre.png", 1);
+cumbre = Sprite(cumbre_img);
+cumbre.SetOpacity(0);
+center(cumbre, cumbre_img, CX, CY, 6);
+
+# Barra fina de progreso bajo el símbolo.
+bar_w = Math.Int(H * 0.22);
+bar_h = Math.Int(6 * H / 1600);
+if (bar_h < 3) bar_h = 3;
+bar_x = Math.Int((W - bar_w) / 2);
+bar_y = Math.Int(H * 0.58);
+track = Sprite(Image("track.png").Scale(bar_w, bar_h));
+track.SetPosition(bar_x, bar_y, 7);
+track.SetOpacity(0);
+fill_src = Image("fill.png");
+fill = Sprite();
+fill.SetPosition(bar_x, bar_y, 7);
+
+fun progress_callback(duration, progress) {
+    w = Math.Int(global.bar_w * progress);
+    if (w > global.bar_w) w = global.bar_w;
+    if (w > 0) global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
+}
+Plymouth.SetBootProgressFunction(progress_callback);
+
 t = 0;
 fun refresh_callback() {
     global.t = global.t + 0.02;  # Plymouth llama 50 veces por segundo
-    rise = ease(global.t / 1.1);
+    t = global.t;
+
+    for (i = 0; i < global.N; i++) {
+        a = ease((t - global.star_delay[i]) / 0.6);
+        if (a > 0) global.star_sprite[i].SetOpacity(a * global.star_level[i] * (0.75 + 0.25 * Math.Sin(t * global.star_speed[i] + global.star_phase[i])));
+    }
+
+    glow = ease((t - 0.15) / 0.7);
+    if (t < 1) {
+        w = Math.Int(global.HW * (0.15 + 0.85 * glow));
+        global.horizon.SetImage(global.horizon_src.Scale(w, global.HH));
+        global.horizon.SetPosition(Math.Int(global.CX - w / 2), Math.Int(global.HORIZON - global.HH / 2), 5);
+    }
+    breath = Math.Sin(t * 2.4);  # el sol respira: un ciclo cada 2,6 s
+    global.horizon.SetOpacity(glow * (1 - 0.5 * ease((t - 1.4) / 1)) * (0.8 + 0.2 * breath));
+
+    rise = ease((t - 0.35) / 1.1);
     place_sun(global.SUN_Y + global.RISE * (1 - rise));
-    global.sol.SetOpacity(rise);
-    show = ease((global.t - 0.55) / 0.9);
+    global.halo.SetOpacity(glow * (0.4 + 0.6 * rise) * (0.65 + 0.35 * breath));
+
+    flash = 0;
+    if (t > 1.05) flash = (t - 1.05) / 0.3;
+    if (t > 1.35) flash = 1 - ease((t - 1.35) / 1.15);
+    global.bloom.SetOpacity(0.85 * flash);
+
+    show = ease((t - 0.9) / 0.9);
     global.cumbre.SetOpacity(show);
-    global.track.SetOpacity(show);
-    global.fill.SetOpacity(show);
-    # Respiración del sol: el halo late lento, un ciclo cada 2,6 s.
-    global.halo.SetOpacity(rise * (0.6 + 0.3 * Math.Sin(global.t * 2.4)));
+    if (show < 1) center(global.cumbre, global.cumbre_img, global.CX, global.CY + (1 - show) * global.Z * 0.05, 6);
+
+    bar = ease((t - 1.6) / 0.6);
+    global.track.SetOpacity(bar);
+    global.fill.SetOpacity(bar);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 
@@ -84,7 +149,7 @@ message = Sprite();
 fun message_callback(text) {
     img = Image.Text(text, 0.78, 0.78, 0.80);
     global.message.SetImage(img);
-    global.message.SetPosition(Math.Int((global.W - img.GetWidth()) / 2), Math.Int(global.H * 0.66), 3);
+    global.message.SetPosition(Math.Int((global.W - img.GetWidth()) / 2), Math.Int(global.H * 0.66), 8);
 }
 Plymouth.SetMessageFunction(message_callback);
 
@@ -94,12 +159,12 @@ bullets = Sprite();
 fun password_callback(text, count) {
     prompt_img = Image.Text(text, 0.96, 0.96, 0.97);
     global.prompt.SetImage(prompt_img);
-    global.prompt.SetPosition(Math.Int((global.W - prompt_img.GetWidth()) / 2), Math.Int(global.H * 0.66), 3);
+    global.prompt.SetPosition(Math.Int((global.W - prompt_img.GetWidth()) / 2), Math.Int(global.H * 0.66), 8);
     dots = "";
     for (i = 0; i < count; i++) dots = dots + "•";
     dots_img = Image.Text(dots, 0.96, 0.96, 0.97);
     global.bullets.SetImage(dots_img);
-    global.bullets.SetPosition(Math.Int((global.W - dots_img.GetWidth()) / 2), Math.Int(global.H * 0.70), 3);
+    global.bullets.SetPosition(Math.Int((global.W - dots_img.GetWidth()) / 2), Math.Int(global.H * 0.70), 8);
     global.prompt.SetOpacity(1);
     global.bullets.SetOpacity(1);
 }

@@ -75,6 +75,21 @@ def plymouth():
     halo = Image.new("RGBA", (512, 512), LAVA)
     halo.putalpha(alpha)
     halo.save(ply/"halo.png", optimize=True)
+    # Estrella: punto suave blanco azulado; antu.script la escala a tres tamaños.
+    star = Image.new("RGBA", (32, 32), "#E8EEFF")
+    star.putalpha(Image.radial_gradient("L").resize((32, 32), Image.Resampling.BICUBIC)
+                  .point(lambda v: round(255 * max(0.0, 1 - v / 128) ** 1.5)))
+    star.save(ply/"estrella.png", optimize=True)
+    # Horizonte: línea de luz cálida, intensa al centro y que se apaga hacia los lados y arriba y abajo.
+    hw, hh = 1024, 48
+    line = Image.new("L", (hw, hh))
+    line.putdata([round(255 * max(0.0, 1 - abs(x - hw/2) / (hw/2)) ** 1.6 * 2.718 ** -(((y - hh/2) / 5) ** 2))
+                  for y in range(hh) for x in range(hw)])
+    horizon = Image.new("RGBA", (hw, hh), "#FF8A3D")
+    horizon.putalpha(line)
+    horizon.save(ply/"horizonte.png", optimize=True)
+    # Noche: tapa todo lo que queda bajo el horizonte, para que el sol nazca detrás de él.
+    Image.new("RGBA", (1, 1), "#000000").save(ply/"noche.png")
     Image.new("RGBA", (1, 1), TRACK).save(ply/"track.png")
     Image.new("RGBA", (1, 1), LAVA).save(ply/"fill.png")
 
