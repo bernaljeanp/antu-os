@@ -7,14 +7,26 @@ OUT=/out
 pacman -Sy --noconfirm --needed xorg-server-xvfb imagemagick >/dev/null || exit 1
 useradd -m -c "Jean Bernal" jean  # cuenta ficticia, solo para ver la placa de usuario
 
-export DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1
-Xvfb :99 -screen 0 2560x1600x24 -nolisten tcp &
+# Sin GLX: el GLX por software de Xvfb se cae en este contenedor. Qt dibuja por software, así que el
+# desenfoque del fondo (MultiEffect) no sale en la captura; la composición sí.
+export DISPLAY=:99 QT_QUICK_BACKEND=software
+Xvfb :99 -screen 0 2560x1600x24 -nolisten tcp -extension GLX &
+xvfb=$!
 sleep 3
+if ! kill -0 "$xvfb" 2>/dev/null; then
+    echo "::warning::Xvfb no arrancó: sin capturas en esta compilación (problema del entorno de CI, no del tema)"
+    exit 0
+fi
 
-# Inicio de sesión: SDDM en modo prueba con el tema Antu.
+# Inicio de sesión: SDDM en modo prueba con el tema Antu. Si el greeter se cae, el tema no carga: falla.
 sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/antu > "$OUT/sddm.log" 2>&1 &
 greeter=$!
 sleep 12
+if ! kill -0 "$greeter" 2>/dev/null; then
+    echo "::error::sddm-greeter terminó antes de la captura: el tema de inicio de sesión no carga"
+    cat "$OUT/sddm.log"
+    exit 1
+fi
 import -window root "$OUT/sddm.png"
 kill "$greeter" 2>/dev/null
 if grep -E "themes/antu/|ReferenceError|TypeError|is not a type|is not installed|Cannot assign" "$OUT/sddm.log"; then
