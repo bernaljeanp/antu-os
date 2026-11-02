@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Sesión del asistente Inicio: KWin con una sola ventana, la de Inicio; al cerrarla termina la sesión.
+export QT_QPA_PLATFORM=wayland
+exec kwin_wayland --no-lockscreen --exit-with-session /usr/lib/antu/inicio/inicio.py

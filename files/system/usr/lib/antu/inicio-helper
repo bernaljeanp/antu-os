@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Ayudante privilegiado de Inicio. Solo la cuenta antu-inicio puede lanzarlo sin contraseña (regla de polkit), y solo
+# mientras el primer arranque no ha terminado. Valida cada dato contra una lista cerrada; la contraseña llega por la
+# entrada estándar, nunca como argumento visible en la lista de procesos.
+set -euo pipefail
+
+DONE=/var/lib/antu/inicio-done
+AUTOLOGIN=/etc/sddm.conf.d/90-antu-inicio.conf
+
+die() { echo "$*" >&2; exit 1; }
+
+hay_usuarios() {
+    awk -F: '$3 >= 1000 && $3 < 60000 { found = 1 } END { exit !found }' /etc/passwd && return 0
+    [ -n "$(homectl list --no-legend 2>/dev/null)" ]
+}
+
+[ "$(id -u)" = 0 ] || die "Inicio necesita privilegios de administrador."
+cmd="${1:-}"
+shift || true
+
+if [ "$cmd" = sin-usuarios ]; then  # condición de antu-inicio-prepare.service
+    ! hay_usuarios && [ ! -e "$DONE" ]
+    exit
+fi
+
+[ ! -e "$DONE" ] || die "La configuración inicial ya terminó."
+
+case "$cmd" in
+    idioma)
+        case "${1:-}" in
+            es_CL.UTF-8 | es_ES.UTF-8 | en_US.UTF-8) localectl set-locale "LANG=$1" ;;
+            *) die "Idioma no disponible." ;;
+        esac
+        ;;
+    teclado)
+        case "${1:-}" in
+            latam) x11=latam console=la-latin1 ;;
+            es) x11=es console=es ;;
+            us) x11=us console=us ;;
+            *) die "Distribución de teclado no disponible." ;;
+        esac
+        localectl set-x11-keymap "$x11"
+        localectl --no-convert set-keymap "$console"
+        ;;
+    zona)
+        zone="${1:-}"
+        [[ "$zone" =~ ^[A-Za-z_]+(/[A-Za-z0-9_+-]+){1,2}$ ]] && [ -f "/usr/share/zoneinfo/$zone" ] \
+            || die "Zona horaria no válida."
+        timedatectl set-timezone "$zone"
+        ;;
+    crear-usuario)
+        user="${1:-}" real="${2:-}"
+        [[ "$user" =~ ^[a-z][a-z0-9_-]{0,30}$ ]] || die "El nombre de usuario solo admite minúsculas, números, - y _."
+        [ "${#real}" -ge 1 ] && [ "${#real}" -le 64 ] && ! [[ "$real" =~ [[:cntrl:]:] ]] || die "Nombre no válido."
+        hay_usuarios && die "Ya existe una cuenta en este equipo."
+        IFS= read -r password || die "Falta la contraseña."
+        [ -n "$password" ] || die "La contraseña no puede estar vacía."
+        NEWPASSWORD="$password" homectl create "$user" --real-name="$real" --member-of=wheel \
+            --storage=directory --enforce-password-policy=no
+        ;;
+    escritorio)
+        case "${1:-}" in
+            zorin) lnf=org.antuos.desktop ;;
+            mac) lnf=org.antuos.mac ;;
+            *) die "Distribución de escritorio no disponible." ;;
+        esac
+        printf '\n[KDE]\nLookAndFeelPackage=%s\n' "$lnf" >> /etc/xdg/kdeglobals
+        ;;
+    ia)
+        [ "${1:-}" = si ] || die "Opción no válida."
+        mkdir -p /var/lib/antu
+        touch /var/lib/antu/ia-solicitada
+        systemctl start --no-block antu-ia.service
+        ;;
+    terminar)
+        hay_usuarios || die "Crea tu cuenta antes de terminar."
+        rm -f "$AUTOLOGIN"
+        mkdir -p /var/lib/antu
+        touch "$DONE"
+        systemctl restart --no-block display-manager.service
+        ;;
+    *)
+        die "Acción desconocida."
+        ;;
+esac

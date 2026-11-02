@@ -1,0 +1,17 @@
+[Unit]
+Description=Instala la IA local (Alpaca con Ollama) pedida en Inicio
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/var/lib/antu/ia-solicitada
+ConditionPathExists=!/var/lib/antu/ia-instalada
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/flatpak remote-add --system --if-not-exists flathub /etc/flatpak/remotes.d/flathub.flatpakrepo
+ExecStart=/usr/bin/flatpak install --system --noninteractive --or-update flathub com.jeffser.Alpaca com.jeffser.Alpaca.Plugins.Ollama
+ExecStartPost=/usr/bin/touch /var/lib/antu/ia-instalada
+Restart=on-failure
+RestartSec=120
+
+[Install]
+WantedBy=multi-user.target

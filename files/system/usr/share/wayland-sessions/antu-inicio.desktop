@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Antu Inicio
+Comment=Asistente del primer arranque
+Exec=/usr/lib/antu/inicio/session
+Type=Application
+NoDisplay=true

@@ -34,6 +34,22 @@ if grep -E "themes/antu/|ReferenceError|TypeError|is not a type|is not installed
     exit 1
 fi
 
+# Inicio (asistente del primer arranque) en modo demo: no ejecuta nada. Si no carga o tiene errores, falla.
+python /usr/lib/antu/inicio/inicio.py --demo > "$OUT/inicio.log" 2>&1 &
+inicio=$!
+sleep 10
+if ! kill -0 "$inicio" 2>/dev/null; then
+    echo "::error::Inicio terminó antes de la captura"
+    cat "$OUT/inicio.log"
+    exit 1
+fi
+import -window root "$OUT/inicio.png"
+kill "$inicio" 2>/dev/null
+if grep -E "\.qml:|Traceback|ReferenceError|TypeError|is not a type|is not installed" "$OUT/inicio.log"; then
+    echo "::error::Inicio tiene errores o avisos de QML (ver inicio.log en el artefacto capturas)"
+    exit 1
+fi
+
 # El arranque (Plymouth) no se captura aquí: su renderizador X11 no se activa en este contenedor; se prueba en VM.
 
 # Escritorio: Plasma en una sesión Wayland virtual con un usuario nuevo, que recibe la distribución del tema global.

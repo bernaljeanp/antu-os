@@ -51,6 +51,11 @@ jobs:
             test -x /usr/bin/antu-eclipse
             test -f /usr/lib/systemd/system/antu-apps.service
             test -f /usr/lib/systemd/system/antu-craft-apps.service
+            # Inicio: cuenta de sistema, ayudante ejecutable, regla de polkit y sin el asistente de consola anterior.
+            getent passwd antu-inicio > /dev/null
+            test -x /usr/lib/antu/inicio-helper && test -x /usr/lib/antu/inicio/inicio.py
+            test -f /usr/share/polkit-1/rules.d/50-antu-inicio.rules
+            ! systemctl is-enabled systemd-homed-firstboot > /dev/null 2>&1
             # Utilidades, USBoot, IA opcional y energía/suspensión de NVIDIA.
             command -v ark gwenview spectacle kate kcalc 7z > /dev/null
             test -x /usr/lib/usboot/AppRun && test -x /usr/bin/antu-ia

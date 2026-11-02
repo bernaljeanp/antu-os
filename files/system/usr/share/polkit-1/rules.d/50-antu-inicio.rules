@@ -1,0 +1,9 @@
+// Inicio (primer arranque): la cuenta antu-inicio puede ejecutar su ayudante sin contraseña. Nada más.
+// El ayudante valida cada dato y se niega a actuar cuando ya existe una cuenta o la configuración terminó.
+polkit.addRule(function (action, subject) {
+    if (action.id == "org.freedesktop.policykit.exec" &&
+        action.lookup("program") == "/usr/lib/antu/inicio-helper" &&
+        subject.user == "antu-inicio") {
+        return polkit.Result.YES;
+    }
+});

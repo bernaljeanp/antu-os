@@ -1,0 +1,14 @@
+[Unit]
+Description=Prepara Inicio, el asistente gráfico del primer arranque de Antu
+Before=display-manager.service
+After=systemd-homed.service systemd-sysusers.service
+
+[Service]
+Type=oneshot
+# Solo si todavía no hay ninguna cuenta y la configuración no ha terminado.
+ExecCondition=/usr/lib/antu/inicio-helper sin-usuarios
+ExecStart=/usr/bin/mkdir -p /etc/sddm.conf.d
+ExecStart=/usr/bin/sh -c 'printf "[Autologin]\nUser=antu-inicio\nSession=antu-inicio.desktop\nRelogin=false\n" > /etc/sddm.conf.d/90-antu-inicio.conf'
+
+[Install]
+WantedBy=multi-user.target

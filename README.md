@@ -77,8 +77,10 @@ Equipo de referencia: Alienware 16X Aurora (Core Ultra 9 275HX, RTX 5070 Laptop)
 
 ## Primer arranque
 
-`systemd-homed` pide crear el primer usuario en la consola (nombre y contraseña) antes de que aparezca SDDM.
-El teclado de la consola es inglés (US) por ahora.
+**Inicio**, el asistente gráfico, aparece solo la primera vez: idioma y teclado, zona horaria, tu cuenta, el
+escritorio (barra inferior centrada o barra superior y dock) y extras como la IA local, todo en una página. Al
+terminar aparece el inicio de sesión con tu cuenta. Corre en una cuenta de sistema sin privilegios; las acciones de
+administrador las hace un ayudante que valida cada dato y deja de funcionar en cuanto existe una cuenta.
 
 Ese usuario es administrador (grupo `wheel`). La cuenta root está bloqueada: para tareas de sistema se usa
 `run0`, el reemplazo de `sudo` de systemd:

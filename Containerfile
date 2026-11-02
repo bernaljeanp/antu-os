@@ -49,7 +49,7 @@ RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && pacman -Sy
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
       pipewire pipewire-pulse wireplumber noto-fonts openssh \
-      discover flatpak ark gwenview spectacle kate kcalc 7zip && \
+      discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 && \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
@@ -65,8 +65,8 @@ RUN curl -fsSL -o /tmp/usboot.AppImage \
     chmod +x /tmp/usboot.AppImage && cd /tmp && ./usboot.AppImage --appimage-extract > /dev/null && \
     mv /tmp/squashfs-root /usr/lib/usboot && chmod -R a+rX /usr/lib/usboot && rm /tmp/usboot.AppImage
 
-# systemd-homed-firstboot pide crear el primer usuario en la consola, antes de que arranque SDDM.
-RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed systemd-homed-firstboot antu-apps antu-craft-apps \
+# Inicio (asistente gráfico del primer arranque) crea la primera cuenta con systemd-homed antes del inicio de sesión.
+RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl mask systemd-firstboot.service && \
     passwd -l root && \
@@ -86,7 +86,7 @@ RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
 # Solo para la prueba de arranque en CI: SSH para revisar la VM y sin el asistente de primer
 # arranque, que esperaría en la consola para siempre. La imagen publicada no lleva ninguno de los dos cambios.
 ARG ANTU_CI=0
-RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask systemd-homed-firstboot.service antu-apps.service antu-craft-apps.service; fi
+RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service; fi
 
 # Estructura que espera un sistema por imágenes: todo lo mutable vive en /var.
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \
