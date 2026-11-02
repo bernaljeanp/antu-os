@@ -57,6 +57,7 @@ capturar inicio root /usr/lib/antu/inicio/inicio.py
 if [ -f /usr/lib/antu/instalador/instalador.py ]; then
     QT_SCALE_FACTOR=1.5 capturar instalador "Instalar Antu" /usr/lib/antu/instalador/instalador.py
 fi
+QT_SCALE_FACTOR=1.5 capturar zenit "Zenit" /usr/lib/antu/zenit/app.py
 
 # El arranque (Plymouth) no se captura aquí: su renderizador X11 no se activa en este contenedor; se prueba en VM.
 

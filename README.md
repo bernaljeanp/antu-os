@@ -34,12 +34,12 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   la BIOS.
 - **NVIDIA:** DLSS (incluida la generación de fotogramas), Reflex y ray tracing en Proton; G-Sync/VRR y HDR en
   Plasma con Wayland. La suspensión guarda la memoria de la GPU en disco para despertar sin errores.
-- **Zenit** (portátiles Alienware y Dell): el perfil térmico se elige solo (Equilibrado+ con cargador, Equilibrado
-  con batería, Rendimiento al abrir un juego de Steam, Heroic, Lutris o Bottles) y vuelve al cerrar el juego. Las
-  teclas F6 (Performance Boost), F7 (Sigilo) y F9 (luces) funcionan sin Alienware Command Center. En una terminal:
-  `zenit estado` muestra temperaturas y ventiladores; `zenit color FF5A1F`, `zenit color aurora` y `zenit carga 80`
-  cambian las luces y el límite de carga de la batería. Es el mismo Zenit Engine de Windows, sobre las interfaces del
-  kernel; falta probarlo en hardware real.
+- **Zenit** (portátiles Alienware y Dell), la app de control del equipo, siempre junto al reloj: temperaturas del
+  procesador y la gráfica, ventiladores, perfil térmico (automático: Equilibrado+ con cargador, Equilibrado con batería
+  y Rendimiento al abrir un juego), un perfil para cada juego, color y brillo de las luces del teclado, límite de carga
+  de la batería y las actualizaciones de Antu. Las teclas F6 (Performance Boost), F7 (Sigilo) y F9 (luces) funcionan sin
+  Alienware Command Center. Es el mismo Zenit Engine de Windows sobre las interfaces del kernel; falta probarlo en
+  hardware real.
 - **Más juegos:** Heroic (Epic, GOG, Amazon), Lutris y Bottles (otras tiendas y programas de Windows), ProtonPlus
   (versiones extra de Proton), Discord y Sober (Roblox, no oficial). Se instalan solas en el primer arranque.
 - **Navegador:** Brave, desde Flathub. Se instala solo en el primer arranque con internet y se actualiza aparte
@@ -108,17 +108,12 @@ escritorio (barra inferior centrada o barra superior y dock) y extras como la IA
 terminar aparece el inicio de sesión con tu cuenta. Corre en una cuenta de sistema sin privilegios; las acciones de
 administrador las hace un ayudante que valida cada dato y deja de funcionar en cuanto existe una cuenta.
 
-**Actualizaciones:** Antu se actualiza solo. Cada 6 horas busca la versión nueva, la baja en segundo plano (con la
+**Actualizaciones:** Antu se actualiza solo (en Zenit ves el estado, buscas una ahora o vuelves a la versión anterior). Cada 6 horas busca la versión nueva, la baja en segundo plano (con la
 prioridad más baja, para no molestar mientras juegas, y nunca con datos móviles) y te avisa cuando está lista. Se
 aplica la próxima vez que reinicias; si algo falla, en el menú de arranque eliges la versión anterior.
 
-Ese usuario es administrador (grupo `wheel`). La cuenta root está bloqueada: para tareas de sistema se usa
-`run0`, el reemplazo de `sudo` de systemd:
-
-```bash
-run0 systemctl start antu-actualizar   # buscar la actualización ahora, sin esperar
-run0 bootc rollback                   # volver a la versión anterior
-```
+Ese usuario es administrador (grupo `wheel`). La cuenta root está bloqueada; para las pocas tareas de sistema que
+no tienen botón se usa `run0`, el reemplazo de `sudo` de systemd.
 
 ## Cómo está hecha
 

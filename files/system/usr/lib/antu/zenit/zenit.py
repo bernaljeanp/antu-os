@@ -95,7 +95,7 @@ def en_cargador():
 def juego_de(cmdline):
     """El juego que corre en este proceso, o None. Steam nativo por su carpeta; Proton, Heroic, Lutris y Bottles
     por el .exe que ejecuta Wine."""
-    partes = cmdline.split("\0")
+    partes = cmdline.replace("\\", "/").split("\0")  # Proton: rutas con barras de Windows
     for p in partes:
         if "/steamapps/common/" in p:
             carpeta = p.split("/steamapps/common/")[1].split("/")[0].lower()
@@ -153,6 +153,30 @@ def poner_carga(limite):
         escribir(attr("CustomChargeStart"), start)
         escribir(attr("CustomChargeStop"), stop)
     escribir(attr("PrimaryBattChargeCfg"), "Custom")
+
+
+def estado_carga():
+    modo = leer(ruta(f"{SYSMAN}/PrimaryBattChargeCfg/current_value"))
+    tope = leer(ruta(f"{SYSMAN}/CustomChargeStop/current_value"), "0")
+    return modo, int(tope) if tope.isdigit() else 0
+
+
+def estado_actualizacion():
+    """Versión instalada, versión lista para el próximo arranque y si hay una anterior a la que volver."""
+    try:
+        salida = subprocess.run(["bootc", "status", "--format", "json"], capture_output=True, text=True, timeout=30).stdout
+        st = (json.loads(salida or "{}").get("status") or {})
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        st = {}
+
+    def fecha(entrada):
+        return ((entrada or {}).get("image") or {}).get("timestamp")
+
+    activo = subprocess.run(["systemctl", "is-active", "antu-actualizar.service"],
+                            capture_output=True, text=True).stdout.strip()
+    return {"disponible": bool(st), "instalada": fecha(st.get("booted")),
+            "lista": fecha(st.get("staged")) if st.get("staged") else None,
+            "anterior": bool(st.get("rollback")), "buscando": activo in ("active", "activating")}
 
 
 def leer_carga():
@@ -348,7 +372,11 @@ class Zenit:
         o = args[0] if args else "estado"
         if o == "estado":
             temps, fans = sensores()
+            _, opciones = rutas_perfil()
+            carga_modo, carga_tope = estado_carga()
             return {"ok": True, "perfil": self.actual(), "modo": self.estado["modo"], "cargador": en_cargador(),
+                    "perfiles": leer(opciones).split() if opciones else [], "carga_modo": carga_modo,
+                    "carga_tope": carga_tope, "juegos": self.estado["juegos"],
                     "juego": self.juego, "boost": self.boost, "sigilo": self.sigilo, "temperaturas": temps,
                     "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga()}
         if o == "perfil" and len(args) == 2 and (args[1] == "auto" or args[1] in PERFILES):
@@ -392,6 +420,13 @@ class Zenit:
             self.guardar()
         elif o == "carga" and len(args) == 2 and args[1] in ("60", "80", "100", "adaptativa"):
             poner_carga(None if args[1] == "adaptativa" else int(args[1]))
+        elif o == "actualizacion":
+            return {"ok": True, **estado_actualizacion()}
+        elif o == "buscar":
+            subprocess.run(["systemctl", "start", "--no-block", "antu-actualizar.service"], check=True)
+        elif o == "volver":
+            # La versión anterior queda para el próximo arranque; la app ofrece reiniciar.
+            subprocess.run(["bootc", "rollback"], check=True, capture_output=True, timeout=300)
         else:
             return {"ok": False, "error": "Orden desconocida. Escribe «zenit ayuda»."}
         self.aplicar()
@@ -531,6 +566,7 @@ def autoprueba():
         assert juego_de("/home/a/.steam/steamapps/common/Hades/Hades\0") == "hades"
         assert juego_de("/s/steamapps/common/SteamLinuxRuntime_sniper/pv\0--\0/s/steamapps/common/Hades/Hades\0") == "hades"
         assert juego_de("/s/steamapps/common/Proton 9.0/proton\0Z:\\games\\Elden Ring\\eldenring.exe\0") == "eldenring.exe"
+        assert juego_de("Z:\\s\\steamapps\\common\\Elden Ring\\eldenring.exe\0") == "elden ring"
         assert juego_de("C:\\windows\\system32\\services.exe\0") is None
         assert juego_de("/usr/bin/kate\0") is None
         assert elegir("balanced-performance", ["quiet", "balanced", "performance"]) == "performance"

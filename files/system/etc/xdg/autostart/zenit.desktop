@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Zenit
+Comment=Zenit junto al reloj: temperaturas y perfiles a un clic
+Exec=/usr/lib/antu/zenit/app.py --bandeja
+Icon=zenit
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

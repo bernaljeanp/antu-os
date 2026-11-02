@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Zenit
+GenericName=Rendimiento y equipo
+Comment=Temperaturas, perfiles, juegos, luces, batería y actualizaciones
+Exec=/usr/lib/antu/zenit/app.py
+Icon=zenit
+Categories=System;Settings;HardwareSettings;
+Keywords=temperatura;ventiladores;rendimiento;luces;teclado;batería;carga;actualizaciones;juegos;perfil;
