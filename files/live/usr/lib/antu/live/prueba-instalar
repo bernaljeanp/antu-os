@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Prueba automática del instalador en QEMU (ci/iso-test.sh): instala en el disco de antu.prueba-instalar=DISCO,
 # informa por la consola y apaga el equipo. El sistema instalado escribe su arranque en la consola serie para que
-# la prueba sepa si llegó a la pantalla gráfica: el registro completo, porque systemd deja de escribir su estado en
-# cuanto se abre el inicio de sesión de esa consola, y un aviso podía perderse.
+# la prueba sepa si llegó a la pantalla gráfica: systemd escribe directo en la consola (log_target), porque su estado
+# se calla en cuanto se abre el inicio de sesión de esa consola, y por el registro general un aviso podía perderse.
 dev="$(sed -n 's/.*antu\.prueba-instalar=\([^ ]*\).*/\1/p' /proc/cmdline)"
 huella="$(lsblk -bdno SERIAL,SIZE "$dev" | xargs)"
-if ANTU_KARGS="console=ttyS0,115200 systemd.show_status=1 systemd.journald.forward_to_console=1" \
+if ANTU_KARGS="console=ttyS0,115200 systemd.show_status=1 systemd.log_target=console" \
     /usr/lib/antu/instalador-helper instalar "$dev" "$huella"; then
     echo "ANTU-INSTALAR: OK"
 else

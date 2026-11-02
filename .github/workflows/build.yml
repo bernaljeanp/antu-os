@@ -53,6 +53,7 @@ jobs:
 
       - name: Prueba de arranque en VM
         run: |
+          probar() {
           bcvk ephemeral run-ssh localhost/antu-test:latest -- sh -c '
             set -e
             systemctl is-system-running --wait || true
@@ -60,6 +61,8 @@ jobs:
             [ -z "$failed" ] || { echo "Unidades con fallo:"; echo "$failed"; exit 1; }
             systemctl is-active NetworkManager sddm
             modinfo -n nvidia
+            # Cualquier programa puede leer la configuración de red y de nombres, no solo root.
+            su -s /bin/sh nobody -c "cat /etc/resolv.conf /etc/hosts /etc/nsswitch.conf" > /dev/null
             # Arranque seguro: shim y su registro de llaves, con la herramienta que crea la entrada del equipo.
             test -f /usr/lib/antu/arranque/shimx64.efi && test -f /usr/lib/antu/arranque/mmx64.efi
             test -f /usr/share/antu/arranque-seguro.cer
@@ -123,6 +126,15 @@ jobs:
             bootc --version
             echo "ANTU: prueba de arranque OK"
           '
+          }
+          # El 255 es de ssh, no de una comprobación: a veces la VM no contesta a tiempo. Un fallo de verdad se repite.
+          for intento in 1 2 3; do
+            codigo=0
+            probar || codigo=$?
+            [ "$codigo" = 255 ] || break
+            echo "::warning::La VM no contestó por ssh (intento $intento de 3)"
+          done
+          exit "$codigo"
 
       # Fotografía el inicio de sesión y el arranque en una pantalla virtual; falla si el tema de SDDM tiene errores.
       - name: Capturas de la interfaz

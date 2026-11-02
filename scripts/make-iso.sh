@@ -29,7 +29,7 @@ cat > "$OUT/politica.json" <<JSON
                                             "keyPath": "$PWD/files/system/etc/pki/containers/antu.pub"}]}}}
 JSON
 if skopeo --policy "$OUT/politica.json" --registries.d files/system/etc/containers/registries.d \
-    copy --quiet "docker://$pinned" "oci:$OUT/iso/antu/imagen"; then
+    copy --quiet --remove-signatures "docker://$pinned" "oci:$OUT/iso/antu/imagen"; then
     echo "Firma con la llave de Antu: correcta"
 else
     echo "::warning::La versión no pasó la comprobación de firma con la llave de Antu"
