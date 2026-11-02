@@ -2,7 +2,6 @@
 // escritorio se eligen después, en Inicio. Mismo mundo visual que Inicio: vidrio de obsidiana y lava.
 import QtQuick
 import QtQuick.Controls.Basic
-import QtQuick.Effects
 import QtQuick.Layouts
 import "../inicio"
 
@@ -20,7 +19,6 @@ ApplicationWindow {
     readonly property color ink: "#F5F5F7"
     readonly property color ink2: "#C7C7CC"
     readonly property color negative: "#FF7069"
-    readonly property bool software: GraphicsInfo.api === GraphicsInfo.Software
 
     // 0 elegir disco, 1 confirmar, 2 instalando, 3 listo, 4 error
     property int screen: 0
@@ -159,30 +157,18 @@ ApplicationWindow {
         }
     }
 
-    // Fondo: el de Antu, desenfocado con GPU; sin GPU, solo oscurecido.
+    // Fondo: el de Antu, oscurecido. La ventana flota sobre el mismo fondo del escritorio y lo continúa.
     Image {
-        id: wallpaper
         anchors.fill: parent
         source: "file:///usr/share/wallpapers/Antu/contents/images_dark/3840x2160.png"
         sourceSize.width: 1920
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
-        visible: root.software
     }
     Rectangle {
         anchors.fill: parent
-        visible: root.software
         color: "#000000"
         opacity: 0.6
-    }
-    MultiEffect {
-        anchors.fill: parent
-        source: wallpaper
-        visible: !root.software && wallpaper.status === Image.Ready
-        blurEnabled: true
-        blurMax: 64
-        blur: 1.0
-        brightness: -0.45
     }
 
     Flickable {

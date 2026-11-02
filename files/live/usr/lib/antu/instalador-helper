@@ -22,8 +22,13 @@ mounts="$(lsblk -no MOUNTPOINT "$dev")" || die "No se pudo leer el estado de $de
 [ "$(lsblk -bdno SIZE "$dev")" -ge "$MIN_BYTES" ] || die "El disco es demasiado pequeño: Antu necesita al menos 40 GB."
 [ -f "$SOURCE/index.json" ] || die "No se encontró la imagen de Antu en el USB."
 
+# Solo para las pruebas automáticas (prueba-instalar corre como root): argumentos extra del kernel del sistema
+# instalado. pkexec borra el entorno, así que el instalador gráfico no puede pasarlos.
+kargs=()
+for karg in ${ANTU_KARGS:-}; do kargs+=(--karg "$karg"); done
+
 # Sin suspender ni apagar por la tapa a mitad de la copia. Sin comprobar el registro: se instala sin internet y
 # las actualizaciones lo usarán después.
 exec systemd-inhibit --what=sleep:idle:handle-lid-switch --who="Instalador de Antu" --why="Copiando Antu al disco" \
     bootc install to-disk --composefs-backend --bootloader systemd --filesystem ext4 --wipe --skip-fetch-check \
-    --source-imgref "oci:$SOURCE" --target-imgref "$TARGET_IMAGE" "$dev"
+    --source-imgref "oci:$SOURCE" --target-imgref "$TARGET_IMAGE" "${kargs[@]}" "$dev"

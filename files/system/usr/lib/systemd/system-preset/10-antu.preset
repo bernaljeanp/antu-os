@@ -1,0 +1,5 @@
+# Antu usa NetworkManager. Sin esto, los presets de systemd activarían systemd-networkd en el primer arranque y su
+# esperador de red fallaría sin nada que esperar. Un número menor que 90-systemd.preset gana.
+disable systemd-networkd.service
+disable systemd-networkd.socket
+disable systemd-networkd-wait-online.service
