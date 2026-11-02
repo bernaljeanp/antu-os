@@ -9,7 +9,7 @@ COPY files/live/ /
 # de primer arranque: en vivo todo lo que se escribe va a la memoria RAM.
 RUN mkdir -p /var/home && useradd -m -G wheel -c "Antu en vivo" antu && passwd -d antu && \
     systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service antu-ia.service antu-actualizar.timer && \
-    systemctl enable antu-live-listo.service antu-prueba-instalar.service
+    systemctl enable antu-live-listo.service antu-prueba-instalar.service antu-galeria.service
 
 # Initramfs del USB: monta la imagen comprimida (squashfs) con una capa de escritura en memoria (overlayfs).
 # --tmpdir: la imagen base no trae /var/tmp (todo /var se crea al arrancar).

@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Galería para las pruebas en QEMU (ci/iso-test.sh), solo con antu.galeria en la línea del kernel: abre una a una las
+# pantallas principales en la sesión en vivo y avisa por la consola serie cuál está a la vista, para fotografiarla.
+serie() { echo "ANTU-GALERIA: $1" > /dev/ttyS0; }
+# Dentro de la sesión de Plasma del usuario en vivo, con su mismo entorno.
+en_sesion() { systemd-run --user --machine=antu@ --collect --quiet -- "$@"; }
+plasma() {
+    en_sesion gdbus call --session --dest org.kde.plasmashell --object-path /PlasmaShell \
+        --method "org.kde.PlasmaShell.$1" > /dev/null
+}
+
+until pgrep -u antu -x plasmashell > /dev/null; do sleep 2; done
+sleep 25
+pkill -f instalador.py
+sleep 4
+serie escritorio
+sleep 10
+
+plasma activateLauncherMenu
+sleep 5
+serie menu
+sleep 10
+plasma activateLauncherMenu
+
+en_sesion systemsettings kcm_kscreen
+sleep 12
+serie pantalla
+sleep 10
+pkill -x systemsettings
+
+en_sesion dolphin /usr/share/wallpapers
+sleep 10
+serie dolphin
+sleep 10
+pkill -x dolphin
+
+en_sesion /usr/lib/antu/zenit/app.py
+sleep 10
+serie zenit
+sleep 10
+
+en_sesion /usr/lib/antu/actualizaciones/actualizaciones.py
+sleep 10
+serie actualizaciones
+sleep 10
+pkill -f actualizaciones.py
+
+en_sesion gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications \
+    --method org.freedesktop.Notifications.Notify "Antu" 0 "antu" "Actualización de Antu lista" \
+    "Se aplica la próxima vez que reinicies." "[]" "{}" 15000
+sleep 4
+serie notificacion
+sleep 10
+serie fin

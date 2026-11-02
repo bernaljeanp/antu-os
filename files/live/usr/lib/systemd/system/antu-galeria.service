@@ -1,0 +1,12 @@
+[Unit]
+Description=Galería de pantallas para las pruebas en QEMU (solo con antu.galeria en la línea del kernel)
+ConditionKernelCommandLine=antu.galeria
+After=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/antu/live/galeria
+TimeoutStartSec=infinity
+
+[Install]
+WantedBy=graphical.target

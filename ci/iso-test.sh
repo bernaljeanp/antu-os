@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Prueba la ISO de Antu en QEMU con firmware UEFI (OVMF), sin red y con un disco NVMe vacío, en tres arranques:
 #   1. la ISO arranca hasta la sesión en vivo con el instalador abierto (arranque.png y en-vivo.png);
+#   galería: las pantallas principales abiertas una a una en la sesión en vivo (galeria.png);
 #   2. el instalador copia Antu al disco sin internet (antu.prueba-instalar en la línea del kernel);
 #   3. ese disco arranca solo hasta la pantalla gráfica, con Inicio (captura instalado.png).
 # Uso: sudo ci/iso-test.sh iso-build    (necesita qemu-system-x86, qemu-utils, ovmf, socat e imagemagick)
@@ -55,6 +56,20 @@ fi
 sleep 75  # Plasma y el instalador abriéndose
 shot en-vivo
 stop
+
+echo "== Galería: las pantallas principales en la sesión en vivo"
+cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 quiet splash antu.galeria"
+"${QEMU[@]}" -cdrom "$B/antu-live.iso" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
+    -serial file:"$OUT/serie-galeria.log" &
+for vista in escritorio menu pantalla dolphin zenit actualizaciones notificacion; do
+    if ! wait_for "$OUT/serie-galeria.log" "ANTU-GALERIA: $vista" 420; then
+        echo "::warning::La galería no llegó a «$vista» (ver serie-galeria.log)"
+        break
+    fi
+    shot "galeria-$vista"
+done
+stop
+montage "$OUT"/galeria-*.png -tile 2x -geometry 960x540+6+6 -background black "$OUT/galeria.png" || true
 
 echo "== 2. El instalador copia Antu al disco, sin internet"
 cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 console=ttyS0,115200"
