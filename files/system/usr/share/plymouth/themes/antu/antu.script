@@ -1,23 +1,33 @@
-# Antu OS, «Amanecer»: se enciende el cielo de Atacama, el horizonte se ilumina, el sol de lava nace detrás de él con
-# un destello y la cumbre aparece recortada contra su luz. Mientras arranca el sistema, las estrellas titilan y el sol
-# respira. Piezas en scripts/make_brand.py; cumbre, sol y halo miden 512 px por las 64 unidades del símbolo.
+# Antu OS, «Encendido»: una consola de lava corre a toda velocidad, una falla digital deja ver el símbolo y queda «ANTU OS»
+# con la barra de progreso. Al apagar se ve solo el símbolo. Piezas en scripts/make_plymouth.py, medidas para 1600 de alto.
 
-Window.SetBackgroundTopColor(0, 0, 0);
-Window.SetBackgroundBottomColor(0, 0, 0);
+FONDO_R = 5 / 255;
+FONDO_G = 5 / 255;
+FONDO_B = 7 / 255;
+Window.SetBackgroundTopColor(FONDO_R, FONDO_G, FONDO_B);
+Window.SetBackgroundBottomColor(FONDO_R, FONDO_G, FONDO_B);
 
 W = Window.GetWidth();
 H = Window.GetHeight();
-Z = Math.Int(H * 0.16);      # alto del símbolo: 256 px en una pantalla de 1600
-F = Z / 512;
+F = H / 1600;
+M = Math.Int(44 * F);       # margen del marco
 CX = W / 2;
-CY = H * 0.44;
-SUN_Y = CY + Z * 14 / 64;    # el sol se posa en la unidad 46 de 64
-HORIZON = CY + Z * 24 / 64;  # la base de la cumbre (unidad 56) es el horizonte
-RISE = Z * 0.55;             # el sol parte bajo el horizonte
+CY = H * 0.40;              # centro del símbolo
+ARRANQUE = (Plymouth.GetMode() == "boot");
 
-fun scaled(name, k) {
-    img = Image(name);
-    return img.Scale(Math.Int(img.GetWidth() * global.F * k), Math.Int(img.GetHeight() * global.F * k));
+# Tiempos en segundos.
+FIN_REGISTRO = 2.7;         # la consola ya se apagó
+INICIO_FALLA = 2.2;
+FIN_FALLA = 2.75;
+INICIO_BARRA = 3.1;
+
+fun pieza(nombre) {
+    img = Image(nombre);
+    a = Math.Int(img.GetWidth() * global.F + 0.5);
+    b = Math.Int(img.GetHeight() * global.F + 0.5);
+    if (a < 1) a = 1;
+    if (b < 1) b = 1;
+    return img.Scale(a, b);
 }
 
 # Salida cúbica: arranca rápido y se posa suave.
@@ -27,120 +37,231 @@ fun ease(x) {
     return 1 - (1 - x) * (1 - x) * (1 - x);
 }
 
-# Cielo: estrellas al azar, más densas arriba; cada una se enciende a su tiempo y titila a su ritmo.
-star_src = Image("estrella.png");
-for (k = 0; k < 3; k++) {
-    px = Math.Int((4 + k * k * 4) * H / 1080 + 0.5);  # 4, 8 y 20 px en una pantalla de 1080
-    if (px < 2) px = 2;
-    star_img[k] = star_src.Scale(px, px);
-}
-N = 110;
-for (i = 0; i < N; i++) {
-    r = Math.Random();
-    k = 0;
-    if (r > 0.72) k = 1;
-    if (r > 0.96) k = 2;
-    star_sprite[i] = Sprite(star_img[k]);
-    star_sprite[i].SetPosition(Math.Int(Math.Random() * W), Math.Int(HORIZON * Math.Random() * (0.35 + 0.65 * Math.Random())), 1);
-    star_sprite[i].SetOpacity(0);
-    star_delay[i] = Math.Random() * 1.2;
-    star_phase[i] = Math.Random() * 6.28;
-    star_speed[i] = 1.2 + Math.Random() * 2;
-    star_level[i] = 0.5 + 0.5 * Math.Random();
-}
+# Símbolo, halo y título: lo que queda hasta el final. También es lo único que se ve al apagar.
+simbolo_img = Image("simbolo.png");
+Z = Math.Int(240 * F);
+simbolo = Sprite(simbolo_img.Scale(Z, Z));
+simbolo.SetPosition(Math.Int(CX - Z / 2), Math.Int(CY - Z / 2), 6);
+simbolo.SetOpacity(0);
 
-# Sol, su halo y el destello al llegar. Todo va detrás de la noche y de la cumbre: nace detrás del horizonte y la A se
-# recorta contra su luz, como un cerro al amanecer.
-halo_img = scaled("halo.png", 1);
-halo = Sprite(halo_img);
+halo_img = Image("halo.png");
+HALO = Math.Int(720 * F);
+halo = Sprite(halo_img.Scale(HALO, HALO));
+halo.SetPosition(Math.Int(CX - HALO / 2), Math.Int(CY - HALO / 2 + 60 * F), 4);
 halo.SetOpacity(0);
-bloom_img = scaled("halo.png", 1.9);
-bloom = Sprite(bloom_img);
-bloom.SetOpacity(0);
-sol_img = scaled("sol.png", 1);
-sol = Sprite(sol_img);
 
-fun center(sprite, img, x, y, z) {
-    sprite.SetPosition(Math.Int(x - img.GetWidth() / 2), Math.Int(y - img.GetHeight() / 2), z);
+for (i = 1; i <= 7; i++) titulo_img[i] = pieza("titulo-" + i + ".png");
+titulo = Sprite();
+titulo.SetPosition(Math.Int(CX - titulo_img[7].GetWidth() / 2), Math.Int(CY + 150 * F), 6);
+letras = 0;
+
+# Lo que solo se ve al arrancar: al apagar no se cargan estas piezas.
+if (ARRANQUE) {
+    # Marco y rótulos.
+    esquina_img[1] = pieza("esquina-1.png");
+    LARGO = esquina_img[1].GetWidth();
+    esquina[1] = Sprite(esquina_img[1]);
+    esquina[1].SetPosition(M, M, 5);
+    esquina[2] = Sprite(pieza("esquina-2.png"));
+    esquina[2].SetPosition(W - M - LARGO, M, 5);
+    esquina[3] = Sprite(pieza("esquina-3.png"));
+    esquina[3].SetPosition(M, H - M - LARGO, 5);
+    esquina[4] = Sprite(pieza("esquina-4.png"));
+    esquina[4].SetPosition(W - M - LARGO, H - M - LARGO, 5);
+
+    arriba_img = pieza("rotulo-arriba.png");
+    rotulo_arriba = Sprite(arriba_img);
+    rotulo_arriba.SetPosition(Math.Int(M + 24 * F), Math.Int(M + 16 * F), 5);
+    abajo_img = pieza("rotulo-abajo.png");
+    rotulo_abajo = Sprite(abajo_img);
+    rotulo_abajo.SetPosition(Math.Int(M + 24 * F), Math.Int(H - M - 16 * F - abajo_img.GetHeight()), 5);
+
+    # Contador T+00.00, de izquierda a derecha.
+    for (i = 0; i < 10; i++) dig[i] = pieza("dig-" + i + ".png");
+    ANCHO_DIG = dig[0].GetWidth();
+    punto_img = pieza("dig-punto.png");
+    t_img = pieza("dig-t.png");
+    CONT_X = Math.Int(W - M - 24 * F - t_img.GetWidth() - 4 * ANCHO_DIG - punto_img.GetWidth());
+    CONT_Y = Math.Int(M + 16 * F);
+    cont_t = Sprite(t_img);
+    cont_t.SetPosition(CONT_X, CONT_Y, 5);
+    x = CONT_X + t_img.GetWidth();
+    for (i = 0; i < 4; i++) {
+        cont[i] = Sprite(dig[0]);
+        cont[i].SetPosition(x, CONT_Y, 5);
+        x = x + ANCHO_DIG;
+        if (i == 1) {
+            cont_punto = Sprite(punto_img);
+            cont_punto.SetPosition(x, CONT_Y, 5);
+            x = x + punto_img.GetWidth();
+        }
+    }
+
+    # Registro: una imagen larga que sube detrás de dos franjas del color del fondo.
+    LH = 26 * F;
+    LINEAS = 120;
+    TOPE = Math.Int(M + 70 * F);
+    PISO = Math.Int(H - M - 70 * F);
+    VISIBLES = Math.Int((PISO - TOPE) / LH);
+    if (VISIBLES > LINEAS - 20) VISIBLES = LINEAS - 20;
+    registro_img = pieza("registro.png");
+    ANCHO_REG = registro_img.GetWidth();
+    REG_X = Math.Int(M + 24 * F);
+    registro = Sprite(registro_img);
+    registro.SetPosition(REG_X, PISO, 1);
+    velo = Sprite(Image("velo.png").Scale(ANCHO_REG + 4, PISO - TOPE));
+    velo.SetPosition(REG_X - 2, TOPE, 2);
+    franja_src = Image("franja.png");
+    franja_arriba = Sprite(franja_src.Scale(ANCHO_REG + 4, TOPE));
+    franja_arriba.SetPosition(REG_X - 2, 0, 3);
+    franja_abajo = Sprite(franja_src.Scale(ANCHO_REG + 4, H - PISO));
+    franja_abajo.SetPosition(REG_X - 2, PISO, 3);
+    # Cursor en la línea que viene, justo bajo la última escrita.
+    cursor = Sprite(pieza("cursor.png"));
+    cursor.SetPosition(REG_X, Math.Int(PISO + 3 * F), 4);
+
+    # Paneles: se apagan solos si la pantalla es muy angosta para tenerlos al lado del registro.
+    CON_PANELES = (W > REG_X + ANCHO_REG + 400 * F);
+    if (CON_PANELES) {
+        for (i = 0; i < 4; i++) panel_img[i] = pieza("panel-" + i + ".png");
+        panel = Sprite(panel_img[0]);
+        panel.SetPosition(Math.Int(W - M - 24 * F - panel_img[0].GetWidth()), TOPE, 1);
+    }
+    panel_k = -1;
+
+    # Falla digital.
+    for (i = 0; i < 6; i++) falla_img[i] = pieza("falla-" + i + ".png");
+    falla = Sprite();
+    falla.SetPosition(Math.Int(CX - falla_img[0].GetWidth() / 2), Math.Int(CY - 150 * F), 6);
+
+    # Barra fina de progreso y la etapa bajo ella.
+    bar_w = Math.Int(H * 0.22);
+    bar_h = Math.Int(6 * F);
+    if (bar_h < 3) bar_h = 3;
+    bar_x = Math.Int((W - bar_w) / 2);
+    bar_y = Math.Int(CY + 330 * F);
+    track = Sprite(Image("track.png").Scale(bar_w, bar_h));
+    track.SetPosition(bar_x, bar_y, 7);
+    track.SetOpacity(0);
+    fill_src = Image("fill.png");
+    fill = Sprite();
+    fill.SetPosition(bar_x, bar_y, 7);
+    for (i = 0; i < 3; i++) etapa_img[i] = pieza("etapa-" + i + ".png");
+    etapa = Sprite();
+    etapa_k = -1;
+    avance = 0;
+
+    # Línea de barrido, muy tenue.
+    barrido_alto = Math.Int(2 * F);
+    if (barrido_alto < 1) barrido_alto = 1;
+    barrido = Sprite(Image("barrido.png").Scale(W, barrido_alto));
+    barrido.SetZ(8);
 }
-fun place_sun(y) {
-    center(global.halo, global.halo_img, global.CX, y, 2);
-    center(global.bloom, global.bloom_img, global.CX, y, 2);
-    center(global.sol, global.sol_img, global.CX, y, 3);
-}
-place_sun(SUN_Y + RISE);
-
-noche = Sprite(Image("noche.png").Scale(W, Math.Int(H - HORIZON) + 1));
-noche.SetPosition(0, Math.Int(HORIZON), 4);
-
-# Línea del horizonte: se enciende desde el centro hacia los lados.
-horizon_src = Image("horizonte.png");
-HW = Math.Int(Z * 3.4);
-HH = Math.Int(Z * 0.16);
-if (HH < 6) HH = 6;
-horizon = Sprite();
-horizon.SetOpacity(0);
-
-cumbre_img = scaled("cumbre.png", 1);
-cumbre = Sprite(cumbre_img);
-cumbre.SetOpacity(0);
-center(cumbre, cumbre_img, CX, CY, 6);
-
-# Barra fina de progreso bajo el símbolo.
-bar_w = Math.Int(H * 0.22);
-bar_h = Math.Int(6 * H / 1600);
-if (bar_h < 3) bar_h = 3;
-bar_x = Math.Int((W - bar_w) / 2);
-bar_y = Math.Int(H * 0.58);
-track = Sprite(Image("track.png").Scale(bar_w, bar_h));
-track.SetPosition(bar_x, bar_y, 7);
-track.SetOpacity(0);
-fill_src = Image("fill.png");
-fill = Sprite();
-fill.SetPosition(bar_x, bar_y, 7);
 
 fun progress_callback(duration, progress) {
-    w = Math.Int(global.bar_w * progress);
-    if (w > global.bar_w) w = global.bar_w;
-    if (w > 0) global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
+    if (global.ARRANQUE) {
+        global.avance = progress;
+        w = Math.Int(global.bar_w * progress);
+        if (w > global.bar_w) w = global.bar_w;
+        if (w > 0) global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
+    }
 }
 Plymouth.SetBootProgressFunction(progress_callback);
 
+fun fijar_contador(valor) {
+    c = Math.Int(valor * 100);
+    if (c > 9999) c = 9999;
+    d0 = Math.Int(c / 1000);
+    d1 = Math.Int(c / 100) - d0 * 10;
+    d2 = Math.Int(c / 10) - Math.Int(c / 100) * 10;
+    d3 = c - Math.Int(c / 10) * 10;
+    global.cont[0].SetImage(global.dig[d0]);
+    global.cont[1].SetImage(global.dig[d1]);
+    global.cont[2].SetImage(global.dig[d2]);
+    global.cont[3].SetImage(global.dig[d3]);
+}
+
+fun consola(t) {
+    # Rápido al principio y más calmado antes de apagarse, como un arranque de verdad.
+    if (t < 1.6) n = t * 120;
+    else n = 192 + (t - 1.6) * 45;
+    n = Math.Int(n) + 1;
+    # Cuando se acaba la imagen vuelve atrás: a esta velocidad no se nota.
+    if (n > global.LINEAS) {
+        tramo = global.LINEAS - global.VISIBLES;
+        resto = n - global.VISIBLES;
+        n = global.VISIBLES + resto - Math.Int(resto / tramo) * tramo;
+    }
+    global.registro.SetY(Math.Int(global.PISO - n * global.LH));
+
+    apagar = 1;
+    if (t > global.INICIO_FALLA) apagar = 1 - (t - global.INICIO_FALLA) / (global.FIN_REGISTRO - global.INICIO_FALLA);
+    if (apagar < 0) apagar = 0;
+    global.registro.SetOpacity(apagar);
+    global.cursor.SetOpacity(apagar * (Math.Int(t * 6) - Math.Int(t * 3) * 2));
+    if (global.CON_PANELES) {
+        global.panel.SetOpacity(apagar);
+        k = Math.Int(t * 9);
+        if (k != global.panel_k) {
+            global.panel_k = k;
+            global.panel.SetImage(global.panel_img[k - Math.Int(k / 4) * 4]);
+        }
+    }
+}
+
+fun simbolo_y_titulo(t) {
+    entrada = ease((t - 2.4) / 0.5);
+    global.halo.SetOpacity(0.32 * entrada * (0.85 + 0.15 * Math.Sin(t * 2.4)));
+    if (t >= global.FIN_FALLA) {
+        global.simbolo.SetOpacity(1);
+        l = Math.Int((t - global.FIN_FALLA) * 14) + 1;
+        if (l > 7) l = 7;
+        if (l != global.letras) {
+            global.letras = l;
+            global.titulo.SetImage(global.titulo_img[l]);
+        }
+    }
+}
+
+fun solo_al_arrancar(t) {
+    if (t < global.FIN_REGISTRO) consola(t);
+    if (t >= global.FIN_REGISTRO) {
+        global.registro.SetOpacity(0);
+        global.cursor.SetOpacity(0);
+        if (global.CON_PANELES) global.panel.SetOpacity(0);
+    }
+    if (t >= global.INICIO_FALLA && t < global.FIN_FALLA) {
+        k = Math.Int((t - global.INICIO_FALLA) / (global.FIN_FALLA - global.INICIO_FALLA) * 6);
+        if (k > 5) k = 5;
+        global.falla.SetImage(global.falla_img[k]);
+    }
+    if (t >= global.FIN_FALLA) global.falla.SetOpacity(0);
+
+    fijar_contador(t);
+    global.barrido.SetY(Math.Int(t * 230 * global.F - Math.Int(t * 230 / 1680) * 1680 * global.F));
+
+    if (t > global.INICIO_BARRA) {
+        barra = ease((t - global.INICIO_BARRA) / 0.4);
+        global.track.SetOpacity(barra);
+        global.fill.SetOpacity(barra);
+        k = Math.Int(global.avance * 3);
+        if (k > 2) k = 2;
+        if (k != global.etapa_k) {
+            global.etapa_k = k;
+            img = global.etapa_img[k];
+            global.etapa.SetImage(img);
+            global.etapa.SetPosition(Math.Int(global.CX - img.GetWidth() / 2), Math.Int(global.bar_y + 16 * global.F), 7);
+        }
+        global.etapa.SetOpacity(barra);
+    }
+}
+
 t = 0;
+if (!ARRANQUE) t = FIN_FALLA + 1;  # al apagar: directo al símbolo y al título
 fun refresh_callback() {
     global.t = global.t + 0.02;  # Plymouth llama 50 veces por segundo
-    t = global.t;
-
-    for (i = 0; i < global.N; i++) {
-        a = ease((t - global.star_delay[i]) / 0.6);
-        if (a > 0) global.star_sprite[i].SetOpacity(a * global.star_level[i] * (0.75 + 0.25 * Math.Sin(t * global.star_speed[i] + global.star_phase[i])));
-    }
-
-    glow = ease((t - 0.15) / 0.7);
-    if (t < 1) {
-        w = Math.Int(global.HW * (0.15 + 0.85 * glow));
-        global.horizon.SetImage(global.horizon_src.Scale(w, global.HH));
-        global.horizon.SetPosition(Math.Int(global.CX - w / 2), Math.Int(global.HORIZON - global.HH / 2), 5);
-    }
-    breath = Math.Sin(t * 2.4);  # el sol respira: un ciclo cada 2,6 s
-    global.horizon.SetOpacity(glow * (1 - 0.5 * ease((t - 1.4) / 1)) * (0.8 + 0.2 * breath));
-
-    rise = ease((t - 0.35) / 1.1);
-    place_sun(global.SUN_Y + global.RISE * (1 - rise));
-    global.halo.SetOpacity(glow * (0.4 + 0.6 * rise) * (0.65 + 0.35 * breath));
-
-    flash = 0;
-    if (t > 1.05) flash = (t - 1.05) / 0.3;
-    if (t > 1.35) flash = 1 - ease((t - 1.35) / 1.15);
-    global.bloom.SetOpacity(0.85 * flash);
-
-    show = ease((t - 0.9) / 0.9);
-    global.cumbre.SetOpacity(show);
-    if (show < 1) center(global.cumbre, global.cumbre_img, global.CX, global.CY + (1 - show) * global.Z * 0.05, 6);
-
-    bar = ease((t - 1.6) / 0.6);
-    global.track.SetOpacity(bar);
-    global.fill.SetOpacity(bar);
+    simbolo_y_titulo(global.t);
+    if (global.ARRANQUE) solo_al_arrancar(global.t);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 
@@ -149,7 +270,7 @@ message = Sprite();
 fun message_callback(text) {
     img = Image.Text(text, 0.78, 0.78, 0.80);
     global.message.SetImage(img);
-    global.message.SetPosition(Math.Int((global.W - img.GetWidth()) / 2), Math.Int(global.H * 0.66), 8);
+    global.message.SetPosition(Math.Int((global.W - img.GetWidth()) / 2), Math.Int(global.CY + 410 * global.F), 9);
 }
 Plymouth.SetMessageFunction(message_callback);
 
@@ -159,12 +280,12 @@ bullets = Sprite();
 fun password_callback(text, count) {
     prompt_img = Image.Text(text, 0.96, 0.96, 0.97);
     global.prompt.SetImage(prompt_img);
-    global.prompt.SetPosition(Math.Int((global.W - prompt_img.GetWidth()) / 2), Math.Int(global.H * 0.66), 8);
+    global.prompt.SetPosition(Math.Int((global.W - prompt_img.GetWidth()) / 2), Math.Int(global.CY + 410 * global.F), 9);
     dots = "";
     for (i = 0; i < count; i++) dots = dots + "•";
     dots_img = Image.Text(dots, 0.96, 0.96, 0.97);
     global.bullets.SetImage(dots_img);
-    global.bullets.SetPosition(Math.Int((global.W - dots_img.GetWidth()) / 2), Math.Int(global.H * 0.70), 8);
+    global.bullets.SetPosition(Math.Int((global.W - dots_img.GetWidth()) / 2), Math.Int(global.CY + 470 * global.F), 9);
     global.prompt.SetOpacity(1);
     global.bullets.SetOpacity(1);
 }

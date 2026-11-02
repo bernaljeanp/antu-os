@@ -191,7 +191,7 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
   actualizar. Sin Secure Boot todavía: la ISO y el sistema instalado necesitan Secure Boot desactivado.
 - El instalador usa el disco entero; instalar junto a Windows en el mismo disco aún no está disponible.
 - `bootc upgrade` en un sistema instalado necesita que el paquete `ghcr.io/bernaljeanp/antu-nvidia` sea público.
-- La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) ya tiene arranque animado «Amanecer», inicio de
+- La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) ya tiene arranque animado «Encendido», inicio de
   sesión, Inicio, instalador, íconos y tres fondos (Antu, Paranal y Salar); falta revisarla en hardware real. Cada
   compilación sube capturas (artefactos `capturas` y `pruebas-iso`).
 

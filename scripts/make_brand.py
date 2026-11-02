@@ -58,42 +58,6 @@ def symbol_png(size, light=False, sun=True):
     return im.resize((size, size), Image.Resampling.LANCZOS)
 
 
-def plymouth():
-    """Piezas de «Amanecer», la animación de arranque: la cumbre sin sol, el sol y su halo.
-
-    Las tres comparten escala: 512 px equivalen a las 64 unidades del símbolo, y antu.script las escala juntas.
-    """
-    ply = ROOT/"files/system/usr/share/plymouth/themes/antu"
-    symbol_png(512, sun=False).save(ply/"cumbre.png", optimize=True)
-    n, r = 96 * 4, 5.5 / 64 * 512 * 4  # sol: 88 px de diámetro en un lienzo de 96, con supermuestreo
-    sun = Image.new("RGBA", (n, n))
-    ImageDraw.Draw(sun).ellipse((n/2-r, n/2-r, n/2+r, n/2+r), fill=LAVA)
-    sun.resize((96, 96), Image.Resampling.LANCZOS).save(ply/"sol.png", optimize=True)
-    # Halo: degradado radial suave que se apaga antes del borde, para que nunca se vea el cuadrado.
-    dist = Image.radial_gradient("L").resize((512, 512), Image.Resampling.BICUBIC)
-    alpha = dist.point(lambda v: round(255 * 0.75 * max(0.0, 1 - v / 250) ** 2.4))
-    halo = Image.new("RGBA", (512, 512), LAVA)
-    halo.putalpha(alpha)
-    halo.save(ply/"halo.png", optimize=True)
-    # Estrella: punto suave blanco azulado; antu.script la escala a tres tamaños.
-    star = Image.new("RGBA", (32, 32), "#E8EEFF")
-    star.putalpha(Image.radial_gradient("L").resize((32, 32), Image.Resampling.BICUBIC)
-                  .point(lambda v: round(255 * max(0.0, 1 - v / 128) ** 1.5)))
-    star.save(ply/"estrella.png", optimize=True)
-    # Horizonte: línea de luz cálida, intensa al centro y que se apaga hacia los lados y arriba y abajo.
-    hw, hh = 1024, 48
-    line = Image.new("L", (hw, hh))
-    line.putdata([round(255 * max(0.0, 1 - abs(x - hw/2) / (hw/2)) ** 1.6 * 2.718 ** -(((y - hh/2) / 5) ** 2))
-                  for y in range(hh) for x in range(hw)])
-    horizon = Image.new("RGBA", (hw, hh), "#FF8A3D")
-    horizon.putalpha(line)
-    horizon.save(ply/"horizonte.png", optimize=True)
-    # Noche: tapa todo lo que queda bajo el horizonte, para que el sol nazca detrás de él.
-    Image.new("RGBA", (1, 1), "#000000").save(ply/"noche.png")
-    Image.new("RGBA", (1, 1), TRACK).save(ply/"track.png")
-    Image.new("RGBA", (1, 1), LAVA).save(ply/"fill.png")
-
-
 def logo(width, light=False):
     height = round(width / 3)
     im = Image.new("RGBA", (width, height))
@@ -185,10 +149,11 @@ def main():
     for light, suffix in [(False, ""), (True, "-light")]:
         logo(2400, light).save(ROOT/f"brand/antu-logo{suffix}.png", optimize=True)
         logo(3840, light).save(ROOT/f"brand/antu-logo{suffix}-4k.png", optimize=True)
-    plymouth()
+    import make_plymouth  # aquí: esa pieza importa este módulo
+    make_plymouth.main()
     export_icons()
     previews()
-    print("Exact symbol, Inter lockups, native optical icons and the Plymouth sunrise exported.")
+    print("Exact symbol, Inter lockups, native optical icons and the Plymouth boot animation exported.")
 
 
 if __name__ == "__main__":

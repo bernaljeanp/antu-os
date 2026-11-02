@@ -54,14 +54,14 @@ USB=(-drive file="$B/usb.qcow2",if=none,id=usb,format=qcow2 -device qemu-xhci -d
 
 echo "== 1. El USB arranca hasta la sesión en vivo"
 "${QEMU[@]}" "${USB[@]}" -serial file:"$OUT/serie-en-vivo.log" &
-# Película del arranque: una captura cada 1,5 s (menú, animación «Amanecer» y llegada al escritorio).
+# Película del arranque: una captura cada 0,5 s (menú, animación «Encendido» y llegada al escritorio).
 for _ in $(seq 50); do [ -S "$OUT/monitor.sock" ] && break; sleep 0.2; done  # QEMU crea su canal de control
-for i in $(seq -w 1 24); do
+for i in $(seq -w 1 48); do
     echo "screendump $OUT/arranque-$i.ppm" | socat - unix:"$OUT/monitor.sock" > /dev/null 2>&1 || true
-    sleep 1.5
+    sleep 0.5
 done
 sleep 2
-montage "$OUT"/arranque-*.ppm -tile 6x4 -geometry 480x270+4+4 -background black "$OUT/arranque.png"
+montage "$OUT"/arranque-*.ppm -tile 8x6 -geometry 360x203+3+3 -background black "$OUT/arranque.png"
 rm -f "$OUT"/arranque-*.ppm
 if ! wait_for "$OUT/serie-en-vivo.log" "ANTU-LIVE: arranque OK" 600; then
     shot en-vivo-fallo
