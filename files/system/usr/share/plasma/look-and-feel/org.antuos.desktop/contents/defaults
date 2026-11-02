@@ -16,6 +16,8 @@ cursorTheme=breeze_cursors
 [kwinrc][org.kde.kdecoration2]
 library=org.kde.breeze
 theme=Breeze
+ButtonsOnLeft=
+ButtonsOnRight=IAX
 
 [Wallpaper]
 Image=Antu
@@ -27,3 +29,15 @@ MenuOpacity=82
 [kwinrc][Effect-blur]
 BlurStrength=8
 NoiseStrength=3
+
+# Ventanas: esquinas redondas arriba y abajo (KWin), contorno fino sobre el fondo oscuro y una sombra amplia y
+# suave como en macOS. Título al centro y solo minimizar, maximizar y cerrar, a la derecha.
+[breezerc][Common]
+RoundedCorners=true
+OutlineEnabled=true
+ShadowSize=ShadowVeryLarge
+ShadowStrength=210
+
+[breezerc][Windeco]
+TitleAlignment=AlignCenterFullWidth
+ButtonSize=ButtonDefault
