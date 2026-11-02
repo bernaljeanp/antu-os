@@ -46,9 +46,13 @@ jobs:
             systemctl is-active NetworkManager sddm
             modinfo -n nvidia
             grep -q "LookAndFeelPackage=org.antuos.desktop" /etc/xdg/kdeglobals
-            # Juegos: Steam, Gamescope, GameMode, MangoHud y Firefox presentes, y NVIDIA de 32 y 64 bits iguales.
-            command -v steam gamescope gamemoded mangohud firefox prime-run > /dev/null
+            # Juegos: Steam, Gamescope, GameMode y MangoHud presentes, y NVIDIA de 32 y 64 bits iguales.
+            command -v steam gamescope gamemoded mangohud prime-run flatpak > /dev/null
             test -x /usr/bin/antu-eclipse
+            test -f /usr/lib/systemd/system/antu-apps.service
+            test -f /usr/lib/systemd/system/antu-craft-apps.service
+            # Sin relleno: ni LibreOffice ni Firefox en la imagen.
+            ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]
             # Seguridad: ninguna cuenta sin contraseña y root bloqueado (SSH de CI entra con llave).
             empty="$(awk -F: '\''$2 == "" {print $1}'\'' /etc/shadow)"

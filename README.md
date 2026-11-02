@@ -17,7 +17,7 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **Arch:** kernel y drivers recientes para hardware nuevo; las actualizaciones bajan solo las capas que cambian.
 
 > **Estado: prueba de concepto.** Arranca con KDE Plasma y la interfaz «macOS gamer» de Antu, y trae Steam, el modo
-> juego Eclipse, Firefox y Discover. Todavía no tiene instalador gráfico. No la uses aún como sistema principal.
+> juego Eclipse, Brave y Discover. Todavía no tiene instalador gráfico. No la uses aún como sistema principal.
 
 ## Jugar
 
@@ -28,7 +28,14 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **GameMode** y **MangoHud** están disponibles: en las opciones de lanzamiento de un juego de Steam, escribe
   `gamemoderun mangohud %command%`.
 - **Portátiles híbridos (Intel + NVIDIA):** `prime-run %command%` lanza el juego en la gráfica NVIDIA.
-- **Apps:** Discover instala aplicaciones desde Flathub sin tocar el sistema base.
+- **Navegador:** Brave, desde Flathub. Se instala solo en el primer arranque con internet y se actualiza aparte
+  del sistema.
+- **Oficina:** WordCraft (documentos), DeckCraft (presentaciones), GridCraft (hojas de cálculo) y PdfCraft (PDF),
+  apps de código abierto de [ArtCraft](https://getartcraft.com/apps). Se instalan solas como Flatpak en el primer
+  arranque con internet. Están en desarrollo o alfa, y su repositorio aún no firma los paquetes (vista previa):
+  por eso van aisladas como Flatpak y no dentro del sistema base.
+- **Apps:** Discover instala aplicaciones desde Flathub sin tocar el sistema base. Sin relleno: Antu no trae
+  LibreOffice.
 
 ## Probar en una VM (5 minutos, desde Windows)
 

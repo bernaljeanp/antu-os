@@ -1,0 +1,7 @@
+[Flatpak Repo]
+Title=ArtCraft OCI
+Url=oci+https://getartcraft.com
+Homepage=https://getartcraft.com/
+Comment=Official ArtCraft OCI Flatpak repository
+Description=Open-source creative apps for Linux distributed via GitHub Container Registry
+GPGVerify=false

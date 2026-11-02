@@ -45,10 +45,11 @@ RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && pacman -Sy
 
 # Escritorio y NVIDIA. nvidia-open viene compilado para el mismo kernel de arriba.
 # Discover solo con Flatpak (sin PackageKit): las apps se instalan sin tocar el sistema base.
+# El navegador (Brave) llega desde Flathub en el primer arranque: ver antu-apps.service.
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
       pipewire pipewire-pulse wireplumber noto-fonts openssh \
-      firefox firefox-i18n-es-cl discover flatpak && \
+      discover flatpak && \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
@@ -58,7 +59,7 @@ RUN pacman -S --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulka
     pacman -S --clean --noconfirm
 
 # systemd-homed-firstboot pide crear el primer usuario en la consola, antes de que arranque SDDM.
-RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed systemd-homed-firstboot && \
+RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed systemd-homed-firstboot antu-apps antu-craft-apps && \
     systemctl mask systemd-firstboot.service && \
     passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \
@@ -77,7 +78,7 @@ RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
 # Solo para la prueba de arranque en CI: SSH para revisar la VM y sin el asistente de primer
 # arranque, que esperaría en la consola para siempre. La imagen publicada no lleva ninguno de los dos cambios.
 ARG ANTU_CI=0
-RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask systemd-homed-firstboot.service; fi
+RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask systemd-homed-firstboot.service antu-apps.service antu-craft-apps.service; fi
 
 # Estructura que espera un sistema por imágenes: todo lo mutable vive en /var.
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \

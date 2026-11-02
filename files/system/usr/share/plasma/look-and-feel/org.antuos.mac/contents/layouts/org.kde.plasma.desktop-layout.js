@@ -24,7 +24,7 @@ dock.opacity = "translucent";
 var tasks = dock.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
 tasks.writeConfig("launchers", [
-    "applications:firefox.desktop",
+    "applications:com.brave.Browser.desktop",
     "preferred://filemanager",
     "applications:steam.desktop",
     "applications:org.kde.discover.desktop",

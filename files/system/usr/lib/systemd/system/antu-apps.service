@@ -1,0 +1,18 @@
+[Unit]
+Description=Instala las apps de Antu desde Flathub (Brave) en el primer arranque con internet
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/var/lib/antu/apps-v1
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/flatpak remote-add --system --if-not-exists flathub /etc/flatpak/remotes.d/flathub.flatpakrepo
+ExecStart=/usr/bin/flatpak install --system --noninteractive --or-update flathub com.brave.Browser
+ExecStartPost=/usr/bin/mkdir -p /var/lib/antu
+ExecStartPost=/usr/bin/touch /var/lib/antu/apps-v1
+# Sin internet en el primer arranque: lo vuelve a intentar cada minuto hasta lograrlo.
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
