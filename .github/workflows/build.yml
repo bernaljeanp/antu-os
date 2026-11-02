@@ -63,6 +63,9 @@ jobs:
             modinfo -n nvidia
             # Cualquier programa puede leer la configuración de red y de nombres, no solo root.
             setpriv --reuid=65534 --regid=65534 --clear-groups cat /etc/resolv.conf /etc/hosts /etc/nsswitch.conf > /dev/null
+            # Cursor de Antu: la biblioteca real del sistema lo lee, también por un nombre alternativo, y es el predeterminado.
+            python3 -c "import ctypes as c; l = c.CDLL(\"libXcursor.so.1\"); l.XcursorLibraryLoadImage.restype = c.c_void_p; assert l.XcursorLibraryLoadImage(b\"left_ptr\", b\"Antu-Cursores\", 24)"
+            grep -q "cursorTheme=Antu-Cursores" /etc/xdg/kcminputrc && grep -q "Inherits=Antu-Cursores" /usr/share/icons/default/index.theme
             # Arranque seguro: shim y su registro de llaves, con la herramienta que crea la entrada del equipo.
             test -f /usr/lib/antu/arranque/shimx64.efi && test -f /usr/lib/antu/arranque/mmx64.efi
             test -f /usr/share/antu/arranque-seguro.cer

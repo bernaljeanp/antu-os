@@ -26,3 +26,11 @@ enlazar apps ark org.kde.ark
 enlazar apps gwenview org.kde.gwenview
 enlazar apps kate org.kde.kate
 enlazar apps spectacle org.kde.spectacle
+
+# Cursores: los nombres alternativos se crean aquí porque el repositorio se edita en Windows, donde Git no guarda bien
+# los enlaces. Si un cursor original no existe, la compilación falla.
+cursores=/usr/share/icons/Antu-Cursores/cursors
+while IFS=$'\t' read -r nombre original; do
+    [ -e "$cursores/$original" ]
+    ln -s "$original" "$cursores/$nombre"
+done < /usr/share/icons/Antu-Cursores/alias.tsv

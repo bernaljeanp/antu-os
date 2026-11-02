@@ -11,7 +11,7 @@ Theme=Antu
 name=antu
 
 [kcminputrc][Mouse]
-cursorTheme=breeze_cursors
+cursorTheme=Antu-Cursores
 
 [kwinrc][org.kde.kdecoration2]
 library=org.kde.breeze
