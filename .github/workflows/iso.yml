@@ -17,9 +17,10 @@ on:
       - .github/workflows/iso.yml
   workflow_dispatch:
 
+# Una prueba en curso nunca se corta: la siguiente espera su turno.
 concurrency:
   group: iso
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   iso:
