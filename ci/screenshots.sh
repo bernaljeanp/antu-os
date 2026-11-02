@@ -32,4 +32,16 @@ import -window root "$OUT/plymouth-1.png" || true
 sleep 6
 import -window root "$OUT/plymouth-2.png" || true
 plymouth quit || true
+
+# Escritorio: Plasma en una sesión Wayland virtual con un usuario nuevo, que recibe la distribución del tema global.
+# Es informativo: si el entorno de CI no lo permite, solo queda el registro.
+pacman -S --noconfirm --needed spectacle >/dev/null 2>&1 || true
+install -d -o jean -g jean -m 700 /run/user/1000
+su jean -c 'export XDG_RUNTIME_DIR=/run/user/1000
+  dbus-run-session -- bash -c "
+    kwin_wayland --virtual --width 2560 --height 1600 --no-lockscreen plasmashell > /tmp/plasma.log 2>&1 &
+    sleep 35
+    WAYLAND_DISPLAY=wayland-0 spectacle --background --nonotify --fullscreen --output /tmp/escritorio.png >> /tmp/plasma.log 2>&1
+    sleep 5"' || true
+cp /tmp/escritorio.png /tmp/plasma.log "$OUT/" 2>/dev/null || true
 exit 0

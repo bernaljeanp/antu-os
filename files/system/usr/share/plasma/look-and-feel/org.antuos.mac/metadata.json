@@ -1,0 +1,15 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Antu OS"
+            }
+        ],
+        "Description": "Distribución Mac: barra superior con menú global y dock flotante, en vidrio de obsidiana con lava.",
+        "Id": "org.antuos.mac",
+        "License": "GPL-3.0-or-later",
+        "Name": "Antu Mac",
+        "Version": "0.1"
+    }
+}
