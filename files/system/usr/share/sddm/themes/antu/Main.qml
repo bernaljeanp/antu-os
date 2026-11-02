@@ -102,7 +102,7 @@ Rectangle {
         blurEnabled: true
         blurMax: 64
         blur: 1.0
-        brightness: -0.35
+        brightness: -0.22
     }
 
     // Fecha y hora arriba al centro.

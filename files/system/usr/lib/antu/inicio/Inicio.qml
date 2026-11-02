@@ -75,7 +75,7 @@ ApplicationWindow {
         blurEnabled: true
         blurMax: 64
         blur: 1.0
-        brightness: -0.4
+        brightness: -0.22
     }
 
     Flickable {

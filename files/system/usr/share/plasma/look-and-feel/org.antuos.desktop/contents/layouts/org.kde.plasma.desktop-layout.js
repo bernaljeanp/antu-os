@@ -15,8 +15,10 @@ menu.writeConfig("icon", "antu");
 
 var tasks = panel.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
+// En el USB en vivo, el lugar del navegador lo toma el instalador: Brave llega después, desde Flathub.
+var live = applicationExists("antu-instalador.desktop") && !applicationExists("com.brave.Browser.desktop");
 tasks.writeConfig("launchers", [
-    "applications:com.brave.Browser.desktop",
+    live ? "applications:antu-instalador.desktop" : "applications:com.brave.Browser.desktop",
     "preferred://filemanager",
     "applications:steam.desktop",
     "applications:org.kde.discover.desktop",
