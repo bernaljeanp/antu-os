@@ -106,11 +106,13 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 - La imagen base está fijada por digest, pero los paquetes de Arch se toman del día; faltan canales
   `testing` / `stable` con fecha fija de repositorios.
 - Sin firma de imágenes ni Secure Boot todavía.
-- Los fondos miden 1672×941 y Breeze no permite los radios de esquina del diseño.
+- La identidad visual (sistema Metro: esquemas Túnel y Andén, fondos de red, Archivo) está en construcción:
+  faltan el símbolo de Antu, la pantalla de arranque, el inicio de sesión y el panel como línea de recorrido.
 
 ## Licencias y terceros
 
 - **Por decidir:** licencia del repositorio y de los fondos (los metadatos proponen GPL-3.0 y CC-BY-SA-4.0).
-- Fuentes Sora, Public Sans y JetBrains Mono: SIL OFL, licencias en `files/system/usr/share/fonts/antu/`.
+- Fuentes Archivo (Omnibus-Type) y JetBrains Mono: SIL OFL, licencias en `files/system/usr/share/fonts/antu/`.
+- Los fondos los dibuja `scripts/make_wallpapers.py`; los esquemas de color salen de `scripts/make_colors.py`.
 - La parte bootc del `Containerfile` está adaptada de [bootcrew/mono](https://github.com/bootcrew/mono)
   (Apache-2.0, Copyright 2025 tulilirockz). Licencia en `third_party/bootcrew-LICENSE`.

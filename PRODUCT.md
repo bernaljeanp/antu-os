@@ -1,0 +1,76 @@
+# Product
+
+<!-- impeccable:product-schema 1 -->
+
+## Platform
+
+linux-desktop
+
+Native Linux desktop operating system, not a website. Surfaces are KDE Plasma 6 (Qt/QML themes, Plasma
+look-and-feel, KWin decoration), SDDM (QML), Plymouth (boot splash), the systemd console, and future
+first-party apps. This value is outside the schema's web/ios/android/adaptive set on purpose.
+
+## Users
+
+Primary user for the first public release: a gamer with an NVIDIA gaming laptop who comes from Windows and wants
+to play on Linux without fighting the system. Daily work, AI-assisted programming and family use (a child playing
+Roblox) are real but secondary jobs. Reference machine: Alienware 16X Aurora (Core Ultra 9 275HX, RTX 5070 Laptop,
+2560×1600 at 240 Hz).
+
+## Product Purpose
+
+Antu OS is a Chilean gaming Linux distribution: an atomic Arch Linux system for gaming laptops with NVIDIA GPUs.
+It exists because SteamOS does not support NVIDIA (Valve says not before 2027 at the earliest) while most gaming
+laptops ship NVIDIA. Success: a Windows gamer installs it, plays, and never has to open a terminal to fix it.
+
+## Positioning
+
+The SteamOS-style experience for NVIDIA laptops: Arch freshness and drivers with atomic, image-based updates and
+rollback (bootc), plus first-party control of gaming-laptop hardware through Zenit (thermals, lighting, Fn keys,
+charge limit) that other distributions lack.
+
+## Operating Context
+
+- Installed from a USB created with USBoot (the user's own tool) or, during the prototype, with
+  `scripts/install-to-disk.sh` onto an external disk.
+- Updates arrive as whole images; the boot menu offers the previous version.
+- First boot currently asks for the first user on the systemd console (systemd-homed), before SDDM.
+- Users play through Steam/Proton; anti-cheat games and Roblox have known limits on Linux.
+
+## Capabilities and Constraints
+
+- Base: Arch Linux, bootc (composefs), nvidia-open, KDE Plasma 6.8, SDDM, PipeWire, NetworkManager.
+- Prototype stage (Hito 0): no Steam, no graphical installer, no Secure Boot or image signing yet.
+- Theming must work through KDE/Qt mechanisms and survive atomic updates (shipped in `/usr`, defaults in `/etc/xdg`).
+- Performance matters: the system competes with Windows on gaming laptops; visual effects must not cost frames.
+- Undecided: project license (GPL-3.0 suggested), wallpaper license, final release date.
+
+## Brand Commitments
+
+- Name: **Antu OS** ("Antu" = sun in Mapudungun, also a VLT telescope at Paranal). Tagline in use:
+  "Desde los cielos más claros de la Tierra."
+- Chilean origin is part of the identity: release codenames are Chilean volcanoes (1.0 "Láscar"), the game mode
+  is called "Eclipse", the performance profile "Erupción".
+- The StarNovum OS identity (open star, cobalt, pearl surfaces, Sora/Public Sans) is **not binding**: the user chose
+  a full redesign; StarNovum is reference only.
+
+## Evidence on Hand
+
+- Repository: github.com/bernaljeanp/antu-os; image ghcr.io/bernaljeanp/antu-nvidia.
+- Reference material only: StarNovum assets in `C:\Users\berna\Desktop\SaaS\StarNovum OS\assets\brand\v1`.
+- Related products by the same author: Zenit Engine (github.com/bernaljeanp/zenit-engine), USBoot
+  (github.com/bernaljeanp/usboot).
+- No users, testimonials, benchmarks or press exist yet; do not invent them.
+
+## Product Principles
+
+1. NVIDIA laptops first: every decision is judged on the reference gaming laptop.
+2. Never make the user fix the system: atomic updates, rollback, and clear explanations over terminal work.
+3. Spanish first, neutral Latin American Spanish with a clear, close tone; English as second language.
+4. Frames over flourish: nothing visual may cost gaming performance.
+5. Honest about limits: say what does not work (anti-cheat, Roblox) instead of hiding it.
+
+## Accessibility & Inclusion
+
+- Readable at 2560×1600 with fractional scaling; text contrast at least WCAG AA.
+- Full keyboard operation of system surfaces (login, first boot, game mode) for controller- and keyboard-driven use.
