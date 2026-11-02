@@ -51,7 +51,7 @@ ApplicationWindow {
     // Fondo: el de Antu, oscurecido, como en el instalador.
     Image {
         anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg"
+        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
         sourceSize.width: 1920
         fillMode: Image.PreserveAspectCrop
         asynchronous: true

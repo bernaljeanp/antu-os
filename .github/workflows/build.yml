@@ -83,7 +83,7 @@ jobs:
             grep -q "NVreg_DynamicPowerManagement=0x02" /usr/lib/modprobe.d/antu-nvidia.conf
             test -f /usr/lib/nvidia/wine/nvngx_dlssg.dll
             # Arte: el fondo que cargan el inicio de sesión, Inicio y el instalador, el ícono del menú y el arranque animado.
-            test -f /usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg
+            test -f /usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg
             test -f /usr/share/icons/hicolor/256x256/apps/antu.png
             test -f /usr/share/plymouth/themes/antu/cumbre.png
             test -f /usr/share/icons/Antu/index.theme && test -f /usr/share/icons/Antu/32x32/places/folder.png

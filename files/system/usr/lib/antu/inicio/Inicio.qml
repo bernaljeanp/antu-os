@@ -54,7 +54,7 @@ ApplicationWindow {
     // Fondo: el de Antu oscurecido, nítido como en el inicio de sesión. Desenfocado se volvía negro con manchas rojas.
     Image {
         anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg"
+        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
     }

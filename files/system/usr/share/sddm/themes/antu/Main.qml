@@ -84,7 +84,7 @@ Rectangle {
     Image {
         id: wallpaper
         anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg"
+        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
         visible: root.software

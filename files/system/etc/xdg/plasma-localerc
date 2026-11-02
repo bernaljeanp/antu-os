@@ -1,0 +1,3 @@
+# Hora en 24 horas en todo Plasma, como en el inicio de sesión: es_CL usa 12 horas y la pantalla de bloqueo sigue el idioma.
+[Formats]
+LC_TIME=es_ES.UTF-8
