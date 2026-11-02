@@ -75,6 +75,9 @@ jobs:
             # Zenit: su lógica pasa la autoprueba y el servicio corre aunque la VM no sea un Alienware.
             python3 /usr/lib/antu/zenit/zenit.py autoprueba
             systemctl is-active zenit
+            # Actualizaciones automáticas: el temporizador está activo y el script existe.
+            systemctl is-enabled antu-actualizar.timer
+            test -x /usr/lib/antu/actualizar
             # Sin relleno: ni LibreOffice ni Firefox en la imagen.
             ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]

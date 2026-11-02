@@ -108,12 +108,16 @@ escritorio (barra inferior centrada o barra superior y dock) y extras como la IA
 terminar aparece el inicio de sesión con tu cuenta. Corre en una cuenta de sistema sin privilegios; las acciones de
 administrador las hace un ayudante que valida cada dato y deja de funcionar en cuanto existe una cuenta.
 
+**Actualizaciones:** Antu se actualiza solo. Cada 6 horas busca la versión nueva, la baja en segundo plano (con la
+prioridad más baja, para no molestar mientras juegas, y nunca con datos móviles) y te avisa cuando está lista. Se
+aplica la próxima vez que reinicias; si algo falla, en el menú de arranque eliges la versión anterior.
+
 Ese usuario es administrador (grupo `wheel`). La cuenta root está bloqueada: para tareas de sistema se usa
 `run0`, el reemplazo de `sudo` de systemd:
 
 ```bash
-run0 bootc upgrade     # descargar la imagen nueva; se aplica al reiniciar
-run0 bootc rollback    # volver a la versión anterior
+run0 systemctl start antu-actualizar   # buscar la actualización ahora, sin esperar
+run0 bootc rollback                   # volver a la versión anterior
 ```
 
 ## Cómo está hecha

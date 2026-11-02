@@ -1,0 +1,11 @@
+[Unit]
+Description=Baja la actualización de Antu y la deja lista para el próximo reinicio
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/antu/actualizar
+# Sin molestar mientras juegas: la descarga va con la prioridad más baja de procesador y disco.
+Nice=19
+IOSchedulingClass=idle

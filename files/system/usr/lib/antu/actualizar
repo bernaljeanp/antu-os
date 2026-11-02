@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Actualización automática de Antu: baja la versión nueva en segundo plano y la deja lista para el próximo reinicio
+# (bootc upgrade sin --apply: nunca reinicia sola). No descarga con conexiones medidas, como el celular compartiendo
+# internet, y avisa en pantalla cuando hay una versión lista.
+set -euo pipefail
+
+# Huella de la versión preparada para el próximo arranque (vacía si no hay ninguna).
+preparada() {
+    bootc status --format json 2>/dev/null | python3 -c '
+import json, sys
+staged = (json.load(sys.stdin).get("status") or {}).get("staged") or {}
+print((staged.get("image") or {}).get("imageDigest") or "")'
+}
+
+# NetworkManager: 1 = medida, 3 = probablemente medida.
+medida="$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
+    org.freedesktop.NetworkManager Metered 2>/dev/null | awk '{print $2}')" || true
+case "$medida" in
+    1 | 3) echo "Conexión medida: la actualización espera una red sin límite de datos."; exit 0 ;;
+esac
+
+antes="$(preparada)"
+bootc upgrade --quiet
+despues="$(preparada)"
+[ -n "$despues" ] && [ "$despues" != "$antes" ] || exit 0
+
+# Aviso en cada sesión abierta (el servicio corre como root).
+for bus in /run/user/*/bus; do
+    [ -S "$bus" ] || continue
+    usuario="$(stat -c %U "$bus")"
+    runuser -u "$usuario" -- env "DBUS_SESSION_BUS_ADDRESS=unix:path=$bus" \
+        gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications \
+        --method org.freedesktop.Notifications.Notify "Antu" 0 "antu" "Actualización de Antu lista" \
+        "Se aplica la próxima vez que reinicies. Si algo falla, elige la versión anterior en el menú de arranque." \
+        "[]" "{}" -1 > /dev/null 2>&1 || true
+done

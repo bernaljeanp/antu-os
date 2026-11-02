@@ -75,9 +75,10 @@ COPY files/system/ /
 RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scripts/kde-defaults.sh
 
 # Inicio (asistente gráfico del primer arranque) crea la primera cuenta con systemd-homed antes del inicio de sesión.
-# Zenit controla perfiles térmicos, luces, carga y teclas del portátil (Alienware y Dell).
+# Zenit controla perfiles térmicos, luces, carga y teclas del portátil (Alienware y Dell). antu-actualizar baja
+# cada versión nueva en segundo plano y la deja lista para el próximo reinicio.
 # La red la maneja NetworkManager: systemd-networkd queda apagado, también en el primer arranque (10-antu.preset).
-RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit \
+RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl disable systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service && \
     systemctl mask systemd-firstboot.service && \
