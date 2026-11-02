@@ -5,10 +5,10 @@
 #   sudo ./install-to-disk.sh /dev/sdX          disco externo: se borra entero
 #   sudo ./install-to-disk.sh antu.img          archivo de 40 GB para QEMU o VMware
 #
-# Variable opcional: ANTU_IMAGE (por defecto ghcr.io/bernaljeanp/antu-nvidia:latest).
+# Variable opcional: ANTU_IMAGE (por defecto ghcr.io/bernaljeanp/antu-nvidia:stable, el canal estable).
 set -euo pipefail
 
-IMAGE="${ANTU_IMAGE:-ghcr.io/bernaljeanp/antu-nvidia:latest}"
+IMAGE="${ANTU_IMAGE:-ghcr.io/bernaljeanp/antu-nvidia:stable}"
 TARGET="${1:-}"
 
 die() { echo "Error: $*" >&2; exit 1; }

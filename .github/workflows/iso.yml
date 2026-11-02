@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 180
     permissions:
       contents: read
-      packages: read
+      packages: write  # para promover al canal estable la versión que pasó la prueba
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -52,7 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "$GITHUB_TOKEN" | sudo podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
-          sudo bash scripts/make-iso.sh "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:latest"
+          sudo bash scripts/make-iso.sh "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:testing"
           df -h /
 
       # El instalador en modo demo dentro del sistema en vivo; falla si su interfaz tiene errores de QML.
@@ -63,6 +63,17 @@ jobs:
 
       - name: Probar en QEMU
         run: sudo bash ci/iso-test.sh iso-build
+
+      # La versión que pasó la prueba completa (USB, instalación y arranque del disco) pasa al canal estable, el que
+      # siguen los equipos instalados. Mismo contenido y misma firma: solo cambia la etiqueta.
+      - name: Promover al canal estable
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia"
+          digest="$(cat iso-build/digest)"
+          for tag in stable latest "$(date -u +%Y%m%d)"; do
+            sudo skopeo copy --all --preserve-digests --quiet "docker://$image@$digest" "docker://$image:$tag"
+          done
+          echo "Canal estable: $image@$digest"
 
       - name: Subir capturas y registros
         if: always()

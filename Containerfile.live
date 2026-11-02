@@ -1,6 +1,6 @@
 # Antu OS en vivo: la imagen publicada más lo que necesita el USB de instalación (usuario en vivo, instalador gráfico
 # e initramfs que arranca desde el USB). La compila scripts/make-iso.sh; no se publica como imagen.
-ARG BASE=ghcr.io/bernaljeanp/antu-nvidia:latest
+ARG BASE=ghcr.io/bernaljeanp/antu-nvidia:testing
 FROM ${BASE}
 
 COPY files/live/ /

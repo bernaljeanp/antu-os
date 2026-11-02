@@ -83,7 +83,7 @@ disco arranca hasta Inicio. Las capturas quedan en el artefacto `pruebas-iso`.
 - **Con un disco ya instalado:** *Actions → disco-vm → Run workflow* y descarga el artefacto `antu-nvidia-vmdk`. En
   VMware, nueva VM personalizada → usar disco existente → `antu-nvidia.vmdk`, también con UEFI y sin Secure Boot.
 
-Las dos usan la última imagen publicada en `ghcr.io/bernaljeanp/antu-nvidia`.
+Las dos usan la última versión estable de `ghcr.io/bernaljeanp/antu-nvidia`.
 
 ## Instalar desde otro Linux (SSD o USB externo)
 
@@ -141,7 +141,20 @@ third_party/                  licencias de terceros
 En cada push y cada día, GitHub Actions compila la imagen y la arranca en una VM con
 [bcvk](https://github.com/bootc-dev/bcvk). La prueba falla si hay unidades de systemd con error, si NetworkManager
 o SDDM no están activos, si falta el módulo `nvidia`, si el tema Antu no está configurado, si alguna cuenta no tiene
-contraseña o si root no está bloqueado. Solo si pasa se publica `antu-nvidia:latest` y una etiqueta con la fecha.
+contraseña o si root no está bloqueado.
+
+**Canales y firma.** La versión que pasa esa prueba se reempaqueta por paquetes (cada paquete de Arch en su capa,
+con [chunkah](https://github.com/coreos/chunkah), así una actualización solo baja lo que cambió), se firma y se
+publica en el canal de prueba `antu-nvidia:testing`. Después `iso.yml` crea la ISO con esa misma versión y la prueba
+entera: arranque en vivo, instalación sin internet y arranque del disco instalado. Solo si pasa, la versión sube al
+canal estable `antu-nvidia:stable`, el que siguen los equipos instalados. La firma es de cosign sin llaves, con la
+identidad del workflow de este repositorio, y cualquiera puede comprobarla:
+
+```bash
+cosign verify ghcr.io/bernaljeanp/antu-nvidia:stable \
+  --certificate-identity-regexp '^https://github.com/bernaljeanp/antu-os/' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
 
 La imagen de prueba activa SSH y desactiva el asistente de primer arranque, que esperaría en la consola;
 la publicada no tiene ninguno de los dos cambios.
@@ -152,7 +165,7 @@ la publicada no tiene ninguno de los dos cambios.
 |---|---|
 | **0** | Arch + bootc + NVIDIA + KDE + identidad, con prueba de arranque automática *(en curso)* |
 | **0b** | Inicio (primer arranque gráfico), USB en vivo e instalador gráfico *(en curso)* |
-| **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalación junto a Windows, Secure Boot y firma de imágenes, canales `testing` / `stable` |
+| **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalación junto a Windows, Secure Boot y verificación de la firma en cada equipo |
 | **1** | Zenit en Linux (perfiles térmicos, AlienFX, teclas Fn, límite de carga) y USBoot como instalador oficial |
 | **2** | Inicio (primer arranque en español), Biblioteca (compatibilidad antes de instalar), modo Familia |
 | **3** | Asistente local y opcional que explica en español por qué falla un juego |
@@ -172,9 +185,10 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 ## Límites conocidos
 
 - La prueba en VM no tiene GPU: comprueba que el módulo NVIDIA existe, no que funcione en una RTX real.
-- La imagen base está fijada por digest, pero los paquetes de Arch se toman del día; faltan canales
-  `testing` / `stable` con fecha fija de repositorios.
-- Sin firma de imágenes ni Secure Boot todavía: la ISO y el sistema instalado necesitan Secure Boot desactivado.
+- La imagen base está fijada por digest, pero los paquetes de Arch se toman del día: el canal estable es lo que
+  protege a los equipos instalados de una actualización de Arch con fallas.
+- Cada versión va firmada, pero los equipos instalados todavía no comprueban la firma por sí mismos antes de
+  actualizar. Sin Secure Boot todavía: la ISO y el sistema instalado necesitan Secure Boot desactivado.
 - El instalador usa el disco entero; instalar junto a Windows en el mismo disco aún no está disponible.
 - `bootc upgrade` en un sistema instalado necesita que el paquete `ghcr.io/bernaljeanp/antu-nvidia` sea público.
 - La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) ya tiene arranque animado «Amanecer», inicio de

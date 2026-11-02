@@ -5,7 +5,7 @@
 set -euo pipefail
 
 SOURCE=/run/initramfs/live/antu/imagen
-TARGET_IMAGE=ghcr.io/bernaljeanp/antu-nvidia:latest
+TARGET_IMAGE=ghcr.io/bernaljeanp/antu-nvidia:stable  # canal estable
 MIN_BYTES=40000000000
 
 die() { echo "$*" >&2; exit 1; }

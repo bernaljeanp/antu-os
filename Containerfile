@@ -107,6 +107,10 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \
     printf "d /var/roothome 0700 root root -\nd /run/media 0755 root root -\n" >> /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' > /usr/lib/ostree/prepare-root.conf
 
+# Cada archivo lleva el paquete de Arch al que pertenece (atributo user.component): con eso, chunkah reempaqueta la
+# imagen publicada por paquetes (build.yml) y una actualización solo baja los paquetes que cambiaron.
+RUN --mount=type=bind,source=files/scripts,target=/antu-scripts python3 /antu-scripts/componentes.py
+
 LABEL containers.bootc=1
 LABEL org.opencontainers.image.title="Antu OS" \
       org.opencontainers.image.description="Distro gamer chilena: Arch atómico con NVIDIA y KDE Plasma."

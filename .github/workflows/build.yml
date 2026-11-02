@@ -27,6 +27,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write  # firma sin llaves de cosign con la identidad de este workflow
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -106,15 +107,39 @@ jobs:
 
       - name: Compilar imagen publicable (sin SSH)
         if: github.event_name != 'pull_request'
-        run: podman build -t antu-nvidia:latest .
+        run: podman build -t localhost/antu-nvidia:sin-reempaquetar .
 
-      - name: Publicar en ghcr.io
+      # Reempaqueta por paquetes con chunkah: cada paquete de Arch en su capa (por el atributo user.component que pone
+      # files/scripts/componentes.py), así una actualización solo baja los paquetes que cambiaron.
+      - name: Reempaquetar por paquetes
+        if: github.event_name != 'pull_request'
+        run: |
+          podman run --rm localhost/antu-nvidia:sin-reempaquetar python3 -c \
+            'import os; print("bash pertenece a:", os.getxattr("/usr/bin/bash", "user.component").decode())' \
+            || echo "::warning::Los archivos no traen su paquete: el reempaquetado no podrá agrupar por paquete"
+          export CHUNKAH_CONFIG_STR="$(podman inspect localhost/antu-nvidia:sin-reempaquetar)"
+          podman run --rm --mount=type=image,src=localhost/antu-nvidia:sin-reempaquetar,dest=/chunkah -e CHUNKAH_CONFIG_STR \
+            quay.io/coreos/chunkah@sha256:71e593421c5de7dcc7c8c5c50e98d3bac572055a76f399f61a491d123c20a523 \
+            build --max-layers 128 -t localhost/antu-nvidia:latest | podman load
+          bootc="$(podman image inspect localhost/antu-nvidia:latest --format '{{ index .Labels "containers.bootc" }}')"
+          capas="$(podman image inspect localhost/antu-nvidia:latest --format '{{ len .RootFS.Layers }}')"
+          echo "Imagen reempaquetada: $capas capas"
+          [ "$bootc" = 1 ] || { echo "::error::La imagen reempaquetada perdió la etiqueta containers.bootc"; exit 1; }
+
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        if: github.event_name != 'pull_request'
+
+      # Canal de prueba: cada versión que pasa la prueba en VM. Pasa al canal estable (el de los equipos instalados)
+      # solo después de la prueba completa de iso.yml. Cada versión va firmada con la identidad de este workflow.
+      - name: Publicar en el canal de prueba y firmar
         if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia"
           echo "$GITHUB_TOKEN" | podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
-          for tag in latest "$(date -u +%Y%m%d)"; do
-            podman push antu-nvidia:latest "$image:$tag"
-          done
+          podman push --digestfile digest localhost/antu-nvidia:latest "$image:testing"
+          podman push localhost/antu-nvidia:latest "$image:testing-$(date -u +%Y%m%d)"
+          echo "$GITHUB_TOKEN" | cosign login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          cosign sign --yes "$image@$(cat digest)"
+          echo "Publicada y firmada: $image@$(cat digest)"

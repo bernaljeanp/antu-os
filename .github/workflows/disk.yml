@@ -23,7 +23,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:latest"
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:stable"
           echo "$GITHUB_TOKEN" | sudo podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
           sudo podman pull "$image"
           sudo ANTU_IMAGE="$image" bash scripts/install-to-disk.sh "$PWD/antu.img"

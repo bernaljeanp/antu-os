@@ -2,13 +2,13 @@
 # Crea el USB en vivo de Antu: una ISO híbrida UEFI (para grabar con USBoot o cualquier grabador en modo DD) con el
 # sistema en vivo, el instalador gráfico y la imagen de Antu para instalar sin internet.
 #
-#   sudo scripts/make-iso.sh [imagen]      por defecto ghcr.io/bernaljeanp/antu-nvidia:latest
+#   sudo scripts/make-iso.sh [imagen]      por defecto ghcr.io/bernaljeanp/antu-nvidia:testing
 #
 # Deja en ./iso-build/: antu-live.iso, su .sha256, y vmlinuz e initramfs-live.img para las pruebas en QEMU.
 # Necesita podman, skopeo, squashfs-tools, xorriso, mtools y dosfstools.
 set -euo pipefail
 
-IMAGE="${1:-ghcr.io/bernaljeanp/antu-nvidia:latest}"
+IMAGE="${1:-ghcr.io/bernaljeanp/antu-nvidia:testing}"
 OUT="$PWD/iso-build"
 LABEL=ANTU_LIVE
 CMDLINE="root=live:CDLABEL=$LABEL rd.live.image rd.live.overlay.overlayfs=1 rd.driver.blacklist=nouveau modprobe.blacklist=nouveau quiet splash"
@@ -20,6 +20,7 @@ mkdir -p "$OUT/iso/LiveOS" "$OUT/iso/antu" "$OUT/esp/loader/entries"
 digest="$(skopeo inspect --format '{{.Digest}}' "docker://$IMAGE")"
 pinned="${IMAGE%:*}@$digest"
 echo "Imagen: $pinned"
+echo "$digest" > "$OUT/digest"  # la versión exacta que se prueba y se promueve
 podman build -f Containerfile.live --build-arg BASE="$pinned" -t localhost/antu-live .
 skopeo copy --quiet "docker://$pinned" "oci:$OUT/iso/antu/imagen"
 
