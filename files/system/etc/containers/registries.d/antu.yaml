@@ -1,5 +1,5 @@
 # Dónde buscar la firma de cada versión de Antu: adjunta a la imagen en el mismo registro (formato sigstore).
-# La comprobación obligatoria se activa aparte, con /etc/containers/policy.json, cuando esté probada en una VM.
+# La comprobación obligatoria está en /etc/containers/policy.json.
 docker:
   ghcr.io/bernaljeanp/antu-nvidia:
     use-sigstore-attachments: true

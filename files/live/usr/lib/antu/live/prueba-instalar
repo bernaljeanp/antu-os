@@ -7,6 +7,17 @@ dev="$(sed -n 's/.*antu\.prueba-instalar=\([^ ]*\).*/\1/p' /proc/cmdline)"
 huella="$(lsblk -bdno SERIAL,SIZE "$dev" | xargs)"
 if ANTU_KARGS="console=ttyS0,115200 systemd.show_status=1 systemd.log_target=console" \
     /usr/lib/antu/instalador-helper instalar "$dev" "$huella"; then
+    # Deja en el disco de la prueba el paso 5 de ci/iso-test.sh (firmas e internet), que corre al arrancar.
+    punto="$(mktemp -d)"
+    mount "$(lsblk -nrpo PATH,LABEL "$dev" | awk '$2 == "root" {print $1}')" "$punto"
+    etc="$(echo "$punto"/state/deploy/*/etc)"
+    [ -d "$etc/upper" ] && etc="$etc/upper"
+    mkdir -p "$etc/systemd/system/multi-user.target.wants"
+    cp /usr/lib/antu/live/prueba-firma "$etc/antu-prueba-firma"
+    printf '[Unit]\nDescription=Prueba de firmas e internet\nConditionPathExists=/dev/ttyS0\n[Service]\nType=exec\nExecStart=/etc/antu-prueba-firma\n' \
+        > "$etc/systemd/system/antu-prueba-firma.service"
+    ln -s ../antu-prueba-firma.service "$etc/systemd/system/multi-user.target.wants/antu-prueba-firma.service"
+    umount "$punto"
     echo "ANTU-INSTALAR: OK"
 else
     echo "ANTU-INSTALAR: FALLO"

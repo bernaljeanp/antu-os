@@ -5,7 +5,8 @@
 #   arranque seguro: se registra la llave de Antu con el teclado y la ISO arranca (seguro-*.png, para la guía);
 #   2. el instalador copia Antu al disco sin internet (antu.prueba-instalar en la línea del kernel);
 #   3. ese disco arranca solo hasta la pantalla gráfica, con Inicio (captura instalado.png);
-#   4. ese disco arranca también con arranque seguro, sin pedir nada más (instalado-seguro.png).
+#   4. ese disco arranca también con arranque seguro, sin pedir nada más (instalado-seguro.png);
+#   5. con internet, tiene red sin privilegios, acepta una actualización firmada y rechaza una versión sin firma.
 # Uso: sudo ci/iso-test.sh iso-build    (necesita qemu-system-x86, qemu-utils, ovmf, socat e imagemagick)
 set -euo pipefail
 
@@ -160,4 +161,13 @@ fi
 sleep 30  # mismo firmware y variables que confirmaron arranque seguro=1 en la ISO
 shot instalado-seguro
 stop
+
+echo "== 5. Con internet: un programa sin privilegios tiene red, se acepta lo firmado y se rechaza lo que no"
+"${QEMU[@]}" -nic user,model=virtio-net-pci -serial file:"$OUT/serie-firma.log" &
+wait_for "$OUT/serie-firma.log" "ANTU-FIRMA: fin" 420 || true
+stop
+grep -a "ANTU-FIRMA:" "$OUT/serie-firma.log" || true
+for esperado in "internet OK" "actualizar OK" "sin firma RECHAZADA"; do
+    grep -qa "ANTU-FIRMA: $esperado" "$OUT/serie-firma.log" || { echo "::error::Faltó «$esperado» (ver serie-firma.log)"; exit 1; }
+done
 echo "ANTU: pruebas de la ISO OK"

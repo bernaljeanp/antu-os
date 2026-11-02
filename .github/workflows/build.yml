@@ -67,6 +67,9 @@ jobs:
             test -f /usr/lib/antu/arranque/shimx64.efi && test -f /usr/lib/antu/arranque/mmx64.efi
             test -f /usr/share/antu/arranque-seguro.cer
             command -v efibootmgr > /dev/null
+            # Firmas: cada equipo exige la llave de Antu para las versiones de Antu.
+            grep -q sigstoreSigned /etc/containers/policy.json && test -f /etc/pki/containers/antu.pub
+            python3 -c "import json; json.load(open(\"/etc/containers/policy.json\"))"
             grep -q "LookAndFeelPackage=org.antuos.desktop" /etc/xdg/kdeglobals
             # Juegos: Steam, Gamescope, GameMode y MangoHud presentes, y NVIDIA de 32 y 64 bits iguales.
             command -v steam gamescope gamemoded mangohud prime-run flatpak > /dev/null

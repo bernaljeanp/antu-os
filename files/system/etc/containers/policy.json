@@ -1,0 +1,15 @@
+{
+  "default": [{"type": "insecureAcceptAnything"}],
+  "transports": {
+    "docker": {
+      "ghcr.io/bernaljeanp/antu-nvidia": [
+        {
+          "type": "sigstoreSigned",
+          "keyPath": "/etc/pki/containers/antu.pub",
+          "signedIdentity": {"type": "matchRepository"}
+        }
+      ]
+    },
+    "docker-daemon": {"": [{"type": "insecureAcceptAnything"}]}
+  }
+}

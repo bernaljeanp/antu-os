@@ -1,0 +1,29 @@
+#!/bin/sh
+# Prueba de ci/iso-test.sh (paso 5) en el sistema instalado, con internet: que un programa sin privilegios tenga red, que
+# se acepte una actualización firmada con la llave de Antu y que se rechace una versión antigua, sin esa firma. Solo
+# existe en el disco de esa prueba: la copia ahí prueba-instalar.
+aviso() { echo "ANTU-FIRMA: $*" > /dev/ttyS0; }
+
+for _ in $(seq 40); do getent hosts ghcr.io > /dev/null && break; sleep 3; done
+getent hosts ghcr.io > /dev/null || { aviso "sin red"; exit 0; }
+
+if su -s /bin/sh nobody -c 'cat /etc/resolv.conf > /dev/null && curl -fsS -o /dev/null https://flathub.org/'; then
+    aviso "internet OK"
+else
+    aviso "internet FALLO"
+fi
+
+if salida="$(bootc upgrade --check 2>&1)"; then
+    aviso "actualizar OK"
+else
+    aviso "actualizar FALLO: $(echo "$salida" | tail -n 2 | tr '\n' ' ')"
+fi
+
+if salida="$(bootc switch --transport registry ghcr.io/bernaljeanp/antu-nvidia:20261101 2>&1)"; then
+    aviso "sin firma ACEPTADA"
+elif echo "$salida" | grep -qi "signature"; then
+    aviso "sin firma RECHAZADA"
+else
+    aviso "sin firma OTRO ERROR: $(echo "$salida" | tail -n 2 | tr '\n' ' ')"
+fi
+aviso fin
