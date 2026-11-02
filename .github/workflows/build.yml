@@ -121,7 +121,7 @@ jobs:
             'import os; print("bash pertenece a:", os.getxattr("/usr/bin/bash", "user.component").decode())' \
             || echo "::warning::Los archivos no traen su paquete: el reempaquetado no podrá agrupar por paquete"
           export CHUNKAH_CONFIG_STR="$(podman inspect localhost/antu-nvidia:sin-reempaquetar)"
-          podman run --rm --mount=type=image,src=localhost/antu-nvidia:sin-reempaquetar,dest=/chunkah -e CHUNKAH_CONFIG_STR \
+          podman run --rm --mount=type=image,src=localhost/antu-nvidia:sin-reempaquetar,target=/chunkah -e CHUNKAH_CONFIG_STR \
             quay.io/coreos/chunkah@sha256:71e593421c5de7dcc7c8c5c50e98d3bac572055a76f399f61a491d123c20a523 \
             build --max-layers 128 -t localhost/antu-nvidia:latest | podman load
           bootc="$(podman image inspect localhost/antu-nvidia:latest --format '{{ index .Labels "containers.bootc" }}')"
