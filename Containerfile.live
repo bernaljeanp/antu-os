@@ -6,8 +6,10 @@ FROM ${BASE}
 COPY files/live/ /
 
 # Usuario en vivo sin contraseña que entra solo al escritorio; el instalador se abre al entrar. Sin Inicio ni descargas
-# de primer arranque: en vivo todo lo que se escribe va a la memoria RAM.
-RUN mkdir -p /var/home && useradd -m -G wheel -c "Antu en vivo" antu && passwd -d antu && \
+# de primer arranque: en vivo todo lo que se escribe va a la memoria RAM. Tampoco la app de actualizaciones: el USB no
+# se actualiza y solo mostraría que no puede leer el estado.
+RUN rm /usr/share/applications/antu-actualizaciones.desktop && \
+    mkdir -p /var/home && useradd -m -G wheel -c "Antu en vivo" antu && passwd -d antu && \
     systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service antu-ia.service antu-actualizar.timer && \
     systemctl enable antu-live-listo.service antu-prueba-instalar.service antu-galeria.service
 

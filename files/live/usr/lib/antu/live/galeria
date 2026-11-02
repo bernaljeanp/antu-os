@@ -23,7 +23,7 @@ sleep 10
 plasma activateLauncherMenu
 
 en_sesion systemsettings kcm_kscreen
-sleep 12
+sleep 25
 serie pantalla
 sleep 10
 pkill -x systemsettings
@@ -38,12 +38,6 @@ en_sesion /usr/lib/antu/zenit/app.py
 sleep 10
 serie zenit
 sleep 10
-
-en_sesion /usr/lib/antu/actualizaciones/actualizaciones.py
-sleep 10
-serie actualizaciones
-sleep 10
-pkill -f actualizaciones.py
 
 en_sesion gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications \
     --method org.freedesktop.Notifications.Notify "Antu" 0 "antu" "Actualización de Antu lista" \
