@@ -25,7 +25,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq podman qemu-system-x86 ovmf socat imagemagick sbsigntool mtools dosfstools \
-            gdisk libarchive-tools binutils > /dev/null
+            libarchive-tools binutils > /dev/null
 
       - name: Probar
         run: sudo bash ci/arranque-seguro.sh

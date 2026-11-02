@@ -7,7 +7,7 @@
 #   3. Control: un núcleo sin firmar NO arranca. Sin esto, la prueba no demostraría nada.
 #   4. Con el arranque seguro apagado, la misma cadena también arranca.
 # Uso: sudo ci/arranque-seguro.sh    (necesita podman, qemu-system-x86, ovmf, socat, imagemagick, sbsigntool, mtools,
-# dosfstools, gdisk, openssl y libarchive-tools)
+# dosfstools, openssl y libarchive-tools)
 set -euo pipefail
 
 SHIM_VERSION=16.1-10
@@ -49,14 +49,9 @@ sbsign --key "$W/llave.key" --cert "$W/llave.crt" --output "$W/grubx64.efi" "$W/
 sbsign --key "$W/llave.key" --cert "$W/llave.crt" --output "$W/vmlinuz-firmado" "$W/vmlinuz"
 
 echo "== Disco de arranque"
-disco="$W/disco.img"
-truncate -s 256M "$disco"
-sgdisk -q -n 1:2048:-1M -t 1:EF00 "$disco"
-# Formateada aparte: mkfs.vfat con --offset recorta el archivo y se lleva la copia de la tabla de particiones.
-truncate -s 254M "$W/esp.img"
-mkfs.vfat -n ANTU_EFI "$W/esp.img" > /dev/null
-dd if="$W/esp.img" of="$disco" bs=1M seek=1 conv=notrunc status=none
-esp="$disco@@1M"
+esp="$W/esp.img"  # el disco entero es la partición de arranque: la tabla del USB real se prueba en ci/iso-test.sh
+truncate -s 200M "$esp"
+mkfs.vfat -F 32 -n ANTU_EFI "$esp" > /dev/null
 mcopy -i "$esp" "$W/antu.cer" ::/antu.cer  # primero, para que encabece la lista de archivos
 mmd -i "$esp" ::/EFI ::/EFI/BOOT ::/loader ::/loader/entries ::/antu
 mcopy -i "$esp" "$shim" ::/EFI/BOOT/BOOTX64.EFI
@@ -83,7 +78,8 @@ seguro() {  # registro-serie: arranca con arranque seguro y las variables que se
         -global driver=cfi.pflash01,property=secure,value=on -global ICH9-LPC.disable_s3=1 \
         -drive if=pflash,format=raw,unit=0,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.secboot.fd \
         -drive if=pflash,format=raw,unit=1,file="$W/vars.fd" \
-        -drive file="$disco",format=raw,if=virtio -device virtio-vga,xres=1280,yres=800 -display none \
+        -drive file="$esp",format=raw,if=none,id=disco -device nvme,serial=ANTU0001,drive=disco \
+        -device virtio-vga,xres=1280,yres=800 -display none \
         -monitor unix:"$SOCK",server=on,wait=off -serial file:"$OUT/$1" &
     for _ in $(seq 50); do [ -S "$SOCK" ] && break; sleep 0.2; done
 }
@@ -156,7 +152,8 @@ cp /usr/share/OVMF/OVMF_VARS_4M.fd "$W/vars-normal.fd"
 qemu-system-x86_64 -machine q35,accel=kvm -cpu host -smp 2 -m 2048 -nic none -no-reboot \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
     -drive if=pflash,format=raw,file="$W/vars-normal.fd" \
-    -drive file="$disco",format=raw,if=virtio -device virtio-vga -display none \
+    -drive file="$esp",format=raw,if=none,id=disco -device nvme,serial=ANTU0001,drive=disco \
+    -device virtio-vga -display none \
     -monitor unix:"$SOCK",server=on,wait=off -serial file:"$OUT/serie-normal.log" &
 esperar "$OUT/serie-normal.log" "Linux version" 90 || { parar; falla "Sin arranque seguro, la cadena no arrancó"; }
 parar
