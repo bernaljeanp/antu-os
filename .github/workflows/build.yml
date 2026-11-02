@@ -73,6 +73,7 @@ jobs:
             test -f /usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg
             test -f /usr/share/icons/hicolor/256x256/apps/antu.png
             test -f /usr/share/plymouth/themes/antu/cumbre.png
+            test -f /usr/share/icons/Antu/index.theme && test -f /usr/share/icons/Antu/32x32/places/folder.png
             # Zenit: su lógica pasa la autoprueba y el servicio corre aunque la VM no sea un Alienware.
             python3 /usr/lib/antu/zenit/zenit.py autoprueba
             systemctl is-active zenit

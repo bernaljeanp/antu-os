@@ -5,7 +5,7 @@ widgetStyle=Breeze
 ColorScheme=AntuObsidiana
 
 [kdeglobals][Icons]
-Theme=breeze-dark
+Theme=Antu
 
 [plasmarc][Theme]
 name=antu

@@ -1,0 +1,3281 @@
+{
+  "theme": "Antu",
+  "icons": 58,
+  "png_files": 464,
+  "directories": 32,
+  "sizes": [
+    16,
+    22,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "inherits": [
+    "breeze-dark",
+    "hicolor"
+  ],
+  "license": "CC-BY-SA-4.0",
+  "checks": "Names, dimensions, RGBA transparency, metadata, directory contexts, defaults and LF passed.",
+  "runtime_limit": "Static validation on Windows; Linux/Dolphin session not executed.",
+  "optical_edits": {
+    "16": "Larger inlays, heavier strokes; 1 sheet in full trash; 5 keyboard columns; no thumbsticks or small screws.",
+    "22": "Heavy strokes, larger app motif; remove film perforations, bin grooves and small device machining.",
+    "24": "Heavy strokes, larger app motif; simplified graph, optical media, spreadsheet and terminal.",
+    "32": "Intermediate stroke, enlarged marks; simplified small features, retained two-note music and folder silhouettes."
+  },
+  "assets": [
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 628,
+      "sha256": "46c7b830834dd1ef1e2de8816bb5504d816e9a838121121e6701d79e14fa05f6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-open.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 692,
+      "sha256": "d3299f8691c02cb8c201c9c2a924d321da1b88b7fb541798757244e62fc00ec3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/user-home.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 737,
+      "sha256": "0e361cfe8639be2c383f0d25d60db63911e553b12a43f27b7ac48aa03a79297d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/user-desktop.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 734,
+      "sha256": "629daabf2e8796b0c96374255d1200f5fe57859c6032196c93ecb5087ca4865d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-documents.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 703,
+      "sha256": "d7e219f43c8eee7beefd14dc402512a396bc30e4e4395e97d86b9424102024d0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-download.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 692,
+      "sha256": "de5de335b99eddebd47fe754b6a36cd628f8eae4840679c545fc53b128e93b3a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-music.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 737,
+      "sha256": "b0d10fe15f1c17a47d45f799bdbea17a1ee6f8b4c8b92e9c51c12637294b5b26"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-pictures.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 747,
+      "sha256": "aa88f705ebe66d20f743ff52c43b220da5031fca9e8b360da7e338c214b1c15a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-videos.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 687,
+      "sha256": "6f259ba1d00fd61de70fa02655c25bf53ff4b6c3c1bac550d0a57ae960753dee"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-templates.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 731,
+      "sha256": "f31ea7dd14915669ecc44709239f2f85f300af83737807216c06645c3965270a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-publicshare.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 725,
+      "sha256": "c6c0082f04ce4b404d431d0e0b9e28631643d86b078010facb56bb2873682a5b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-games.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 751,
+      "sha256": "1ea4c5673ea0c369fb1740dfb39c001548d0b001fa7128b77e131d0bd8b323d8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/folder-remote.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 752,
+      "sha256": "c77466914170ce1950fcc9c4af885070d47034f40fdf750cc19f53bf602038b2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/network-workgroup.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 670,
+      "sha256": "b16f2fbc217220ad93a779572a9aa58f4af96e5698aa95c2bdca3e952b6ff26d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/user-trash.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 661,
+      "sha256": "c3507d4526204ac68cc3c7e5d33085a895a196dd14ee2065ed3971a2fbbf799a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/user-trash-full.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 673,
+      "sha256": "313677264a4252b44fa85584d2b2b4dc7fd2de65554808883e5dce3df9137181"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/places/start-here.png",
+      "size": 16,
+      "context": "places",
+      "bytes": 668,
+      "sha256": "fac5abc555b7f9af1a99bd81d6087484c2c136d08998c341c2cd44e8963129d3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/drive-harddisk.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 712,
+      "sha256": "746fcec07476723fe6e2d7ed849a7d3947f8a1bf0ce59b7c9586aa9553769afe"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/drive-harddisk-solidstate.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 665,
+      "sha256": "e22be9b98b4afe5b0ad7132e6f246bee079e85e4f6031f320cfb784f9bb30645"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/drive-removable-media-usb.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 592,
+      "sha256": "694cf76d7045984319451b8a27685427dfd7181dcb3ae52ac44cf478d47f7bd7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/media-optical.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 818,
+      "sha256": "f7bfce2d3086ce2cabb8888472a8500e83907a0efd2c0d915bd857cd5d5fd097"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/computer-laptop.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 730,
+      "sha256": "0c7193c9242edd39130c0acad594114729652cae2293fddf463db46c68a8c801"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/input-gaming.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 715,
+      "sha256": "3970679411b90d6817cfec0cd1331d522c76c572705920bb174b831f9ff30bf6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/input-keyboard.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 595,
+      "sha256": "6252e39b941630fefd75d6b49bd28d8efc8d8810e1bd256d2ee94d40bde1be6a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/input-mouse.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 645,
+      "sha256": "9a5bdabde7823e4a4eeffc5acb6ee619671c5d7b5e5cbffc0a4adf114af894d2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/audio-headphones.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 736,
+      "sha256": "3512ceb1f605935e1662ec7ced9e995694961e318dd80516c613cef0d9ef4453"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/audio-speakers.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 832,
+      "sha256": "cbbf454655098b31fb286a9cc915d7cbf6b3744caadd62e9ed0919db35adbc55"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/video-display.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 741,
+      "sha256": "c4d6b98634f55e142856f334f1a79362c1c48958f00a22f43d40b802add5c5cc"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/phone.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 602,
+      "sha256": "ca2cc8a76d92e58606a539f06be4de6a27b4e82b1f2a995556f6abf86f51c620"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/devices/printer.png",
+      "size": 16,
+      "context": "devices",
+      "bytes": 795,
+      "sha256": "64b89e78d7c47568daa31fd653ef1f1820fcd39c2ebbb7d21da5e4ab2ddb232a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/text-plain.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 796,
+      "sha256": "1be11a016c1ca5b23b0d0b78d81fa919ec3742eb6761265e1fa3c17f1d15c946"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/text-x-generic.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 796,
+      "sha256": "1be11a016c1ca5b23b0d0b78d81fa919ec3742eb6761265e1fa3c17f1d15c946"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/image-x-generic.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 805,
+      "sha256": "9e06d719fd9febb00d9861e1e9d7b8bc5ac36e18daf27e1ba8560ce0bf15d658"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/video-x-generic.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 781,
+      "sha256": "0d90f8f5ba707cb5d2d280570fd9ec58b879ec6afaab5aa5bafc98efa3dcda1c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/audio-x-generic.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 823,
+      "sha256": "04b54e7b6d6b80b8596d6c0726f66700b297411fc3e2360ac357d501e9b12f91"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/application-pdf.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 800,
+      "sha256": "b2060da4223bdc036395d7a567a0b205f678f4e0dff126cfe9c8f03c726c1e01"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/application-x-archive.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 781,
+      "sha256": "16ac1878fbcc50f199feca3a92319afa6a617c3cb828da4a0af0d72d3e63996c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/application-zip.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 781,
+      "sha256": "16ac1878fbcc50f199feca3a92319afa6a617c3cb828da4a0af0d72d3e63996c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/application-x-executable.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 838,
+      "sha256": "8b0e08c097f1ee58e17d5fea93f966cdd3e4b8b2583b2d08b4df636b43025327"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/application-x-iso9660-image.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 835,
+      "sha256": "e22fbfc9efc8e97ca713c75b9a5a81b9b4a45efd42af69b48d6d146cadf6130c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/application-vnd.appimage.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 841,
+      "sha256": "bc0937188d6cf9a93eedd6cd94f81a2ab944d87306771fe80dcf8a6a37b8edf9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/x-office-document.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 783,
+      "sha256": "cef0faa6f485b07679fa2762849c29f19e73056171074c30271b7c26700d5818"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/x-office-spreadsheet.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 803,
+      "sha256": "97e1aa91ab2750f702b2e3d7192463e335750a0daba08a54311f014133a312b4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/x-office-presentation.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 796,
+      "sha256": "accddf33f12bf3f2e9b2df4f2f19479ff984f03d86c3aeaade08f3af847e80ee"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/text-x-script.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 816,
+      "sha256": "c3603e7027e76daa14b6a9ca5bef437b82c493e946ae7a88b6e1d6ad08153468"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/mimetypes/application-x-desktop.png",
+      "size": 16,
+      "context": "mimetypes",
+      "bytes": 824,
+      "sha256": "5b082252c56b0f08ba4b802635cedf1f31a88325e017b4d5aa70e3c7d04eee73"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/systemsettings.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 904,
+      "sha256": "ed17a367adda7762daf47201be13446db8cfa1a92ed18a06bde5c3d9b82b6725"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.dolphin.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 774,
+      "sha256": "7df5b1b38a4ed06c01b233b553084e9615f29a3e40cf8bc78e6e8bffe271f9d7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.konsole.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 812,
+      "sha256": "a5b96f93b5459ea34b3712aaf22dfa4ae3a04df9433247572f772394fbbadaf9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.discover.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 869,
+      "sha256": "b86286d65db4fb61446c1c20a5a13e1f01d861abd792f290401c64085ee307f4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.kate.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 856,
+      "sha256": "d14b6550ed478dfa9c77857f22e0ec9a3608969fc23403cdd6ed9f8db5adce01"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.ark.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 755,
+      "sha256": "00a1d1dc14004484e4b72a0db8ce863e115a06a537bdced22c7f1b0dc8e73e4e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.gwenview.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 853,
+      "sha256": "0c34898f6720007512d53ecaa73760457f947415094087425d9f593eb6b3c5e5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.spectacle.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 916,
+      "sha256": "c2b31ef3b63691215bc9c5205abde69026b1d986aa8dc680baca85b7410e8814"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/org.kde.kcalc.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 834,
+      "sha256": "8c52984a9aabb811859d9af42d34ade539b3eac6fb90ece3ee821c284fde06bb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/preferences-desktop-display.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 818,
+      "sha256": "74e93e6a317039f3c965c9a3b194214b2d3d9703ed9207b1db54b2e45ecc0f7f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/preferences-system-network.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 904,
+      "sha256": "b26bbb3f3378c59b85a7daa2e0c3356f0b51ce5c871302b863194f56a12b34a2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/16x16/apps/preferences-desktop-sound.png",
+      "size": 16,
+      "context": "apps",
+      "bytes": 840,
+      "sha256": "0ce87ccb0c2e50f28c07a10f6bb47742e181dd26c6706a822ddb72fcdce12091"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 867,
+      "sha256": "10a46e68caca743046ce4925f0023c42eb644f3756479d65754df9906a1f2855"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-open.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 950,
+      "sha256": "ecba50abb693a7bb414b23c7f2988174b15cfca4cd0b20a66145b646bf812ec0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/user-home.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1068,
+      "sha256": "1360ecb32f9d39505582baf1f80fc68b7fc574e857380be6c8f03c6921a5e51e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/user-desktop.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1016,
+      "sha256": "9c5996a937da87a49b6cf909b3131855909aa6114b37efcc7f993ab0a8959ba5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-documents.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1002,
+      "sha256": "599de5adca3b5bf179089e3430ac5de9cdcac986a1112e5c32763f38e2dc2366"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-download.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 973,
+      "sha256": "0d814de09da3f860956581144721d1e96779d5cd9c6c0e2a86f6f03db6b07839"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-music.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1044,
+      "sha256": "668d86c263933d934e5fa9ab5f803c94d025e11e0a8bfb163f253b0cd12f8e9e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-pictures.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1063,
+      "sha256": "b1fa799da35d4bd7c8e78dd88a7bd67d7b81450d2620bc03d4891dfbe1bd0093"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-videos.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 979,
+      "sha256": "948e82cbf2a48d90a4ead54b0e7bbc86253e7dac68073e8d9ad17e60452e5c7c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-templates.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1062,
+      "sha256": "c2e3e06d92469364fafbb46554412a3f0fc4c49170283048781223f61ce127fa"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-publicshare.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1044,
+      "sha256": "833a40b98e0716b2ae3b7d86d975f3bde576355af1c7989ae0f550264507576f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-games.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1110,
+      "sha256": "a75c46a2906e2248506fa0bb1e768c5ce0f0256155a8d332a0dfbb35f4f87898"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/folder-remote.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 1063,
+      "sha256": "b0e5b3b162f6456f399ae04f3f2d95c66eeeef47d55d5ddf654416a0303f08fe"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/network-workgroup.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 883,
+      "sha256": "55fb49911d13f4110b0885de69783e15cab6957fb2a6bbfbcf64623d5ab71f59"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/user-trash.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 820,
+      "sha256": "044f9aa35d3199eaaed73258d2cdd677e6325b612b106e1d04428af98c1c3a0f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/user-trash-full.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 868,
+      "sha256": "393267d97e115f37408ec1d0c50f633b1003cf00c428680cde51b5af027b4812"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/places/start-here.png",
+      "size": 22,
+      "context": "places",
+      "bytes": 825,
+      "sha256": "373f416e3d76f56149d08e22b208fc336583ebced242ba94245e6fc47ecc14a2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/drive-harddisk.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 1081,
+      "sha256": "739d23f37a4eeb1d4d89e1b2887b4ccc746f1e393bac3268416ec63561999641"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/drive-harddisk-solidstate.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 949,
+      "sha256": "e43e6334828af215b59e80e32ec393287dabcaedaca9defb89d08cd6d67ab49b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/drive-removable-media-usb.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 763,
+      "sha256": "d191cf82fcf816e8efa08d97ce05d5eab92d7a92cb659313d5f1911d783f0bf5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/media-optical.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 1212,
+      "sha256": "f1876838303fa98e218358bff4efc71c5d11ced928a2e73027b2679651829156"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/computer-laptop.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 1048,
+      "sha256": "06fd2138c6715eff32393d6e3154849c8d4a03fe6d2159dd10c4b243375d7826"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/input-gaming.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 959,
+      "sha256": "0b060055f1df0763ff84f49d25d20867e6e942dc98b89a8794d8557a5c5171ef"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/input-keyboard.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 859,
+      "sha256": "246989333c5512e1357471c75b721bfbf00d88b97ecf9f9621c7d052d1c27636"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/input-mouse.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 893,
+      "sha256": "d85d1a19019ad99f4225614164c8ceb612de7d3e69f706424d49e3a3dd639882"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/audio-headphones.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 995,
+      "sha256": "059c4d2ae7bccfe91be348e7ca01e50dc97a3494ac3403770d99d201bdf3c73c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/audio-speakers.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 1173,
+      "sha256": "3de64961fbc1af75a76306c21665ffb349b5be9663cc92fef2ba75b2c8d04abe"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/video-display.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 1007,
+      "sha256": "0cb992dda8cfd2a8207f77881f978af8dedaeb55d4fab63e6c97da35f759026d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/phone.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 827,
+      "sha256": "ced21b46bb66bd664acdd52399c32534b1086608224509272c1744dda665ba4d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/devices/printer.png",
+      "size": 22,
+      "context": "devices",
+      "bytes": 1033,
+      "sha256": "2acd2ba6838f3d86c6d4d82b731ae4137d0180a11747e2f6815d121b64781bc6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/text-plain.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1065,
+      "sha256": "4bc434b4782b63be729cb39395738c3e04adf5c9edcce5452e338456dba00d6b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/text-x-generic.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1065,
+      "sha256": "4bc434b4782b63be729cb39395738c3e04adf5c9edcce5452e338456dba00d6b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/image-x-generic.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1127,
+      "sha256": "0a208575dcbcb1c2f7c5db23326259e134e5edb1818a2b40a4b4e7be3416bc66"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/video-x-generic.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1062,
+      "sha256": "28c4c4448728bca5fac7dbed03e05d7a97c81843433470410b7b3c522120e91a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/audio-x-generic.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1122,
+      "sha256": "bfcb88e235d03ceb1a113402f1b3345d8e940e73de32bf6e309466e0390b3b2e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/application-pdf.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1113,
+      "sha256": "4effba76fb17caee979c1ecd34a6390c3651b2815d81731b650d40c345395fcc"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/application-x-archive.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1041,
+      "sha256": "927ceb2f1294e961767f105d9979b5012d8efd8fc58f1a16d1784d2f4e3fc75f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/application-zip.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1041,
+      "sha256": "927ceb2f1294e961767f105d9979b5012d8efd8fc58f1a16d1784d2f4e3fc75f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/application-x-executable.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1211,
+      "sha256": "44ccb52b8922100402fa146a2a74c796ff8184f29b1bfdb70a3fd3c196fae52a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/application-x-iso9660-image.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1195,
+      "sha256": "6f3f2e3e984f3d0ca761d4170034782d1a7738a0f3a47e2e7ac813bfee48ab81"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/application-vnd.appimage.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1198,
+      "sha256": "1977b3002051e22a3ec35f150f1be9ddcd344d04c6bb3a4c37a26c79ae775bfe"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/x-office-document.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1044,
+      "sha256": "d69c28fdd443ce2273a993eb6baaf41184625ec1ad0b52436af67e3c82c9c893"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/x-office-spreadsheet.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1141,
+      "sha256": "322ef9ed65bf1a239b3244b7d73450cc7020cc92a10d3e31f905022499cfb5f5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/x-office-presentation.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1132,
+      "sha256": "9f10c4446f388af1c0fcfac98433d22ad75cdcb1bd28ee6b26ea7a7f7e42747b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/text-x-script.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1151,
+      "sha256": "6ca9e2cf8131cc83d4bf91db428a4952893453297907385cfc7b51af13ebfaa9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/mimetypes/application-x-desktop.png",
+      "size": 22,
+      "context": "mimetypes",
+      "bytes": 1130,
+      "sha256": "8346c350dd70c7dad8876db816504ea13bf16503ef2054073285ddb49d9a92d9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/systemsettings.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1418,
+      "sha256": "ee0fb2f48e8feff90d296de62de47c7d9d315a0b9b8158bed442b3f31550c0a1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.dolphin.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1159,
+      "sha256": "9894d2b03bb10ae8e20e87ffd942c59e1fde5d2e05ab468ef26f523e5cf28d5e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.konsole.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1216,
+      "sha256": "a28c53020a7f1fcb0c9f1523eaac00fb7158e49caa6d9de8fca8d9292c6f76d9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.discover.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1291,
+      "sha256": "56ecf455a3e31cfcc1ccd8cbb7eb5c293ed5d6b4e446671561d9443b80a2ff9c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.kate.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1285,
+      "sha256": "a0ec02c961258e60542302c5b77e763f01e4cbf7af01e9f19eb08f0bc5b6d91a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.ark.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1118,
+      "sha256": "51275c6c93e416c6328ec53f884b90e700bd149ce29c8ecfb5a198b410fcb45b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.gwenview.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1286,
+      "sha256": "8c4724d51e414c262ef0abcc91fe95948210e707f1f90f4c9a64c6a2bd24462c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.spectacle.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1433,
+      "sha256": "bb28146fab86a4898e9942fd68389fe39f52e1dc335b6cbb20078e1681454f96"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/org.kde.kcalc.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1214,
+      "sha256": "cc698e19fd479e4a0fd9b3015dd93455d14ff87f4fb29dcd53cb4e1707079ff2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/preferences-desktop-display.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1206,
+      "sha256": "9affceafa6a3b1782ba33aa136cd5f2037286b8ee230562916729bc3cd86f8bf"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/preferences-system-network.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1440,
+      "sha256": "3f0df1f3b77f9da056cb3cbb23d123e5fcdbc947243bf164c97abfacd101c708"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/22x22/apps/preferences-desktop-sound.png",
+      "size": 22,
+      "context": "apps",
+      "bytes": 1224,
+      "sha256": "ed06cde096a6a76687db28d5d06bb411da86793e8adf5046587eb04fb5d1e060"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 940,
+      "sha256": "f1ddaf22ed46c19674f06f7e65f5adda7283d2471e3845e5ffd9340a7af9b7f6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-open.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1001,
+      "sha256": "151003396278886823a2b5cfa45c52dc19f9ac2b4fc390c5adf7ea2ccff8500d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/user-home.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1146,
+      "sha256": "d1ca2a59be938efec64127b2d9f4252ff7b5c5470bbd45e642761fa8176caacd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/user-desktop.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1143,
+      "sha256": "2ec341d2d488dd74926faa3f6796bf0e6f7bc79cbf2dd2008c831ca5b1d628e0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-documents.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1062,
+      "sha256": "0edca887764f7ef515ac5cbf42bc8d4eb50f7999c73cc43417abc94cc6322e9c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-download.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1064,
+      "sha256": "9f0d818f4b37869ae7af15304d6c6ed6d4aefb4401e083254731330fcd195048"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-music.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1144,
+      "sha256": "2478ebb133fa77531644ec3b0d013f657444c6b918346488973332f3ca724fcc"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-pictures.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1165,
+      "sha256": "83532e01b63d3e40e96a77941a8a739d5bf308aeb52a956531eb8fc5af263e88"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-videos.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1055,
+      "sha256": "4dafc105c17041814aedf2b903a952a9d390aef1864ab555aa7b9713baef69c1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-templates.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1176,
+      "sha256": "c10a8a68ab85e2035cbc091ab39730914f83298eed5e62c3c9ad7270b6d6479d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-publicshare.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1146,
+      "sha256": "2af692b913d4f3a074c94fff34c361bdda82bba6ec9fd5e1a21cb65bd1536093"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-games.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1199,
+      "sha256": "d4ed140ccb52128eee9c50d9e6dac760bde178ca0085ea106f2bb9e6f458dcd0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/folder-remote.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 1167,
+      "sha256": "832653b5b0a64c5e4c7a4cb63d287e7bfc1f62c735bc2cff93621176f919831e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/network-workgroup.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 992,
+      "sha256": "dd6c9cf97662d08ffbcb76f9614e1e646e6df7aa768246b73c8a1d3fdd8fbb7a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/user-trash.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 919,
+      "sha256": "01bcf2b6c46f864dee248a586a2c59b3d6d60b4e129fe6d11c94291df80e4c1d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/user-trash-full.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 964,
+      "sha256": "75527923e102d2c00447709607c425d6bd792c05e85be95114a5d100afd1df90"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/places/start-here.png",
+      "size": 24,
+      "context": "places",
+      "bytes": 943,
+      "sha256": "e909bd753b57a111d5d8e9978efc26048e042b2fd4dba9be8613d1da3322421c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/drive-harddisk.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1162,
+      "sha256": "f090cc6abd9839ae4de71ed9384b4df8d920822887cffa3b9f0749d115c86959"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/drive-harddisk-solidstate.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 964,
+      "sha256": "4c8920ff3c4e83023e25d30eaae18e4e734e447546033526561461945cf6a00d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/drive-removable-media-usb.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 824,
+      "sha256": "a113734c79963f95783678eddbb94b6995cbb886f4985bc1a3268d0c526d2cc8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/media-optical.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1319,
+      "sha256": "60ddc96c39c764822d2983f77109a2abad35dd8f654e51ac43218517262bff33"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/computer-laptop.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1191,
+      "sha256": "b3eb0252ce6ead11e4aa942ee30e5d3b5f7643e978566a1eb0820c17810a88d3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/input-gaming.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1080,
+      "sha256": "1bf8978c50cd97cd9955ba751f2d286a7b9f32211e98264e3282231e8811820c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/input-keyboard.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 927,
+      "sha256": "71a34a73ab0e64bb4b2abda675bd6b48c89214a243a9d04ad8ee2e7f7d6dc2a4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/input-mouse.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1001,
+      "sha256": "72af5d5594867f68133d1c0d453aacb6ef3d68db7a4d3c657796db8bf4c3d08f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/audio-headphones.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1104,
+      "sha256": "ebdcf73ac42256e242edc6dda72e9f407b0b311904e37b0f0e0a74ec7556fa9f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/audio-speakers.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1337,
+      "sha256": "b82665f5781732825c1d547292c54884af6911f7171dbc1fb6e0662a12e6d75d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/video-display.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1126,
+      "sha256": "3ceb18e23bc452f9fe5a07ac479892bcc5bdbd7c903bf0b3bd22ec4a6656900b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/phone.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 853,
+      "sha256": "4b94e249130a1123e8d0b724967aac23c79f6f63ec6b6a1158e5b74285d06fcd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/devices/printer.png",
+      "size": 24,
+      "context": "devices",
+      "bytes": 1079,
+      "sha256": "544faf521f356952643f07eac7e4bc128dc249b09d7ac5a69b66ffc18d65483a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/text-plain.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1119,
+      "sha256": "a255ff140cfa4a908075883c0aebb5331f997f307a86d64256fa90c094a36454"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/text-x-generic.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1119,
+      "sha256": "a255ff140cfa4a908075883c0aebb5331f997f307a86d64256fa90c094a36454"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/image-x-generic.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1218,
+      "sha256": "c64c6ae2bc7b5b250e31aa7e613710e807995267ef2dd1f82d8d0b31672d0848"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/video-x-generic.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1089,
+      "sha256": "12b7da36cbb1d2e5aa0a1c6811f6d386484802a49d52e0f56c40528818fc061d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/audio-x-generic.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1194,
+      "sha256": "55ffcc5f4dc149d94c24df6329c42747e89b8096a496d454c5c3d2ea90bf16a8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/application-pdf.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1180,
+      "sha256": "f2b9e4aa4dc6db3f5332705424270daecdf875ab67f8f8b3147cc2947785d800"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/application-x-archive.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1106,
+      "sha256": "e9d975d854d95bdcd1d94267761d20d1f2fd2e4f673a8e1286dec26d4a66c7d2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/application-zip.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1106,
+      "sha256": "e9d975d854d95bdcd1d94267761d20d1f2fd2e4f673a8e1286dec26d4a66c7d2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/application-x-executable.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1254,
+      "sha256": "d77228d01791a13120d928f9a61d6744174a93b1214a937e016f14bb54cc2c6c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/application-x-iso9660-image.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1256,
+      "sha256": "a17e4ed0198cb554fe75dccb6d58855226c206a792821895b354981fdca45ca8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/application-vnd.appimage.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1264,
+      "sha256": "eeba97525e7cdfed1d942703060045e7d95f66666c47b97d2de0c972ba59ed28"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/x-office-document.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1118,
+      "sha256": "72b8b3cf18fc1a1a0786c9b365f8f67054084f16e6fe65775d05d9e37b2670dd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/x-office-spreadsheet.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1169,
+      "sha256": "bd9c8acbf3348d092ae06a8fb7d64b246acb1314db454c606df4f146cfe4963d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/x-office-presentation.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1173,
+      "sha256": "c91046a2268f64234fe40e2a870206975cedee23c849f886ca239302797ea645"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/text-x-script.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1202,
+      "sha256": "99bd5f801f0e6d213b0e0672caef4a8e4457917ed708e9fc0670c54b2eeb44bf"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/mimetypes/application-x-desktop.png",
+      "size": 24,
+      "context": "mimetypes",
+      "bytes": 1170,
+      "sha256": "12afd8d5d24da237b68991477775a2eb70f2f205510f0f6765d3cacb1ee34418"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/systemsettings.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1569,
+      "sha256": "fd28e7246396e60c7e6106600e4f25a5a34e130971043a7133f28e73d1d480f7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.dolphin.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1333,
+      "sha256": "afbc03012cdcb1648347d84eabd3042e635b35fc496b9c832f84838ec5689715"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.konsole.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1365,
+      "sha256": "0eac79ff2cb04fd9ab95c6145efd0a1a4faa1dc6305711f20dbe794842c51be1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.discover.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1485,
+      "sha256": "ef18db970b7d862f1a23e5ed487fb6fba7e8660363e8d8db96e17865642c927d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.kate.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1460,
+      "sha256": "2cd5222f4519f95ed9066915f2fb423569c366852a24cc0b0dd3ad5aa51d3b30"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.ark.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1283,
+      "sha256": "89570707c8bcb949be3802c1cb252f5fb075909a2c44c71541ba5a62f4b3bd5b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.gwenview.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1512,
+      "sha256": "2b1acf1d989072d3c346c0d990c93de99c33dfc915db605cb7707d1d66d97196"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.spectacle.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1647,
+      "sha256": "d519e75cba1820c5c478a5ea63b1ed99ce512e3a66074f5ff5340661aecea161"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/org.kde.kcalc.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1453,
+      "sha256": "44002dd5e37b8b8ded29fea4fc5a5495ee059968a373eb835f052f49ac783cf3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/preferences-desktop-display.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1406,
+      "sha256": "a6f799a1e225961f0d0413c0fe6e32859a09bc6720e6bcd1aa98f947410e69d0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/preferences-system-network.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1629,
+      "sha256": "c90616a67d1dd14f91059e0f9e979fe11db401516bb89baddf7f8f34756d4b3a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/24x24/apps/preferences-desktop-sound.png",
+      "size": 24,
+      "context": "apps",
+      "bytes": 1379,
+      "sha256": "66e4643b12f08f9ee1e451fa188f6dfe3332987a88ee4584c5cbcba65a1701bc"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1301,
+      "sha256": "e71a7df274407f9d3778c87c1be73ae0430344327d83f99f7f7463686a5fd502"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-open.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1333,
+      "sha256": "18eae80230e60dda31be1859a40524b24e66b2f97dcec45fbbe9545b957ded16"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/user-home.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1623,
+      "sha256": "18d38cc7de45f13c15c4903c16e639559b13dc0ef5e12caff9b7187c40f8401f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/user-desktop.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1572,
+      "sha256": "7582b583d82e4ede95dac07921ac264b2d58ab9072c812418416179826402aea"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-documents.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1513,
+      "sha256": "6f86f94f95d671f582313fbd35e218c3061156c7b21386a055b7e909c090aaf4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-download.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1525,
+      "sha256": "7873b739edb8265b9489362489a2d02db8b4d385c4fac08fc46acd444f53f994"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-music.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1591,
+      "sha256": "e61658782d4a0b5357e87b8ff278902e7eacae7632818ee28c10407fddbbc614"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-pictures.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1654,
+      "sha256": "33dae40299a8cf6055f3ef2680a7847d5fb9a573a52376f6730682bc747de257"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-videos.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1451,
+      "sha256": "90a00ce18a7aa83d7ee99f37a762fa1f3de3ef6011295e44d467553b8da1b5a2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-templates.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1666,
+      "sha256": "4c85758563f10e8cca670e0679cb28d39ce30b8b956c90cbfd5a5accc4e797be"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-publicshare.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1592,
+      "sha256": "699510903656e4fa3a3aac3b341e269f1deeb4e0957eaacd6cf8360855a5c62c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-games.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1742,
+      "sha256": "200ad6789936401e7fe9bffe9467931cdb70b04a6034a56bdc456d042e2d16bb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/folder-remote.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1638,
+      "sha256": "1136680e902ee3d32bd11febeaaae820c65f92db57654360d6bf57223fd6ea00"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/network-workgroup.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1321,
+      "sha256": "28ca78c77cebcba14d9e5046f43acc05eb66bb5b2b584f2dc91fd73417f975fb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/user-trash.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1116,
+      "sha256": "313e34ba8ab15abff75faa82f88ba0e2a42aa81a338aa2be90a9f376021041a7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/user-trash-full.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1191,
+      "sha256": "6b29104cef8690c7954d3116cbafffcaeef12da8d487fa3a24f036d19b81aa82"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/places/start-here.png",
+      "size": 32,
+      "context": "places",
+      "bytes": 1199,
+      "sha256": "62798c0ef6b3aaa145d142637da47fbb199c14e646f2e90d1a2389088fd81a1b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/drive-harddisk.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1678,
+      "sha256": "0ab6840a073f0f0155a6ac805d8d82ff8056574f18ad5a0360e1cc83072dbe12"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/drive-harddisk-solidstate.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1340,
+      "sha256": "63a8ce1067e395baf002c776b749d080b039db0e79047f78e494a392d6a6fa9d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/drive-removable-media-usb.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1066,
+      "sha256": "12953e0747e78acd0e83cec0913050a04a5e5afecdf66a5d34aa001d64af528e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/media-optical.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 2010,
+      "sha256": "c2e01a6af6298b0fa2c228df3e578196b4e46c4f8a20d231ae6400caf49f138f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/computer-laptop.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1625,
+      "sha256": "5ad951ef47dc0cc4b1c9165e71f02c5eddc934c70347f089d2ddda996aa24873"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/input-gaming.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1558,
+      "sha256": "f74407b9cef7b6c5aeeced49671bd3fbe64ed35815a6fe2ca2678f666544ae0d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/input-keyboard.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1304,
+      "sha256": "e60854cca2b37ba8f41b94f7da55c601cba2dfd1223e321b8a3561d3f9c2e67b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/input-mouse.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1329,
+      "sha256": "43446480a012eb4a3fd9370d8888dfd2bed7512caad4b8698583d68f7b28d135"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/audio-headphones.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1464,
+      "sha256": "b821f6f4f86d8db8b1c1a98f9712a2f2bd373eef8f2f221c1288029af61a6cfa"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/audio-speakers.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1924,
+      "sha256": "b039440e249521014b153bbcd32421bf2c090d7aa0134b71f9572185a60fe558"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/video-display.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1593,
+      "sha256": "9992eb2a4dded3f7d025c12934b54d740e9a72319236238d4d64a85f8194482a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/phone.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1122,
+      "sha256": "0803cadbd46f318d9443db394cbbbb8f3d65adf6765e2a83316a53d4ff699ce2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/devices/printer.png",
+      "size": 32,
+      "context": "devices",
+      "bytes": 1421,
+      "sha256": "885bdcb8156264141b57045042cd5f5c2b79932679502988d5477a7243153de2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/text-plain.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1592,
+      "sha256": "a5fafee34d93a41193b646d3e56e4aee4fef7e292d5b4d5701b5f3fb5e268fe6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/text-x-generic.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1592,
+      "sha256": "a5fafee34d93a41193b646d3e56e4aee4fef7e292d5b4d5701b5f3fb5e268fe6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/image-x-generic.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1737,
+      "sha256": "90e82a28c3e78e5a7c4ee02747dd7f51423152cdbe31a0d0b01b31d15b2fa673"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/video-x-generic.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1519,
+      "sha256": "8141c4f6ca6662dcb22869c06c46212b0fd33d908c23360e22f6231b522162e3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/audio-x-generic.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1672,
+      "sha256": "1023259efe4446e356c1acc7d6e9485f134dfc2b3d9ad1c2bf61670ecac133c3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/application-pdf.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1669,
+      "sha256": "17776e4ada4deaebaf9e909b872faa76830d0e038effc6b8b264bb2ca045961f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/application-x-archive.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1625,
+      "sha256": "61569f655189c7a0b9508951a1a793b4881351f8baeeb8a98fd768e44ed7c728"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/application-zip.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1625,
+      "sha256": "61569f655189c7a0b9508951a1a793b4881351f8baeeb8a98fd768e44ed7c728"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/application-x-executable.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1837,
+      "sha256": "70a60368fcb638d3895f2b5e2fe5fa8467525ffa73778220fa1347c9a80b91b5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/application-x-iso9660-image.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1794,
+      "sha256": "cf6df37cf167669db296b470ef8ce065b0104c493131d431c781a0357ee9fc1c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/application-vnd.appimage.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1813,
+      "sha256": "79186c0fb8328a97af4c185a20df7cecfc5cf5e24b7299d787f004cc078419e8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/x-office-document.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1590,
+      "sha256": "bb329909f73bedcb57c5d2ed614a9d86413472f0e3a9383013cb1e471e08313a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/x-office-spreadsheet.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1774,
+      "sha256": "7cb92dbef11034730a03658c0f3f57ded0f5cc9a9bcf330ed631be6e9accfe58"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/x-office-presentation.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1659,
+      "sha256": "82322908b080a3757bdadfec1a483144f9c728c140ed47315b2289ffd56fe91a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/text-x-script.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1744,
+      "sha256": "13f2657318d1b72ee79e067637031a3bc47d7b90e3ab452e8f22cf5431e855e2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/mimetypes/application-x-desktop.png",
+      "size": 32,
+      "context": "mimetypes",
+      "bytes": 1640,
+      "sha256": "67c162bf0850cefb7182b0096eedfb14e866c230a6d903947f9d5bae0d2d82dd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/systemsettings.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 2194,
+      "sha256": "2aea4a21b0ae2160bbe3effa7b92df7f0fbcff63b8e5791d56f5b9a722e83aa7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.dolphin.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 1732,
+      "sha256": "0062ebc3d86d0d822bdbb0413e12fa20e9dba1ddaa64de03f840f496d41a4d5e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.konsole.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 1859,
+      "sha256": "9a2ca4c39a662f254d2f491a2a758d0e0de5d7ff850276a2784671b4063dd246"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.discover.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 2004,
+      "sha256": "53e060e4551c387cf534ddadb3c5dd8fdb18a6a85189303f4b3d623424ac22b7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.kate.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 1983,
+      "sha256": "98e61a8eb3e55c328f1ab42d071586a926ff82b4fc1a2f44056b89b5a9c3a26c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.ark.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 1877,
+      "sha256": "73bd5c120b034ada96a2f26f873372320fad3d195bc635593af31d00f1685510"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.gwenview.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 2060,
+      "sha256": "dfacd0be636cb87b10e5847419038f5824ea070365cdc63510a6b62c7bbf6e95"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.spectacle.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 2244,
+      "sha256": "0c5f490d97eb0a9f9520dc329192ada0eb02af75cc0477b1e7b3d878400455f3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/org.kde.kcalc.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 2008,
+      "sha256": "ba6c9c5e6bcb0378a1d8b439af353fbfd609db7f5a5209066f67442c6836921b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/preferences-desktop-display.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 1821,
+      "sha256": "dbbb018445a5033ec7c1deac6fa47edc154fe5d9dfe3371e54981b30ae112ddc"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/preferences-system-network.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 2303,
+      "sha256": "ea2338a6d46ecf9378b399c54d0823cb6921b0c7460f941b397fb1c8774fc43f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/32x32/apps/preferences-desktop-sound.png",
+      "size": 32,
+      "context": "apps",
+      "bytes": 2011,
+      "sha256": "aeaed8c04c0ef73075062c087190e1a0ce45da5f1d63f62a512b085554a13d60"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2004,
+      "sha256": "993c74057eb055045d050f9eb76007475f5f9a73b22e55c69c8c525be11a7060"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-open.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2139,
+      "sha256": "7e94ca16e27844a03d214c29e70782e08855fd3f28399793ccec46cb36442b2f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/user-home.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2471,
+      "sha256": "9c83b844b8291b097afe61a3e039debc1778bbc653a415c2b4c329bcbb13d8e5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/user-desktop.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2424,
+      "sha256": "7c17b6ba24fd91086d714320c562de2c2100a5249b2ce071cc6f4220a7da9fa4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-documents.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2287,
+      "sha256": "6873336614a5386c8d7829813ccac8f62441fbc9c71460b50c761190f58c8fb1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-download.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2406,
+      "sha256": "ac0bea927828ae09e4c146145e436b89520e750480c84db99a111ac83837678d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-music.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2465,
+      "sha256": "99b9e9856cfa56d5c567c0e192066250c35f557042b8078686345c8eb43311fb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-pictures.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2543,
+      "sha256": "b8f8cfe233d62e3820f14a93fed8d90b30b08b64e8dec054f25a10c05cea59bd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-videos.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2504,
+      "sha256": "e5c8dd9b5bf94ed69288af8667b4ade98d91edcb868a2d0d58ab685ea9f3abff"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-templates.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2531,
+      "sha256": "444b25cf09e3de870019a3c304c3905c4e7697ae07017b0fe28ee5eb5e4e219e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-publicshare.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2425,
+      "sha256": "60d4ceaded209f157cb5e408621e272a9774d961fbe26be05ee017bab0e259f2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-games.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2691,
+      "sha256": "aed092de7f8e9a016af974b5fd9d9b7bcb372b7ad0f7dbd36f366cf93bb19823"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/folder-remote.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2472,
+      "sha256": "5a2b84297c8541f49b07f06536474978e6eb80cf583b152c61939de93752b667"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/network-workgroup.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 1988,
+      "sha256": "653bb8010c3f75f2f36ea65de965bd4ea3b3f6281c8363289d3f6fd761e4638f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/user-trash.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 1890,
+      "sha256": "1a0d1c54bcc399f3c32fe2199d0f0b5f0492b9bda6ec8a6922f7830429f1f34c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/user-trash-full.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 2065,
+      "sha256": "19580e36be94f7ad4245e8799e82fb7833fdfb3314709f817cccd76526628b12"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/places/start-here.png",
+      "size": 48,
+      "context": "places",
+      "bytes": 1947,
+      "sha256": "39a231384b169142366e9f7796b9f716b1d23d9bf2a4e465b51b65a03ad3e9c6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/drive-harddisk.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2680,
+      "sha256": "3b60afecc1c96ec94cec332a7a37041be3309eeaebca121b6906eb5c10091657"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/drive-harddisk-solidstate.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2051,
+      "sha256": "e8632e724f7cae5ee3a3f7bf41478b1ba05a8c18372ed2d6f7d5450e2102e67b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/drive-removable-media-usb.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 1593,
+      "sha256": "5526d59ba0d6a95314ad9e94bb2c35e5926b3db9462ac562ff7a3cb4822f9926"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/media-optical.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 3594,
+      "sha256": "71d205404e2f10def244ce2e2020ca6a87cc5c28f3183e7b407bb3e54d5bc316"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/computer-laptop.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2780,
+      "sha256": "6b86d90a28ef0d58031dd98965fd6c10036f0689bdf080da249ecaad7a1ec43e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/input-gaming.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2586,
+      "sha256": "9996bfb5486d45a258773c549ed7e38f08d7cdf877249fcc04db15ce9726f0f9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/input-keyboard.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2338,
+      "sha256": "d7cc2635aa188f650ab719e1be71660c66ca8de460c88a8bdc1ff250739c047a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/input-mouse.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2049,
+      "sha256": "abaa8e544614740c220b599a5d9e11ae9ca1ed2cb5e9259686b49cc20968dcab"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/audio-headphones.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2448,
+      "sha256": "857dcbc4e7901c9fee14366d3f963098b0c90694c2fb78a2d98e742d94890a6f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/audio-speakers.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2994,
+      "sha256": "145c3c0473997c04fd69e23456bb31b4820098dc61397c4bd03a45ebb30c70fa"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/video-display.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2337,
+      "sha256": "6df1a6f9d4ee802b8e459d30d5e3277cfa47d13e2f764b6a2b41f06f517b8893"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/phone.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 1648,
+      "sha256": "950904120ae02470e454f8557d59fdba5c77a3f46700e95bcfef92632581785a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/devices/printer.png",
+      "size": 48,
+      "context": "devices",
+      "bytes": 2133,
+      "sha256": "081152b1d7c883aa00b73b4615fdec242a61289403c5e05c50c2233847a99770"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/text-plain.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2274,
+      "sha256": "34859c6cb6a120194604de9cd7c27063d772f7aea4ca2190f50164c0b8df09b1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/text-x-generic.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2274,
+      "sha256": "34859c6cb6a120194604de9cd7c27063d772f7aea4ca2190f50164c0b8df09b1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/image-x-generic.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2590,
+      "sha256": "922ed2e4c794d1c30dc24e965703c434462bf27c785ae25b7634d6d66bce14ae"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/video-x-generic.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2570,
+      "sha256": "4231516f0f238684a0fc042c98e2d5e212070ff9ea2df64092c81982b3894fe5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/audio-x-generic.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2528,
+      "sha256": "c93fdb9066fdae0349a000ade6584c0611c9805611bcf41472e9a08929f801f9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/application-pdf.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2543,
+      "sha256": "fb3a7aca76ac9d1df75c1668ae70ecff0f59fdd7b770fc871162cca91efd2487"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/application-x-archive.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2393,
+      "sha256": "e2f724f8497a45c993bb8d3da1eccd64e85fefc77eed35f5166670b9c2572624"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/application-zip.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2393,
+      "sha256": "e2f724f8497a45c993bb8d3da1eccd64e85fefc77eed35f5166670b9c2572624"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/application-x-executable.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2840,
+      "sha256": "c6154d832a2f7d63e2ec330c9277a6590854f2c66be7de079184e44ace88db6c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/application-x-iso9660-image.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2867,
+      "sha256": "dd971e0f4b712eda4f4482238b39b340855da64caff3a1db548dbc266a1b2838"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/application-vnd.appimage.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2799,
+      "sha256": "d4fa496fb8930a4226a295a0394c1c7f7db9b8e70e4b858a18f7e69a6aad6e11"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/x-office-document.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2282,
+      "sha256": "bb68ce91627cfc4b6f1d540550d68a498e7567fd8d3408a303785aacc84198f1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/x-office-spreadsheet.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2717,
+      "sha256": "2bbf15ee67501fd6a6fab3e0df29049339d409b405efc5048416d45bcdddea44"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/x-office-presentation.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2416,
+      "sha256": "d3b3574d367a6f759ef7d862e07e8d9d44493197e784fe1889b44453c26f2ff0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/text-x-script.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2599,
+      "sha256": "f1594d0ab0f02a4563fc879e1502d8544ae50ed823d83db165118d3e4fbcf423"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/mimetypes/application-x-desktop.png",
+      "size": 48,
+      "context": "mimetypes",
+      "bytes": 2397,
+      "sha256": "09f974b1162d74186546210b0f184a49b19e895180e99e3929665d2485a916c5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/systemsettings.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3728,
+      "sha256": "bd2ce6890f6e0e7ea4ba12c90daf29f92d4c862b9ddb9a46b4d6f7e20394c504"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.dolphin.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 2803,
+      "sha256": "0c220b13e0bf41be6e91273573561369ec5767bf12107c82682ef8664ed7d714"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.konsole.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 2982,
+      "sha256": "2ad9cc244770496464187d922a03c3fc8465809904497e8677990802453840f4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.discover.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3266,
+      "sha256": "501483fd3994cdc2f7a0b46f7a1f0756efecf4d3cf83b6c8cc073dc435ee5219"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.kate.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3180,
+      "sha256": "3763048a81243264c36653b52da75d6d7d002cae113d0251f0de73abd0845b90"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.ark.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 2988,
+      "sha256": "5f1d16cd6437f84fada4844a84358f8e93aea1e580eadf7c9b047329099fa737"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.gwenview.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3315,
+      "sha256": "609faec9c583e1d2881cc9c4e48103657d86b0df98e8721d8bafb17704254fd7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.spectacle.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3519,
+      "sha256": "65c3ed85e9952d92db2a781977310319a76bbe84bb5e974ed0cbf3fbfebbc374"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/org.kde.kcalc.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3404,
+      "sha256": "2832cd0939d633bc7aa05f6b16eb8f15a38d1150fedb852ce6e21db593a53399"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/preferences-desktop-display.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 2894,
+      "sha256": "8ab2549b3a4d2439f3dc2f6c78dcd828c9e12fada172c04c955bc1be92cf1dc3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/preferences-system-network.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3858,
+      "sha256": "949b415bab07ac2cfa8c3f8444b5d0a2d19950fb80e05853e58e5fcbc0aecc68"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/48x48/apps/preferences-desktop-sound.png",
+      "size": 48,
+      "context": "apps",
+      "bytes": 3200,
+      "sha256": "a3adea1dc95db211113f9a4268d29c22db0ea020308d4003dcaa6b3c895965ea"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 2791,
+      "sha256": "e91abaa03175a538ac229f3685810f8c45880b3e528b8f22859bf2d813b5f45e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-open.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 2999,
+      "sha256": "d59fe73eb2017100842fe8079f7cf52befca090869c37ebfd6a952b368cce18a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/user-home.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3561,
+      "sha256": "6d553a8881a07631f17ca1017b9ba9928e095724e418bf47d90341c554b48698"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/user-desktop.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3352,
+      "sha256": "fbf830a4919a44687d0da2599fe4bdaef672b5dce4cc4864a45ec703053c464e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-documents.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3245,
+      "sha256": "1994e63bd05d8906c738abe1041fc813376ef1ab3b910040588bbf115284a944"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-download.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3399,
+      "sha256": "f4997c5c440f2aa409cd31cc2c02c633e3633dd913183faed33a0b8f08328a15"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-music.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3521,
+      "sha256": "ecc028475513fcc5d32a0addfe5cbc548ffddcc21ad9ab25551fd18da5124d16"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-pictures.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3645,
+      "sha256": "965a9ea522abff8860a28eb1b41f2eda5cdbecc17b25fca8b3e5fe35fd385e1e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-videos.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3493,
+      "sha256": "c2c81f3ee709bfc0b013bc7a7a70497d3b60df2ba782b2cc3e6e2fe58d96cc69"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-templates.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3672,
+      "sha256": "49886403a786e20435a47e02683c6f95d7ebad8d847db620555331b13d1de1af"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-publicshare.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3479,
+      "sha256": "28b7961905f834b7462ba4f9b70e25a59d9666d484e9faf46711dafae6338336"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-games.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3924,
+      "sha256": "6c7cb1af2dbe41678b5d5a465b06986420e3e9cafd70a32a8c257cea15f79e2d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/folder-remote.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 3553,
+      "sha256": "97016965e3909ef2286eb2157a84f05f9d6f628f73f9e3ca16abac8885793e34"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/network-workgroup.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 2795,
+      "sha256": "b5bccc371d250b42fdc81e4f6e5ec065695632439f83bd210c2843efcb750c6d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/user-trash.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 2638,
+      "sha256": "ddc0a5b467bf0610aadcfec718fe59323803ba1b5188267b2996791fa3a6bbe3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/user-trash-full.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 2942,
+      "sha256": "367fcfd04eff31fa34803f3f78bb33d95dd6b427d0eab3b7f841ea1209f7a2cb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/places/start-here.png",
+      "size": 64,
+      "context": "places",
+      "bytes": 2402,
+      "sha256": "86fd98b8b66a38f875b64937b6f6a181b8bf25d218fc7dfae9b4557154e6fa8d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/drive-harddisk.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 3892,
+      "sha256": "26a2373d45df515cbb2782a61b17e0595af1af7bfc8d69af5b9e5dba909cf555"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/drive-harddisk-solidstate.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 2869,
+      "sha256": "e89c1cb86ff9f3ab7725c126223b7367e829640bf41227b4b56fae7f8befb003"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/drive-removable-media-usb.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 2114,
+      "sha256": "ec369908bd10aaa439e759dcbebe738af553c117898d1dcd26e066567a23b047"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/media-optical.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 5239,
+      "sha256": "cf65716fe55d8facddb4649297e6b497e2be18027a83a61782820db2237b73d6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/computer-laptop.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 3916,
+      "sha256": "8b7bbf69dc6ea2daa5df0cc85f990acd37c5cd9ccc64cbe8c3423e8438af812c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/input-gaming.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 3825,
+      "sha256": "2e3ec535f858abb72ddb0f6f60b3e5e4a0b657f89aead14ce39ec1ba390661f3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/input-keyboard.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 3506,
+      "sha256": "e413538fa563a030b49e05a333c25bdc49d6fec784492b920a3ee414ac661056"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/input-mouse.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 2914,
+      "sha256": "cc6e3886ef2def824c32ad7c1bf8f2ec88a188ddb4cdc1c5b21766a75b766632"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/audio-headphones.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 3457,
+      "sha256": "b7d427093bb87b38b7a354f9eccbc4804c1641b8e8c92e70cd442115f755e215"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/audio-speakers.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 4293,
+      "sha256": "d445fc6ce9195e8b1ecf7ddc1596b0b6ddf56e1179a8e746299253cbb0253a0c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/video-display.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 3198,
+      "sha256": "31b4860f77b3a66e4f7cdfa0ca998990f0bf00d2f01e48b5b9c7fa637721f8aa"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/phone.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 2226,
+      "sha256": "d48b506d020176f9337087fb9ad3aa4d80333174b6ef5c8d505ca87fc5e444cc"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/devices/printer.png",
+      "size": 64,
+      "context": "devices",
+      "bytes": 2907,
+      "sha256": "f0f0bce0dd5371b1ebf328278d589c1e2d9c091f03b7423be75d41539a25a3ab"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/text-plain.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3056,
+      "sha256": "308ca5d5ae1cf74b735d8e98c395fee977c7db8973536517ccb15846da147741"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/text-x-generic.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3056,
+      "sha256": "308ca5d5ae1cf74b735d8e98c395fee977c7db8973536517ccb15846da147741"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/image-x-generic.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3642,
+      "sha256": "906ab301650d84d2857f89d9bd549c91d11cb0fd9eaa4d49b14fb15dafcf20d3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/video-x-generic.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3527,
+      "sha256": "ccc9d52b394232e85176a4929f144a059bd24befe1c2f482b6f6e4c20183e35b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/audio-x-generic.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3517,
+      "sha256": "a5f7f88106b77f32adb3ac1228f5ad8c66ff9d3bec136a79c1d6cf47f02fa302"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/application-pdf.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3576,
+      "sha256": "b57cf292e4324c95ef2d0da012a148ab7a50baed1ba1aee6f2350f78b63f0f4c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/application-x-archive.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3291,
+      "sha256": "9e5c89585341bc60cbbd297b75f2185559dd6ebd2fc0b92ffa44be5509bb1be3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/application-zip.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3291,
+      "sha256": "9e5c89585341bc60cbbd297b75f2185559dd6ebd2fc0b92ffa44be5509bb1be3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/application-x-executable.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 4050,
+      "sha256": "521247a5c3e061ba0a977e975aba2c45e9fcb5208bbe80c21d08dbf730b9f23d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/application-x-iso9660-image.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 4115,
+      "sha256": "95f510dba376527889340ac469a9f8d9d93f0397b02be643edf22c7f032620ff"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/application-vnd.appimage.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3895,
+      "sha256": "5191da84786c08e991a23e42c64c8bcb2972e7d71f62d4cf428ee9e957456986"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/x-office-document.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3100,
+      "sha256": "820da735ed38bdeb74c8646d63543352265b7a5194d2f073c1fe575117cfb8d3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/x-office-spreadsheet.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3670,
+      "sha256": "8a73397249f13eeebf3a4f587c4c09d709b9f73c82aa7dc1ea53dac50fbf8726"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/x-office-presentation.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3271,
+      "sha256": "eb4d388787011bfdd5b91499f36ea5a7a58b6d976aa038fcfdea8aea56f802c8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/text-x-script.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3608,
+      "sha256": "131fc80602e51dfe0c4de766d2ff088c450b9c22d248a1d6f09f353f966b39ce"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/mimetypes/application-x-desktop.png",
+      "size": 64,
+      "context": "mimetypes",
+      "bytes": 3230,
+      "sha256": "f7d8fed8c3bc43cec08b0b78e5895120812cf94b26d93a2981ec0455e2c99160"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/systemsettings.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 5476,
+      "sha256": "d3d6736833407a2791f3908e77324a2b7f981ce0759d9179e9fc27ac31931a28"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.dolphin.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4162,
+      "sha256": "80e2181c49f7288b3b3eea5d544dc35965eb64fe24891ae8991a9e3d4f37653a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.konsole.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4455,
+      "sha256": "1e5791249c229d53938072a449ed1aaa31d3c793afe71dfcc8be0cc6dcacc909"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.discover.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4806,
+      "sha256": "c8912ad529799b34c25de816ab393e6f6c15fe74d55b28fcf47e7e6f12caff9a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.kate.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4709,
+      "sha256": "f355de2e4bde4e65f03daf5df7b039707c50f29f9bba533b3a6d53dc5715fedf"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.ark.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4365,
+      "sha256": "162339a0ff62515ed60c54f0eb202be20be8bd6ac1f45ed68314d8ece2e8d02c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.gwenview.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4934,
+      "sha256": "42593f945f8fd356cd856dcaa39cb4d055971fe90905b1f925eade17a3fe07ab"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.spectacle.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 5135,
+      "sha256": "43f028e08ff3e000ef31918c4ffe7c74c14c85a518e0092065330c0af5a5bf66"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/org.kde.kcalc.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 5014,
+      "sha256": "af046ded5a2c3cbe68038f95d340d9df5e4fc6d0bdd05ab364c1b47e5dce33b6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/preferences-desktop-display.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4334,
+      "sha256": "3c1bfd49622150e90b62ee3780ae0d3d28d5de4963924c16a94d125471f34dde"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/preferences-system-network.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 5835,
+      "sha256": "11cd81c5bf932492801f8e628326fcc9415878610369af7c7a22c610e1e1c3dd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/64x64/apps/preferences-desktop-sound.png",
+      "size": 64,
+      "context": "apps",
+      "bytes": 4723,
+      "sha256": "96eaadfd84eb69719f3092f8b3784b2b6a0cc440956a2799fe2a8f5ad6689a22"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 7062,
+      "sha256": "9f27c4b3c1a8f0f0967d434443034528c43c356b62e76c6135db07ef8c44b6fb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-open.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 7517,
+      "sha256": "93ff030f38ed211b353dac0462a899163757ab7e7e740807639f90796ab788fd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/user-home.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 9147,
+      "sha256": "72f45069e1a133a1a6a56b94159b48c218b12672fbd3f25e28b9fbabc77cbb29"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/user-desktop.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 8336,
+      "sha256": "2f5e6dbad2af0f8df445163369325acb697c504c409eb48ee6a8dd39a42669cf"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-documents.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 8109,
+      "sha256": "9b36fc5436a08bf918a92f9516ffdc191cda697ab10d3a0ff3eb5f77f7039b7b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-download.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 8416,
+      "sha256": "18d57817283ced6bf30ad4c77dc4ab06f7d0902884f6b251af84ae4ec960e16d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-music.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 9019,
+      "sha256": "936cde8bdfd35bba44400f36845f0309e63fd162f2292d28f53fcd8cf1863099"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-pictures.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 9261,
+      "sha256": "2f1437f0b25f50e9d103bb13fe0dc57066d484f528d7ac2b8e0f6cffe346a7fa"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-videos.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 8801,
+      "sha256": "b9564c3eda99b6df5330b5001ff29f34b638ed6ac7ef40e93c8b0621dc325136"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-templates.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 9149,
+      "sha256": "2c1b175e12c7ca6ec1ec6426f97784f687f0a837a94a7a4f8c31e98a7b399710"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-publicshare.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 9032,
+      "sha256": "8aef973d9225dbfcb2b0fa7d4aef646865f5faea3bfb6b92a3b8edc837ddc8ea"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-games.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 10283,
+      "sha256": "6f1d5f5f005d87ef36b4dd95067c57467e6395f4b66dd37e762baf74f918992f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/folder-remote.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 9080,
+      "sha256": "4ecdff58b323530d63ff8d6a1423dabf46907ff7b42e4a4fa5f66c15646a5d9d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/network-workgroup.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 7384,
+      "sha256": "e342538e40b11bd997bd11f61164ca338f6f65c50432b8758075091072b489ce"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/user-trash.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 6391,
+      "sha256": "e43f0d1a40b54cdc21d520657f06fedd28137c3605385d77a1f12b5c0e28310a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/user-trash-full.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 7285,
+      "sha256": "b6ed4332fa5a79cc64531d54a10cecee17d511f684e2965badc4acdf652ab66c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/places/start-here.png",
+      "size": 128,
+      "context": "places",
+      "bytes": 4368,
+      "sha256": "a1b7f40d67c751953ea6b9346e10f428a08ff29af2360ca6e225fb9e060ffe3d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/drive-harddisk.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 10361,
+      "sha256": "a68627c1d1a09cc98b18336aecdafb5e6b07a16b116d660dd39ef8ac247c0a01"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/drive-harddisk-solidstate.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 7439,
+      "sha256": "8708daae0dbefcd4a41a2ce7f57d2178df8d30ef0a47d54d256285384b5ef387"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/drive-removable-media-usb.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 4813,
+      "sha256": "7f2f3b62e7ccf6998d727a59bfc26e5de2f83bd9aa93ce0572c521f39eda2700"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/media-optical.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 15217,
+      "sha256": "b818e4db269fc84affa6fa32a58918584cee9177705fa2c55f3aae6b08b178cd"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/computer-laptop.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 9984,
+      "sha256": "e87a18fd7f9f5983dae6b41ebaba17722af427398236b44bf7684e4566a0f57d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/input-gaming.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 9625,
+      "sha256": "97a76d5e239c00b67cc3691cdda1696a2c698a7b2108f4749c17825adc632d3b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/input-keyboard.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 9252,
+      "sha256": "1018f5600930b54c892d02950be14d3ab33f32d9450ecd8a1a20605691a26888"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/input-mouse.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 7332,
+      "sha256": "358ff0271380df7566179a62523775d2d5b1e3b8cefb7550e3f79f5a5dc2ac44"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/audio-headphones.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 8684,
+      "sha256": "189515dfce4abafc8fb5dc282ed92ccb2d9e7aaeb9aab744bac6157975a192a4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/audio-speakers.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 10921,
+      "sha256": "c3589d9ef6c6f5b5369dc41d3d194756ee82dd362837b9bdfacbed076f50d3a7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/video-display.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 7711,
+      "sha256": "993e4f82c144c359082080ef903420a18f84a0fd90bdbeb51647ef3c4f5ff214"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/phone.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 5361,
+      "sha256": "10a6143490c422aec8b93026cbb1223183b49222975e8fa2ee13b22c0661801d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/devices/printer.png",
+      "size": 128,
+      "context": "devices",
+      "bytes": 6935,
+      "sha256": "082ac8c3ed50de1dfc1a3a83834b435ea2fdfc1cc56a109f76841e70c6f86265"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/text-plain.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 7587,
+      "sha256": "92b5ce0d3392a6ba30f96e6f85e389f4487f08b931a05c82c960a4f136fc66fb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/text-x-generic.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 7587,
+      "sha256": "92b5ce0d3392a6ba30f96e6f85e389f4487f08b931a05c82c960a4f136fc66fb"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/image-x-generic.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 9268,
+      "sha256": "d41ae9fe6fd57aac3e8a8610693f3d9ea40da771728188b4bbdb691f116e2061"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/video-x-generic.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 8557,
+      "sha256": "6f2a908f73094dd4feb87503ef6e15de53d900f6f918d402e9685ec60b571dc9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/audio-x-generic.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 9047,
+      "sha256": "995e674ef3d86232e9d4b06a0ff1f81082bb5c396a22babeb01619cbf913b302"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/application-pdf.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 9187,
+      "sha256": "0e6dadf0434ad001acb4903abc506a1a059f221e5c1d459e2d03a20a7eb86084"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/application-x-archive.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 7790,
+      "sha256": "74ef3afc6ba41897beb10d4faed7103d838c38ee19779494c274b90c28b2dae7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/application-zip.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 7790,
+      "sha256": "74ef3afc6ba41897beb10d4faed7103d838c38ee19779494c274b90c28b2dae7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/application-x-executable.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 10310,
+      "sha256": "d762fefdf5857381e024ddbc65208bdc95822e769462554a76d6af7a4a1fd90c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/application-x-iso9660-image.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 11269,
+      "sha256": "ed0d8e36dc9353b2b99fe85d9da7408b6cbab846a3ca169a210d7a57775c19de"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/application-vnd.appimage.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 10064,
+      "sha256": "e8a3a5bbe5c04e6a04a044a418c381ae65135d5936adca425e74910cbd47db2b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/x-office-document.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 7600,
+      "sha256": "ccb480ba4959ef4ef594ea3e743659fdd245ddbd62a392162684855aebb5aa74"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/x-office-spreadsheet.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 8929,
+      "sha256": "f08118c5ce7a7830ba15ba67e1dc33dc2212ab27d323a318a219842022dc0573"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/x-office-presentation.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 7958,
+      "sha256": "8b1b068f1d39df154ccab41c54053d0b7d8ceaa7efe7f9359b1860f8ef3ba64b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/text-x-script.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 9280,
+      "sha256": "524de3f1201830312ff71e0b01bd775084872e168310c30305fe034faceb8bea"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/mimetypes/application-x-desktop.png",
+      "size": 128,
+      "context": "mimetypes",
+      "bytes": 7907,
+      "sha256": "adf027df4db6622a78ea75e88205d07a4b44c117c63c473d39383a584d838f93"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/systemsettings.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 14220,
+      "sha256": "283ac4e4d6de4c01bec4ccc843285361f812b5863b3799cd52a03bf7cdc90e27"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.dolphin.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 10680,
+      "sha256": "fabe5e67f8d1a8ab3246923cda27d4bf689446e78b8ca322c301644dbafaf629"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.konsole.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 11621,
+      "sha256": "c1777f6ff5c59b49ec60eb69aedafbedcb3fff92f41ffbe886a14f6795fe5855"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.discover.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 12605,
+      "sha256": "2e65560012441752b82b69bb247179e3844b23fe2f3f2690394c9dccf73fa6b8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.kate.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 12376,
+      "sha256": "1e32b0286524e15c671e4e85f67de066061b6cd6f82b531806a1c2badeabfd5f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.ark.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 11065,
+      "sha256": "bf4ed8e00d0108258c65f9f55b9b3a6a37c67cef320a8a0a70567a1c890095b2"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.gwenview.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 12933,
+      "sha256": "00b3c32711385875679abfa23a5299dabbae32560b622e113e544b134929a8f1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.spectacle.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 13222,
+      "sha256": "913f5daa214a14e7331a551e6a129bc98c8e47c3c0c4e91e40650fe15b3ee377"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/org.kde.kcalc.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 12719,
+      "sha256": "cfe31067a85a8cdbac6ffb850b6ef46d4fbf2e6a46f88fc37f97c1f72b860853"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/preferences-desktop-display.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 11039,
+      "sha256": "2402d75f1d74850fecda6db9db3d44969da18065665fca44f3715de5622cee08"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/preferences-system-network.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 15682,
+      "sha256": "cfbf60d531a58dfeb5f0b17be0cabf5661c92850aa1b3c5f72efd5b9b1c715af"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/128x128/apps/preferences-desktop-sound.png",
+      "size": 128,
+      "context": "apps",
+      "bytes": 12236,
+      "sha256": "ab3b448e19e468e53143d07a70f08f9e65eb3e77360dc1ffd1f021ed488fd15d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 20245,
+      "sha256": "fad203f473c39623488a6a494ab615b06cd3d34bc1efd2a537765bfafce9ab11"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-open.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 21221,
+      "sha256": "e608a04bfc2fa30868c3c5cd1c87987145b687953a4d6c6e80219b32c467a296"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/user-home.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 25839,
+      "sha256": "ace2be54dac48bf75b78bc9fa6a3d02b6986b4288114e2856af8233425fa83f9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/user-desktop.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 23407,
+      "sha256": "303428c8dfbfc27446c90eb115d2751b8b526d75c3f0a8e56d1f38693229066b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-documents.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 22791,
+      "sha256": "6eeef8a2e44689932eda5016a6639cd39b6cbd329764160f13c76700a8d8a84b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-download.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 23267,
+      "sha256": "1673219119bfc23e97826e075a09b00f7eb3df6f70457e05012938212170b5a5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-music.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 25636,
+      "sha256": "4f9b141be33fb9b2ddc71ef58c6372c0dfc2b9d9ba8f99e2db7dea376ca1d23b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-pictures.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 26297,
+      "sha256": "353e47381a3477f39a9b049f44ec2d27f5c1ddd44da7cb413eb87979d9fe94a3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-videos.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 23964,
+      "sha256": "a2ef43be90639a4f5ddbbd4d92f83d75d2cfe280825a6441cab3307ccd560424"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-templates.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 25169,
+      "sha256": "04509f020f2d08629d083b0decfd6f59bac836cd6329bcce562ed1cb7d3a1482"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-publicshare.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 25811,
+      "sha256": "a0fe2a14a4d965f4d869533796ae9612cb3f6646b393ba6585d5f70a91ede457"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-games.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 29092,
+      "sha256": "af45312c78a8371bc914d6ae89309a03d5090df31eefcbe790a125c8d547c251"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/folder-remote.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 25842,
+      "sha256": "b075bf48a0a64b486f0e28dda63236b1ec10abd55f84b585e540141f48728ea0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/network-workgroup.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 20129,
+      "sha256": "f16a057725b118ca5d721391f4e3165f31310f169c60e1ce2e3ee0b02841dd1b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/user-trash.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 17835,
+      "sha256": "dae39e6beb9ebded5903d34e4680f5211989a4fc3de3a28da26ba4f4396397db"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/user-trash-full.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 19930,
+      "sha256": "c671f3bad49898a6b9eff7c90126d12cfdb96ee7d1685ae80a9ba976e58512db"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/places/start-here.png",
+      "size": 256,
+      "context": "places",
+      "bytes": 8679,
+      "sha256": "8e1b6e65382b7d82be67a29d12570b046cf73aaaa497e237163ab5438a9cadd1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/drive-harddisk.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 29772,
+      "sha256": "ebeed49560781f050034106f84d5a183a7538b5b5b63237752a019e00c1ec75f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/drive-harddisk-solidstate.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 20743,
+      "sha256": "17072670e4784a1dc41817c9ed65afad4dccdabdb733804481033b4b3716954e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/drive-removable-media-usb.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 12944,
+      "sha256": "eda280ca45f38a12295d644a344831bf1eac44e0690ed35e31b9ca23a97b3dbc"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/media-optical.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 42904,
+      "sha256": "cb5d6c117546b10718e5fe7ec591463874b64addda556d9538df9f400ac2ed5e"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/computer-laptop.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 28336,
+      "sha256": "8a07726cc814a9aa6381b709ad3db62ff1c8c629cd0d1ba95b3c84c24bf047c4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/input-gaming.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 25415,
+      "sha256": "0b6d68ba948c5a92f3e924d8d8524ad746dfb83467a6c40b0e7ac8673dd26972"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/input-keyboard.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 25684,
+      "sha256": "1f37d6a66b10c0b245a020efacf2a15d5e28dd235538ac599ca391e12dd745c1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/input-mouse.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 19500,
+      "sha256": "0e9549c14053c16d911fb8e691428e4c9e4d35d62ebd4a65c0a2bdec746cfea7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/audio-headphones.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 22887,
+      "sha256": "c3130ff13705cfd0dadf4e7f597a786613bc77a832d369088c925a6677879b33"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/audio-speakers.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 31016,
+      "sha256": "55a62ae271bff17a134ceb06f9c3aa812ef60b00d2679a492a7c401c00fd4e7f"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/video-display.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 21714,
+      "sha256": "4bbf2590c38bf00bef6b13493d08562e0850c47190fbccbb7a9a59ec27fdb85a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/phone.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 15373,
+      "sha256": "20c121b5fe7914ed9c531970dc1b00ad9fe32e713ff3f8bec2bcb1db687556ca"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/devices/printer.png",
+      "size": 256,
+      "context": "devices",
+      "bytes": 19128,
+      "sha256": "867c4526a3d4b8a6af5144430f3cd4e65ff60d911cf4904fe53b50c97f31fd01"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/text-plain.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 21970,
+      "sha256": "227148c29d206803ef3561531d41d4571975a0f56304c459d878176c13330b08"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/text-x-generic.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 21970,
+      "sha256": "227148c29d206803ef3561531d41d4571975a0f56304c459d878176c13330b08"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/image-x-generic.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 27312,
+      "sha256": "6e4be8483abc9ed4b7fbf5e3d25f81d2628d4924e909dc5b9b06b1a57a964955"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/video-x-generic.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 23869,
+      "sha256": "e7c18a50ac2bdf06d86f953b32c89f91e4d0ad959cd2e08117c05a1f15d74eea"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/audio-x-generic.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 26475,
+      "sha256": "c25265484e687af5aeaad969ed1760aaa24a16e242871e9debd8d5db48ae79ce"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/application-pdf.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 26963,
+      "sha256": "bf88f945c6bb7f5657a35f301d91b6f5f8309edd5f90923e5d5cae853610de3b"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/application-x-archive.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 22039,
+      "sha256": "2ffb36f0af707c6964e6a9577c8e5c5881e61c4f8af66ccd4cc5c50ca22e5066"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/application-zip.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 22039,
+      "sha256": "2ffb36f0af707c6964e6a9577c8e5c5881e61c4f8af66ccd4cc5c50ca22e5066"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/application-x-executable.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 29460,
+      "sha256": "dd1adc51bf2d77e3088a52c902199f000170ef1cc11fc7b9b91273c818d1a9c3"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/application-x-iso9660-image.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 33786,
+      "sha256": "8ff16a1a3aa097026897aeb9d961e0dc06266b3281cd54f764039c7b32a39e20"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/application-vnd.appimage.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 29600,
+      "sha256": "d171f505b453b1ede17de1ab9bebbb0c6ccef82d0c8d95feaf1e43f5443267f0"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/x-office-document.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 22197,
+      "sha256": "a1582ae161d45d89c543615d616ca1c044c9cafd4ef7098937da8cf5275100b7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/x-office-spreadsheet.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 25645,
+      "sha256": "07438d3c694b2fc4cef82ebdd5dee2f4f3df80aaf388d99396e9f809849761e4"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/x-office-presentation.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 22945,
+      "sha256": "c65f4ad4cea26b808e98deaa88a084f7618a438db941c1af3ec882731cc9e0c1"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/text-x-script.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 27687,
+      "sha256": "d24f0e231b53b0cc243c84b61f77b28271201c0938db3f2cf70da428f1683ce9"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/mimetypes/application-x-desktop.png",
+      "size": 256,
+      "context": "mimetypes",
+      "bytes": 22978,
+      "sha256": "05566b790f7ac6a59e388c2cd33261366d996993220371d750d9151ab95274ba"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/systemsettings.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 40986,
+      "sha256": "c1712c3a170b3210972ea73f379ebb5b8b976a74276c06a04f34fd192175626c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.dolphin.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 31783,
+      "sha256": "5e81577e61a4a557acd8538d68579c622925ab01b37dc79255f066bb8b65e5f5"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.konsole.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 34863,
+      "sha256": "382510bce00b8fb259a26c1f188ba5e3509a70dee63ab4d5a3476cc47b6003b6"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.discover.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 37599,
+      "sha256": "77355cffe0f76e3d41f6915e80bf017c2fe0ad6432ec15bf5071276b5aa2cc6c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.kate.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 36922,
+      "sha256": "aca2dedaab4f2db89f0b9020d50973db570e0d0b5e69d7bde92a256645901b0d"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.ark.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 31887,
+      "sha256": "477f7e7b53a7e6d6b7f732e059be8e3577094abdb955373bf853e72645ff25e8"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.gwenview.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 38738,
+      "sha256": "6b3d29eee6ce87ade71f9bc8efcab753bda39f67e7b01d3a9e76b7b0f13f9573"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.spectacle.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 38945,
+      "sha256": "eed0ee5b76e8f9bcd512faa9e98a499c6db0de20ab3536e63dd74cc31448461c"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/org.kde.kcalc.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 37514,
+      "sha256": "3fac6d4e18a2b5c20c905adfb5e4b577d471242215f86c2165759604913b90a7"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/preferences-desktop-display.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 33245,
+      "sha256": "bb5698528c383300f82a4e91c487d96e030aab8e3cad58ee19f5c39d847e2c0a"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/preferences-system-network.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 47200,
+      "sha256": "bbe815b079273d52ae3e52d273224d27b39666ca3f6859c3b0379ccb09b3c334"
+    },
+    {
+      "path": "files/system/usr/share/icons/Antu/256x256/apps/preferences-desktop-sound.png",
+      "size": 256,
+      "context": "apps",
+      "bytes": 36187,
+      "sha256": "daaf6c64b831e5d7f292ee348302968a7091b235f48d3cb875aa9866ec0c8ac1"
+    }
+  ],
+  "approved_art_files_verified_unchanged": 187,
+  "approved_art_files_altered": 0
+}
