@@ -156,7 +156,8 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 - Abre un *issue* con tu modelo de PC y lo que funciona o falla: los informes de hardware son lo más valioso ahora.
 - Los cambios entran por *pull request* y deben pasar el workflow `antu` (compilación y prueba de arranque).
 - Si tocas los colores, ejecuta `python scripts/check_colors.py` (contraste WCAG ≥ 4.5:1).
-- La licencia del proyecto se definirá antes de aceptar contribuciones de código.
+- Al contribuir aceptas que tu código se publique con la licencia del proyecto (GPL-3.0-or-later) y tu arte con
+  CC-BY-SA-4.0.
 
 ## Límites conocidos
 
@@ -172,7 +173,12 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 
 ## Licencias y terceros
 
-- **Por decidir:** licencia del repositorio y de los fondos (los metadatos proponen GPL-3.0 y CC-BY-SA-4.0).
+- **Código de Antu** (scripts, Inicio, el instalador, temas y configuración): GNU GPL 3.0 o posterior
+  (GPL-3.0-or-later), texto completo en [`LICENSE`](LICENSE).
+- **Arte de Antu** (fondos, logos e íconos): [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.es).
+  Puedes reutilizarlo dando crédito a Antu OS y compartiendo tus cambios con la misma licencia.
+- Los programas que trae la imagen (kernel, KDE, Steam, controladores de NVIDIA, Brave, etc.) mantienen cada uno su
+  propia licencia.
 - Fuentes Inter (The Inter Project Authors) y JetBrains Mono: SIL OFL, licencias en `files/system/usr/share/fonts/antu/`.
 - Los esquemas de color salen de `scripts/make_colors.py`, la marca y los recursos del arranque de `scripts/make_brand.py`
   y los fondos de `scripts/make_wallpapers.py`.

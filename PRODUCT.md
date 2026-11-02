@@ -43,7 +43,7 @@ charge limit) that other distributions lack.
 - Prototype stage (Hito 0): no Steam, no graphical installer, no Secure Boot or image signing yet.
 - Theming must work through KDE/Qt mechanisms and survive atomic updates (shipped in `/usr`, defaults in `/etc/xdg`).
 - Performance matters: the system competes with Windows on gaming laptops; visual effects must not cost frames.
-- Undecided: project license (GPL-3.0 suggested), wallpaper license, final release date.
+- License: code GPL-3.0-or-later, art (wallpapers, logos, icons) CC-BY-SA-4.0. Undecided: final release date.
 
 ## Brand Commitments
 
