@@ -52,7 +52,7 @@ RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && \
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
       pipewire pipewire-pulse wireplumber noto-fonts openssh \
-      discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 firewalld plasma-firewall && \
+      discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 firewalld plasma-firewall git podman distrobox && \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.

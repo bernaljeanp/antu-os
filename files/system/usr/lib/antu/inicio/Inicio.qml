@@ -39,7 +39,7 @@ ApplicationWindow {
         working = true
         failed = false
         backend.apply(language.currentValue, keyboard.currentValue, zone.currentText, realName.text.trim(),
-                      userField.text, password.text, desktopChoice, ai.checked)
+                      userField.text, password.text, desktopChoice, ai.checked, dev.checked)
     }
 
     Connections {
@@ -356,7 +356,7 @@ ApplicationWindow {
             Section {
                 u: root.u
                 title: "Extras"
-                summary: ai.checked ? "Con IA local" : "Sin extras"
+                summary: [ai.checked ? "IA local" : "", dev.checked ? "Programar" : ""].filter(x => x).join(" y ") || "Sin extras"
                 done: root.openSection > 4
                 open: root.openSection === 4
                 onHeaderClicked: root.openSection = 4
@@ -364,6 +364,17 @@ ApplicationWindow {
                 Switch {
                     id: ai
                     text: "Instalar IA local (Alpaca con Ollama, unos 4 GB)"
+                    font.family: "Inter"
+                    font.pixelSize: 23 * root.u
+                    palette.windowText: root.ink
+                    palette.text: root.ink
+                    palette.highlight: "#E2480F"
+                    palette.mid: Qt.rgba(1, 1, 1, 0.3)
+                    Accessible.name: text
+                }
+                Switch {
+                    id: dev
+                    text: "Voy a programar (VS Code, Git, Node, Python, Rust, Go, Claude Code y Codex)"
                     font.family: "Inter"
                     font.pixelSize: 23 * root.u
                     palette.windowText: root.ink

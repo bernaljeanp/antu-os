@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Entorno para programar (opción «Voy a programar» de Inicio): una caja de Arch con las herramientas, VS Code y la
+# terminal de desarrollo en el menú, y las IA de programación. Corre al iniciar sesión, una sola vez por cuenta; sin
+# internet, lo vuelve a intentar en el próximo inicio de sesión. El sistema base no se toca: todo vive en la caja.
+[ -e /var/lib/antu/programar-solicitado ] || exit 0
+listo="$HOME/.local/state/antu/programar-v1"
+[ -e "$listo" ] && exit 0
+
+aviso() {
+    gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications \
+        --method org.freedesktop.Notifications.Notify "Antu" 0 "org.kde.konsole" "$1" "$2" "[]" "{}" 10000 \
+        > /dev/null 2>&1 || true
+}
+trap 'aviso "No se pudo preparar el entorno para programar" "Antu lo intentará de nuevo la próxima vez que inicies sesión."' ERR
+set -eE
+
+sleep 30  # que la sesión termine de abrir antes de empezar
+aviso "Preparando tu entorno para programar" \
+    "Antu instala VS Code, Git, Node, Python, Rust, Go, Claude Code y Codex en segundo plano. Tarda unos minutos."
+
+caja() { distrobox enter antu-dev -- "$@"; }
+distrobox list --no-color | grep -qw antu-dev \
+    || distrobox create --yes --name antu-dev --image docker.io/library/archlinux:latest
+caja sudo pacman -Syu --noconfirm --needed base-devel git nodejs npm python python-pip rustup go code
+caja sudo npm install --global @anthropic-ai/claude-code @openai/codex
+caja rustup default stable
+caja distrobox-export --app code
+
+mkdir -p "$HOME/.local/share/applications"
+cat > "$HOME/.local/share/applications/antu-terminal-desarrollo.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Terminal de desarrollo
+Comment=Terminal dentro de la caja de Arch para programar: instala ahí lo que necesites
+Exec=konsole -e distrobox enter antu-dev
+Icon=org.kde.konsole
+Categories=Development;
+Keywords=programar;terminal;desarrollo;claude;codex;
+DESKTOP
+
+mkdir -p "$(dirname "$listo")"
+touch "$listo"
+aviso "Tu entorno para programar está listo" "Abre VS Code o «Terminal de desarrollo» desde el menú. Ahí también están Claude Code y Codex."

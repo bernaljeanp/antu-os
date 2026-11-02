@@ -72,6 +72,11 @@ case "$cmd" in
         touch /var/lib/antu/ia-solicitada
         systemctl start --no-block antu-ia.service
         ;;
+    programar)
+        [ "${1:-}" = si ] || die "Opción no válida."
+        mkdir -p /var/lib/antu
+        touch /var/lib/antu/programar-solicitado  # el entorno se arma al iniciar sesión (/usr/lib/antu/programar)
+        ;;
     terminar)
         hay_usuarios || die "Crea tu cuenta antes de terminar."
         rm -f "$AUTOLOGIN"

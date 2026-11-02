@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Entorno para programar
+Comment=Prepara VS Code, Git y las IA de programación si elegiste «Voy a programar» en Inicio
+Exec=/usr/lib/antu/programar
+OnlyShowIn=KDE;
+NoDisplay=true
+X-KDE-autostart-phase=2

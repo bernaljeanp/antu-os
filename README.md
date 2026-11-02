@@ -53,6 +53,9 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   RAR, 7z y ZIP), Gwenview, Spectacle, Kate, KCalc y USBoot.
 - **IA local opcional:** «Instalar IA local» en el menú (o `antu-ia`) instala Alpaca con Ollama; no viene
   preinstalada porque ocupa varios GB.
+- **Programar:** con «Voy a programar» en Inicio, Antu prepara al iniciar sesión una caja de Arch (Distrobox) con
+  VS Code, Git, Node, Python, Rust, Go, Claude Code y Codex, y deja VS Code y «Terminal de desarrollo» en el menú.
+  Dentro de la caja se instala lo que cada proyecto necesite sin tocar el sistema base.
 - **Apps:** Discover instala aplicaciones desde Flathub sin tocar el sistema base. Sin relleno: Antu no trae
   LibreOffice.
 - **Primer arranque:** las apps de Flathub y ArtCraft se descargan solas (varios GB) en cuanto hay internet.
