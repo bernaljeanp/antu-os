@@ -51,4 +51,10 @@ en_sesion gdbus call --session --dest org.freedesktop.Notifications --object-pat
 sleep 4
 serie notificacion
 sleep 10
+
+# Al final: una vez bloqueada, la sesión ya no deja ver nada más.
+loginctl lock-sessions
+sleep 6
+serie bloqueo
+sleep 10
 serie fin

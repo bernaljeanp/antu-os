@@ -61,7 +61,7 @@ echo "== Galería: las pantallas principales en la sesión en vivo"
 cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 quiet splash antu.galeria"
 "${QEMU[@]}" -cdrom "$B/antu-live.iso" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
     -serial file:"$OUT/serie-galeria.log" &
-for vista in escritorio menu pantalla dolphin zenit actualizaciones notificacion; do
+for vista in escritorio menu pantalla dolphin zenit actualizaciones notificacion bloqueo; do
     if ! wait_for "$OUT/serie-galeria.log" "ANTU-GALERIA: $vista" 420; then
         echo "::warning::La galería no llegó a «$vista» (ver serie-galeria.log)"
         break
