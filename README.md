@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="brand/antu-icon-256.png" width="112" alt="Símbolo de Antu: una A con forma de cumbre y un sol de lava">
+</p>
+
 <h1 align="center">Antu OS</h1>
 
 <p align="center"><b>Desde los cielos más claros de la Tierra.</b><br>
@@ -110,7 +114,7 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 
 - **Por decidir:** licencia del repositorio y de los fondos (los metadatos proponen GPL-3.0 y CC-BY-SA-4.0).
 - Fuentes Inter (The Inter Project Authors) y JetBrains Mono: SIL OFL, licencias en `files/system/usr/share/fonts/antu/`.
-- Los esquemas de color salen de `scripts/make_colors.py`, los recursos del arranque de `scripts/make_plymouth.py`
+- Los esquemas de color salen de `scripts/make_colors.py`, la marca y los recursos del arranque de `scripts/make_brand.py`
   y los fondos de `scripts/make_wallpapers.py`.
 - La parte bootc del `Containerfile` está adaptada de [bootcrew/mono](https://github.com/bootcrew/mono)
   (Apache-2.0, Copyright 2025 tulilirockz). Licencia en `third_party/bootcrew-LICENSE`.

@@ -9,7 +9,9 @@ panel.opacity = "translucent";
 
 panel.addWidget("org.kde.plasma.panelspacer");
 
-panel.addWidget("org.kde.plasma.kickoff");
+var menu = panel.addWidget("org.kde.plasma.kickoff");
+menu.currentConfigGroup = ["General"];
+menu.writeConfig("icon", "/usr/share/antu/antu-symbol.svg");
 
 var tasks = panel.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];

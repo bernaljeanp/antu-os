@@ -1,5 +1,5 @@
-# Antu OS: arranque al estilo macOS en versión gamer: la marca al centro y una barra fina que se llena de lava.
-# Los recursos (scripts/make_plymouth.py) están dibujados para 1600 px de alto y se escalan aquí.
+# Antu OS: arranque al estilo macOS en versión gamer: el símbolo al centro y una barra fina que se llena de lava.
+# Los recursos (scripts/make_brand.py) están dibujados para 1600 px de alto y se escalan aquí.
 
 Window.SetBackgroundTopColor(0, 0, 0);
 Window.SetBackgroundBottomColor(0, 0, 0);
@@ -8,10 +8,10 @@ W = Window.GetWidth();
 H = Window.GetHeight();
 S = H / 1600;
 
-wordmark_src = Image("wordmark.png");
-wordmark_img = wordmark_src.Scale(Math.Int(wordmark_src.GetWidth() * S), Math.Int(wordmark_src.GetHeight() * S));
-wordmark = Sprite(wordmark_img);
-wordmark.SetPosition(Math.Int((W - wordmark_img.GetWidth()) / 2), Math.Int(H * 0.44 - wordmark_img.GetHeight() / 2), 2);
+symbol_src = Image("symbol.png");
+symbol_img = symbol_src.Scale(Math.Int(symbol_src.GetWidth() * S), Math.Int(symbol_src.GetHeight() * S));
+symbol = Sprite(symbol_img);
+symbol.SetPosition(Math.Int((W - symbol_img.GetWidth()) / 2), Math.Int(H * 0.44 - symbol_img.GetHeight() / 2), 2);
 
 bar_w = Math.Int(H * 0.22);
 bar_h = Math.Int(6 * S);

@@ -1,77 +1,89 @@
-"""Dibuja los fondos de Antu: un fragmento de red de metro con las cuatro líneas del sistema.
+"""Dibuja los fondos de Antu: colinas de obsidiana superpuestas con la cresta encendida en lava.
 
-Uso: python scripts/make_wallpapers.py   (requiere Pillow)
-Escribe images/ (Andén, día) e images_dark/ (Túnel, noche) del paquete de fondo «Antu».
+Uso: python scripts/make_wallpapers.py   (requiere Pillow y numpy)
+Escribe images_dark/ (Obsidiana, noche) e images/ (Salar, día) del paquete de fondo «Antu», y su vista previa.
 """
 import pathlib
 
-from PIL import Image, ImageDraw
+import numpy as np
+from PIL import Image, ImageFilter
 
 ROOT = pathlib.Path(__file__).parent.parent
 PKG = ROOT / "files/system/usr/share/wallpapers/Antu/contents"
 W, H = 3840, 2160
-SS = 2  # supermuestreo para bordes suaves
+X = np.linspace(0.0, 1.0, W)
+Y = np.linspace(0.0, 1.0, H)[:, None]
 
-LINES = {  # colores de línea del sistema (ver DESIGN de la superficie)
-    "jugar": "#C8281E", "trabajar": "#E9A800", "familia": "#138A4B", "sistema": "#1450A0",
-}
-GROUNDS = {"images": ("#F7F6F2", "#1C1C1B"), "images_dark": ("#141517", "#F2F1EC")}
+# Cada colina: altura base, ondulaciones (amplitud, frecuencia, fase) e intensidad de su cresta de lava.
+# De atrás hacia adelante; las de atrás son más claras y su brasa más tenue.
+HILLS = [
+    (0.42, [(0.045, 1.3, 0.2), (0.015, 3.1, 1.0)], 0.35),
+    (0.54, [(0.050, 1.0, 2.1), (0.018, 2.7, 0.4)], 0.55),
+    (0.66, [(0.045, 1.6, 4.0), (0.020, 3.6, 2.2)], 0.80),
+    (0.80, [(0.040, 1.2, 1.3), (0.012, 4.2, 3.3)], 1.00),
+]
+HAZE = 0.65  # cuánto se funden con el cielo las colinas del fondo
 
-# Geometría en píxeles de 3840x2160: solo tramos horizontales, verticales y a 45 grados exactos (plano de metro).
-# Las cuatro líneas corren en paralelo desde la combinación Antu hacia la derecha y se separan en ramales sin cruzarse.
-STROKE, GAP = 30, 44          # grosor de línea y distancia entre carriles paralelos
-CX, CY = 2480, 1200           # combinación
-LANE = {"sistema": -1.5, "familia": -0.5, "trabajar": 0.5, "jugar": 1.5}
-
-
-def lane_y(name):
-    return CY + LANE[name] * GAP
-
-
-def diag(x, y, dy, direction=-1):
-    """Punto tras un tramo a 45 grados que avanza dy en vertical (hacia la izquierda por defecto)."""
-    return (x + direction * abs(dy), y + dy)
-
-
-ys, yf, yt, yj = (lane_y(n) for n in ("sistema", "familia", "trabajar", "jugar"))
-ROUTES = {
-    # arriba: sube a 45 grados y sale por el borde superior
-    "sistema": [(W + 60, ys), (2380, ys), diag(2380, ys, -500), (diag(2380, ys, -500)[0], -60)],
-    # sigue recto hacia la izquierda
-    "familia": [(W + 60, yf), (-60, yf)],
-    # baja más lejos y sale por la izquierda
-    "trabajar": [(W + 60, yt), (1900, yt), diag(1900, yt, 278), (-60, yt + 278)],
-    # baja primero y sale por el borde inferior
-    "jugar": [(W + 60, yj), (2340, yj), diag(2340, yj, 434), (diag(2340, yj, 434)[0], H + 60)],
-}
-STATIONS = {  # estaciones en coordenadas de píxel, sobre cada línea
-    "sistema": [(ROUTES["sistema"][2][0], 320)],
-    "familia": [(560, yf), (1240, yf), (3300, yf)],
-    "trabajar": [(820, yt + 278)],
-    "jugar": [(ROUTES["jugar"][2][0], 1960)],
+THEMES = {
+    "images_dark": dict(sky=("#08080B", "#141018"), hill=("#1B1A21", "#0B0B0E"), rim=("#FF5A1F", "#FFB020"),
+                        glow=1.0),
+    "images": dict(sky=("#F7F5F2", "#ECE7E2"), hill=("#E4DFDA", "#F6F3F0"), rim=("#FF5A1F", "#FF9A3C"),
+                   glow=0.55),
 }
 
 
-def draw(folder, ground, ink):
-    s = SS
-    img = Image.new("RGB", (W * s, H * s), ground)
-    d = ImageDraw.Draw(img)
-    for name, route in ROUTES.items():
-        d.line([(x * s, y * s) for x, y in route], fill=LINES[name], width=STROKE * s, joint="curve")
-    tick = 24 * s
-    for name, points in STATIONS.items():
-        for x, y in points:
-            x, y = x * s, y * s
-            d.ellipse([x - tick, y - tick, x + tick, y + tick], fill=ground, outline=LINES[name], width=9 * s)
-    # Combinación: una placa vertical que abarca los cuatro carriles.
-    half_w, top, bottom = 54 * s, (ys - 46) * s, (yj + 46) * s
-    d.rounded_rectangle([CX * s - half_w, top, CX * s + half_w, bottom], radius=half_w, fill=ground, outline=ink, width=12 * s)
-    out = img.resize((W, H), Image.LANCZOS)
+def rgb(hex_color):
+    h = hex_color.lstrip("#")
+    return np.array([int(h[i:i + 2], 16) for i in (0, 2, 4)], dtype=np.float32)
+
+
+def mix(a, b, t):
+    return a * (1 - t) + b * t
+
+
+def crest(base, waves):
+    y = np.full(W, base, dtype=np.float32)
+    for amp, freq, phase in waves:
+        y += amp * np.sin(2 * np.pi * freq * X + phase)
+    return y
+
+
+def render(folder, t):
+    sky_top, sky_bottom = rgb(t["sky"][0]), rgb(t["sky"][1])
+    img = mix(sky_top, sky_bottom, Y[..., None] * np.ones((1, W, 1)))
+    rim_a, rim_b = rgb(t["rim"][0]), rgb(t["rim"][1])
+    # Resplandor cálido bajo el horizonte, detrás de la colina del fondo, como un volcán que no se ve.
+    ember = np.exp(-(((X[None, :] - 0.55) / 0.30) ** 2 + ((Y - 0.46) / 0.10) ** 2))
+    img = mix(img, rim_a[None, None, :], (ember * 0.22 * t["glow"])[..., None])
+    glow_layer = np.zeros((H, W, 3), dtype=np.float32)
+
+    for i, (base, waves, heat) in enumerate(HILLS):
+        c = crest(base, waves)
+        depth = i / (len(HILLS) - 1)  # 0 atrás, 1 adelante
+        below = Y >= c[None, :]
+        # Relleno: más claro arriba de la colina, más oscuro hacia abajo; las de atrás, más neblinosas.
+        local = np.clip((Y - c[None, :]) / 0.35, 0, 1)
+        top_color = mix(rgb(t["hill"][0]), sky_bottom, HAZE * (1 - depth))
+        fill = mix(top_color, rgb(t["hill"][1]), local[..., None])
+        img = np.where(below[..., None], fill, img)
+        # Cresta de lava: color que cambia a lo largo de la colina, con una línea fina y un halo suave.
+        line_color = mix(rim_a, rim_b, (0.5 + 0.5 * np.sin(2 * np.pi * (X * 0.8 + 0.3 * i)))[:, None])
+        dist = (Y - c[None, :]) * H  # píxeles respecto de la cresta (positivo = dentro de la colina)
+        line = np.exp(-(dist / 2.2) ** 2) * heat
+        img = mix(img, line_color[None, :, :], np.clip(line, 0, 1)[..., None])
+        halo = np.exp(-np.maximum(-dist, 0) / 60.0) * (dist < 0) * heat * 0.45 * t["glow"]
+        glow_layer += line_color[None, :, :] * halo[..., None]
+
+    glow = Image.fromarray(np.clip(glow_layer, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(24))
+    out = np.clip(img + np.asarray(glow, dtype=np.float32) * (1.0 if folder == "images_dark" else -0.15), 0, 255)
+    # Grano muy leve para evitar bandas en los degradados.
+    out = np.clip(out + np.random.default_rng(7).normal(0, 1.2, out.shape), 0, 255).astype(np.uint8)
     path = PKG / folder / f"{W}x{H}.png"
-    out.save(path, optimize=True)
+    Image.fromarray(out).save(path, optimize=True)
     return path
 
 
 if __name__ == "__main__":
-    for folder, (ground, ink) in GROUNDS.items():
-        print("escrito", draw(folder, ground, ink).relative_to(ROOT))
+    for folder, theme in THEMES.items():
+        print("escrito", render(folder, theme).relative_to(ROOT))
+    Image.open(PKG / "images_dark" / f"{W}x{H}.png").resize((960, 540), Image.LANCZOS).save(PKG / "screenshot.png")
