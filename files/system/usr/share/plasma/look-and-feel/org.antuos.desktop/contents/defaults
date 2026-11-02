@@ -8,7 +8,7 @@ ColorScheme=AntuObsidiana
 Theme=breeze-dark
 
 [plasmarc][Theme]
-name=default
+name=antu
 
 [kcminputrc][Mouse]
 cursorTheme=breeze_cursors
@@ -19,3 +19,11 @@ theme=Breeze
 
 [Wallpaper]
 Image=Antu
+
+# Vidrio: menús de las apps translúcidos y un desenfoque más esmerilado detrás de la barra y los menús.
+[breezerc][Style]
+MenuOpacity=82
+
+[kwinrc][Effect-blur]
+BlurStrength=8
+NoiseStrength=3

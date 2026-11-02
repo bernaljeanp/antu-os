@@ -1,0 +1,17 @@
+{
+    "KPackageStructure": "Plasma/Theme",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Antu OS"
+            }
+        ],
+        "Description": "Vidrio de obsidiana con esquinas amplias y acentos de lava.",
+        "Id": "antu",
+        "License": "GPL-3.0-or-later",
+        "Name": "Antu",
+        "Version": "1.0",
+        "Website": "https://github.com/bernaljeanp/antu-os"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
