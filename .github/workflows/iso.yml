@@ -24,7 +24,8 @@ concurrency:
 jobs:
   iso:
     name: Crear y probar la ISO
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    # Tras una compilación de la imagen, solo si salió bien; por push o a mano, siempre.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
