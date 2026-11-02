@@ -52,8 +52,11 @@ echo "== Disco de arranque"
 disco="$W/disco.img"
 truncate -s 256M "$disco"
 sgdisk -q -n 1:2048:-1M -t 1:EF00 "$disco"
+# Formateada aparte: mkfs.vfat con --offset recorta el archivo y se lleva la copia de la tabla de particiones.
+truncate -s 254M "$W/esp.img"
+mkfs.vfat -n ANTU_EFI "$W/esp.img" > /dev/null
+dd if="$W/esp.img" of="$disco" bs=1M seek=1 conv=notrunc status=none
 esp="$disco@@1M"
-mkfs.vfat -n ANTU_EFI --offset 2048 "$disco" $((254 * 1024)) > /dev/null
 mcopy -i "$esp" "$W/antu.cer" ::/antu.cer  # primero, para que encabece la lista de archivos
 mmd -i "$esp" ::/EFI ::/EFI/BOOT ::/loader ::/loader/entries ::/antu
 mcopy -i "$esp" "$shim" ::/EFI/BOOT/BOOTX64.EFI
