@@ -62,7 +62,7 @@ jobs:
             systemctl is-active NetworkManager sddm
             modinfo -n nvidia
             # Cualquier programa puede leer la configuración de red y de nombres, no solo root.
-            su -s /bin/sh nobody -c "cat /etc/resolv.conf /etc/hosts /etc/nsswitch.conf" > /dev/null
+            setpriv --reuid=65534 --regid=65534 --clear-groups cat /etc/resolv.conf /etc/hosts /etc/nsswitch.conf > /dev/null
             # Arranque seguro: shim y su registro de llaves, con la herramienta que crea la entrada del equipo.
             test -f /usr/lib/antu/arranque/shimx64.efi && test -f /usr/lib/antu/arranque/mmx64.efi
             test -f /usr/share/antu/arranque-seguro.cer

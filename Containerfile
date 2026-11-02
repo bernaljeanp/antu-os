@@ -37,7 +37,7 @@ RUN sed -i 's/^[[:space:]]*NoExtract/#&/' /etc/pacman.conf && \
 
 # Sistema base atómico.
 RUN pacman -S --noconfirm base bubblewrap dracut linux linux-firmware intel-ucode amd-ucode \
-      ostree btrfs-progs e2fsprogs xfsprogs dosfstools efibootmgr skopeo dbus dbus-glib glib2 shadow && \
+      ostree btrfs-progs e2fsprogs xfsprogs dosfstools efibootmgr pciutils usbutils skopeo dbus dbus-glib glib2 shadow && \
     pacman -S --clean --noconfirm
 
 # multilib: Steam y las librerías de 32 bits que usan casi todos los juegos. La imagen Docker de Arch no siempre
@@ -60,7 +60,7 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
 # comprimida en vez de swap en disco (ver usr/lib/systemd/zram-generator.conf).
 # -Sy: la limpieza de capas anteriores (pacman -Sc) puede borrar la base de datos sincronizada de multilib.
 RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel \
-      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime ttf-liberation zram-generator && \
+      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime vulkan-tools ttf-liberation zram-generator && \
     pacman -S --clean --noconfirm
 
 # USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.

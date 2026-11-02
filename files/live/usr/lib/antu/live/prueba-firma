@@ -7,7 +7,7 @@ aviso() { echo "ANTU-FIRMA: $*" > /dev/ttyS0; }
 for _ in $(seq 40); do getent hosts ghcr.io > /dev/null && break; sleep 3; done
 getent hosts ghcr.io > /dev/null || { aviso "sin red"; exit 0; }
 
-if su -s /bin/sh nobody -c 'cat /etc/resolv.conf > /dev/null && curl -fsS -o /dev/null https://flathub.org/'; then
+if setpriv --reuid=65534 --regid=65534 --clear-groups sh -c 'cat /etc/resolv.conf > /dev/null && curl -fsS -o /dev/null https://flathub.org/'; then
     aviso "internet OK"
 else
     aviso "internet FALLO"

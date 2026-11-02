@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+"""Ayudante privilegiado del Informe del equipo, solo en el sistema en vivo.
+
+Recibe por la entrada estándar lo que la ventana reunió en la sesión, agrega lo que solo root puede leer, quita los datos
+personales y guarda el informe en la partición ANTU_DATOS del USB, que Windows ve como una unidad. No acepta rutas ni
+órdenes, no mira el contenido de los discos y no se conecta a internet.
+
+--autoprueba: comprueba la limpieza de datos personales (ci/screenshots.sh).
+"""
+import glob
+import json
+import os
+import pathlib
+import pwd
+import re
+import subprocess
+import sys
+import tempfile
+import time
+
+ETIQUETA = "ANTU_DATOS"
+MAX_ENTRADA = 5_000_000
+MAX_SECCION = 400_000
+
+# Sin esto, una línea de NetworkManager o del wifi podría traer el nombre de la red.
+LINEAS_FUERA = re.compile(r"ssid|wpa_supplicant|NetworkManager|iwd\[|sudo\[|pkexec\[", re.I)
+LIMPIEZA = [
+    (re.compile(r"\x1b\[[0-9;?]*[A-Za-z]"), ""),
+    (re.compile(r"\b(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}\b"), "[DIRECCIÓN]"),
+    (re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b"), "[IDENTIFICADOR]"),
+    (re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"), "[IP]"),
+    (re.compile(r"\b(?:[0-9a-fA-F]{1,4}:){5,7}[0-9a-fA-F]{1,4}\b|\b[0-9a-fA-F]{1,4}::[0-9a-fA-F:]*[0-9a-fA-F]\b"), "[IP]"),
+    (re.compile(r"(?i)\b(serial\s*(?:number|no\.?)?|s/n)(\s*[:=]\s*)\S+"), r"\1\2[SERIE]"),
+]
+
+# Solo campos del modelo: nunca product_serial, board_serial, chassis_serial ni product_uuid.
+DMI = ["sys_vendor", "product_name", "product_family", "product_sku", "board_name", "board_vendor", "bios_vendor",
+       "bios_version", "bios_date"]
+BATERIA = ["type", "status", "capacity", "cycle_count", "charge_full", "charge_full_design", "energy_full",
+           "energy_full_design", "technology", "online"]
+
+
+def limpiar(texto):
+    lineas = [linea for linea in texto.splitlines() if not LINEAS_FUERA.search(linea)]
+    texto = "\n".join(lineas)
+    for patron, reemplazo in LIMPIEZA:
+        texto = patron.sub(reemplazo, texto)
+    return texto
+
+
+def correr(orden):
+    try:
+        r = subprocess.run(orden, capture_output=True, text=True, errors="replace", timeout=25, stdin=subprocess.DEVNULL)
+        return (r.stdout + r.stderr).strip()
+    except (OSError, subprocess.SubprocessError) as e:
+        return f"(no disponible: {e})"
+
+
+def leer(ruta):
+    try:
+        return pathlib.Path(ruta).read_text(errors="replace").strip()
+    except OSError:
+        return "(no disponible)"
+
+
+def campos(carpeta, nombres):
+    return "\n".join(f"{n}: {leer(f'{carpeta}/{n}')}" for n in nombres if os.path.exists(f"{carpeta}/{n}"))
+
+
+def secciones():
+    """Título y contenido de cada parte, de lo que más ayuda a lo más largo."""
+    arranque = glob.glob("/sys/firmware/efi/efivars/SecureBoot-*")
+    seguro = "activo" if arranque and pathlib.Path(arranque[0]).read_bytes()[-1] == 1 else "apagado"
+    yield "Antu", "\n".join([leer("/etc/os-release"), f"Núcleo: {correr(['uname', '-r'])}",
+                             f"Arranque seguro: {seguro}", f"Línea del núcleo: {leer('/proc/cmdline')}"])
+    yield "Equipo", campos("/sys/class/dmi/id", DMI)
+    yield "Procesador y memoria", correr(["lscpu"]) + "\n\n" + correr(["free", "-h"])
+    yield "Gráficos", "\n\n".join([
+        correr(["nvidia-smi"]),
+        correr(["nvidia-smi", "--format=csv", "--query-gpu=name,driver_version,pstate,temperature.gpu,power.draw,"
+                "power.limit,clocks.gr,clocks.mem,utilization.gpu,memory.used,memory.total"]),
+        correr(["sh", "-c", "lspci -nnk | grep -A3 -E 'VGA|3D|Display'"]),
+    ])
+    yield "Módulos", correr(["sh", "-c", "lsmod | grep -E '^(nvidia|nouveau|i915|xe|amdgpu|snd_hda|snd_sof|iwl|ath|rtw|"
+                                         "mt7|alienware|dell|ntsync|zram)'"])
+    yield "Zenit y control del equipo", "\n\n".join([
+        f"Servicio: {correr(['systemctl', 'is-active', 'zenit'])}",
+        correr(["/usr/bin/zenit", "estado"]),
+        f"Perfiles: {leer('/sys/firmware/acpi/platform_profile_choices')}",
+        f"Perfil actual: {leer('/sys/firmware/acpi/platform_profile')}",
+        "Sensores: " + " ".join(sorted(leer(d + "/name") for d in glob.glob("/sys/class/hwmon/hwmon*"))),
+        "Plataforma: " + " ".join(sorted(os.path.basename(d) for d in glob.glob("/sys/devices/platform/*")
+                                         if re.search("alienware|dell|wmi", d, re.I))),
+        correr(["journalctl", "-b", "-u", "zenit", "-n", "60", "--no-pager", "-o", "short-monotonic"]),
+    ])
+    yield "Energía y suspensión", "\n\n".join(
+        [f"Modos de suspensión: {leer('/sys/power/mem_sleep')}"]
+        + [os.path.basename(d) + "\n" + campos(d, BATERIA) for d in sorted(glob.glob("/sys/class/power_supply/*"))]
+        + [correr(["sh", "-c", "journalctl -b -k --no-pager -o short-monotonic | grep -iE 'PM: suspend|PM: resume|ACPI: "
+                               "PM: Waking' | tail -n 40"])])
+    yield "Sonido", leer("/proc/asound/cards")
+    yield "Red", correr(["nmcli", "-f", "DEVICE,TYPE,STATE", "device"]) + "\n\n" + correr(["rfkill", "list"])
+    yield "Dispositivos", correr(["lspci", "-nnk"]) + "\n\n" + correr(["lsusb"])
+    yield "Servicios con fallo", correr(["systemctl", "--failed", "--no-legend", "--plain"]) or "Ninguno."
+    yield "Errores y avisos de esta sesión", correr(["journalctl", "-b", "-p", "warning", "-n", "2000", "--no-pager",
+                                                      "-o", "short-monotonic"])
+
+
+def armar(de_la_sesion):
+    partes = ["Informe del equipo, Antu OS", time.strftime("Creado: %Y-%m-%d %H:%M"),
+              "Sin números de serie, direcciones de red ni nombres de wifi. No mira el contenido de los discos."]
+    for titulo, contenido in secciones():
+        partes.append(f"\n===== {titulo} =====\n{contenido[:MAX_SECCION]}")
+    if de_la_sesion.strip():
+        partes.append(de_la_sesion[:MAX_ENTRADA])
+    return limpiar("\n".join(partes)) + "\n"
+
+
+def particion_del_usb():
+    """La partición de datos, solo si está en el mismo disco del que arrancó Antu en vivo."""
+    datos = os.path.realpath(f"/dev/disk/by-label/{ETIQUETA}")
+    vivo = correr(["findmnt", "-no", "SOURCE", "/run/initramfs/live"])
+    if not os.path.exists(datos) or not vivo.startswith("/dev/"):
+        return None
+    padre = correr(["lsblk", "-no", "PKNAME", datos])
+    return datos if padre and padre == correr(["lsblk", "-no", "PKNAME", vivo]) else None
+
+
+def en_el_usb(nombre, contenido):
+    particion = particion_del_usb()
+    if not particion:
+        return False
+    punto = tempfile.mkdtemp(prefix="antu-informe-", dir="/run")
+    try:
+        subprocess.run(["mount", "-t", "vfat", "-o", "nosuid,nodev,noexec,utf8", particion, punto],
+                       check=True, capture_output=True, timeout=30)
+        try:
+            archivo = pathlib.Path(punto, nombre)
+            archivo.write_bytes(contenido)
+            return archivo.read_bytes() == contenido
+        finally:
+            subprocess.run(["umount", punto], check=True, capture_output=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    finally:
+        os.rmdir(punto)
+
+
+def copia_personal(nombre, contenido):
+    """Copia en la carpeta de quien lo pidió, para verla antes de compartirla. Nunca sigue un enlace ni sobrescribe."""
+    cuenta = pwd.getpwuid(int(os.environ.get("PKEXEC_UID", os.getuid())))
+    ruta = os.path.join(cuenta.pw_dir, nombre)
+    descriptor = os.open(ruta, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644)
+    with os.fdopen(descriptor, "wb") as f:
+        os.fchown(f.fileno(), cuenta.pw_uid, cuenta.pw_gid)
+        f.write(contenido)
+    return ruta
+
+
+def autoprueba():
+    entrada = "\n".join([
+        "wlan0: authenticate with aa:bb:cc:dd:ee:ff",
+        "Disco c030b185-64ef-44be-ad79-a075846e3bd1",
+        "inet 192.168.1.20 fe80::1a2b:3c4d",
+        "usb 1-2: SerialNumber: ABC123XYZ",
+        "Serial Number = 987654",
+        "NetworkManager[1]: <info> Connection 'Casa de Jean'",
+        "wpa_supplicant[2]: SSID='Casa de Jean'",
+        "\x1b[1mNVIDIA 570.86.16\x1b[0m 0000:01:00.0 12:34:56",
+    ])
+    salida = limpiar(entrada)
+    for secreto in ("aa:bb:cc", "c030b185", "192.168", "fe80", "ABC123XYZ", "987654", "Casa de Jean", "\x1b"):
+        assert secreto not in salida, secreto
+    # Lo que sirve para revisar el equipo no se toca.
+    for util in ("NVIDIA 570.86.16", "0000:01:00.0", "12:34:56"):
+        assert util in salida, util
+    print("informe-helper: limpieza correcta")
+
+
+def main():
+    if "--autoprueba" in sys.argv:
+        autoprueba()
+        return
+    if os.getuid() != 0:
+        sys.exit("El informe necesita privilegios de administrador.")
+    de_la_sesion = sys.stdin.buffer.read(MAX_ENTRADA).decode(errors="replace")
+    nombre = time.strftime("informe-%Y%m%d-%H%M%S.txt")
+    contenido = armar(de_la_sesion).encode()
+    print(json.dumps({"usb": en_el_usb(nombre, contenido), "archivo": nombre, "copia": copia_personal(nombre, contenido)}))
+
+
+if __name__ == "__main__":
+    main()

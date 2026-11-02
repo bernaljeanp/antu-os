@@ -39,6 +39,18 @@ sleep 10
 serie zenit
 sleep 10
 
+en_sesion /usr/lib/antu/informe/informe.py
+sleep 10
+serie informe
+sleep 10
+pkill -f informe.py
+
+# El informe de verdad, con su limpieza y su guardado en el USB; se copia a la consola para revisarlo.
+resultado="$(echo "(creado por la prueba)" | /usr/lib/antu/informe-helper)"
+serie "informe-resultado $resultado"
+copia="$(echo "$resultado" | python3 -c 'import json, sys; print(json.load(sys.stdin)["copia"])')"
+{ echo ANTU-INFORME-INICIO; cat "$copia"; echo ANTU-INFORME-FIN; } > /dev/ttyS0
+
 en_sesion gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications \
     --method org.freedesktop.Notifications.Notify "Antu" 0 "antu" "Actualización de Antu lista" \
     "Se aplica la próxima vez que reinicies." "[]" "{}" 15000

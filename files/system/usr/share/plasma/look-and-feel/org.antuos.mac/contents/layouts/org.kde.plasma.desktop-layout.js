@@ -25,16 +25,17 @@ dock.hiding = "dodgewindows";
 dock.opacity = "translucent";
 var tasks = dock.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
-// En el USB en vivo, el lugar del navegador lo toma el instalador: Brave llega después, desde Flathub.
+// En el USB en vivo, el lugar del navegador lo toman el instalador y el informe: Brave llega después, desde Flathub.
 var live = applicationExists("antu-instalador.desktop") && !applicationExists("com.brave.Browser.desktop");
-tasks.writeConfig("launchers", [
-    live ? "applications:antu-instalador.desktop" : "applications:com.brave.Browser.desktop",
+var primeras = live ? ["applications:antu-instalador.desktop", "applications:antu-informe.desktop"]
+                    : ["applications:com.brave.Browser.desktop"];
+tasks.writeConfig("launchers", primeras.concat([
     "preferred://filemanager",
     "applications:steam.desktop",
     "applications:org.kde.discover.desktop",
     "applications:zenit.desktop",
     "applications:systemsettings.desktop"
-]);
+]));
 
 var desktops = desktopsForActivity(currentActivity());
 for (var i = 0; i < desktops.length; i++) {

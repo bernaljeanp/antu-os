@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Informe del equipo
+Comment=Reúne lo necesario para revisar cómo funciona Antu en este equipo
+Exec=/usr/lib/antu/informe/informe.py
+Icon=computer-laptop
+Categories=System;

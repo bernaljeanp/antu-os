@@ -48,8 +48,12 @@ wait_for() {  # archivo patrón segundos
     return 1
 }
 
-echo "== 1. La ISO arranca hasta la sesión en vivo"
-"${QEMU[@]}" -cdrom "$B/antu-live.iso" -serial file:"$OUT/serie-en-vivo.log" &
+# Como un USB de verdad, con su tabla de particiones. Lo que se escribe queda en esta copia, no en la ISO.
+qemu-img create -q -f qcow2 -F raw -b "$(realpath "$B/antu-live.iso")" "$B/usb.qcow2"
+USB=(-drive file="$B/usb.qcow2",if=none,id=usb,format=qcow2 -device qemu-xhci -device usb-storage,drive=usb)
+
+echo "== 1. El USB arranca hasta la sesión en vivo"
+"${QEMU[@]}" "${USB[@]}" -serial file:"$OUT/serie-en-vivo.log" &
 # Película del arranque: una captura cada 1,5 s (menú, animación «Amanecer» y llegada al escritorio).
 for _ in $(seq 50); do [ -S "$OUT/monitor.sock" ] && break; sleep 0.2; done  # QEMU crea su canal de control
 for i in $(seq -w 1 24); do
@@ -71,9 +75,9 @@ stop
 
 echo "== Galería: las pantallas principales en la sesión en vivo"
 cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 quiet splash antu.galeria"
-"${QEMU[@]}" -cdrom "$B/antu-live.iso" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
+"${QEMU[@]}" "${USB[@]}" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
     -serial file:"$OUT/serie-galeria.log" &
-for vista in escritorio menu pantalla dolphin zenit notificacion bloqueo; do
+for vista in escritorio menu pantalla dolphin zenit informe notificacion bloqueo; do
     if ! wait_for "$OUT/serie-galeria.log" "ANTU-GALERIA: $vista" 420; then
         echo "::warning::La galería no llegó a «$vista» (ver serie-galeria.log)"
         break
@@ -82,6 +86,14 @@ for vista in escritorio menu pantalla dolphin zenit notificacion bloqueo; do
 done
 stop
 montage "$OUT"/galeria-*.png -tile 2x -geometry 960x540+6+6 -background black "$OUT/galeria.png" || true
+# El informe de verdad: quedó en la partición del USB y no trae direcciones de red.
+sed -n '/ANTU-INFORME-INICIO/,/ANTU-INFORME-FIN/p' "$OUT/serie-galeria.log" > "$OUT/informe-prueba.log"
+grep -qa 'informe-resultado {"usb": true' "$OUT/serie-galeria.log" || { echo "::error::El informe no quedó en el USB (ver serie-galeria.log)"; exit 1; }
+[ -s "$OUT/informe-prueba.log" ] || { echo "::error::El informe salió vacío"; exit 1; }
+if grep -qaE '\b([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}\b' "$OUT/informe-prueba.log"; then
+    echo "::error::El informe trae una dirección de red (ver informe-prueba.log)"
+    exit 1
+fi
 
 echo "== Arranque seguro: con las llaves de Microsoft, se registra la llave de Antu con el teclado y la ISO arranca"
 "${QEMU_SEGURO[@]}" -no-reboot -cdrom "$B/antu-live.iso" -serial file:"$OUT/serie-seguro-registro.log" &

@@ -81,10 +81,16 @@ mcopy -i "$esp" "$OUT/initramfs-live.img" ::/antu/initramfs.img
 mcopy -i "$esp" "$OUT/esp/loader/loader.conf" ::/loader/loader.conf
 mcopy -i "$esp" "$OUT/esp/loader/entries/antu.conf" "$OUT/esp/loader/entries/antu-basico.conf" ::/loader/entries/
 
+# Partición de datos: ahí guarda su archivo el Informe del equipo. Es FAT y de datos, para que Windows la muestre como unidad.
+datos="$OUT/datos.img"
+truncate -s 0 "$datos" && truncate -s 64M "$datos"
+mkfs.vfat -n ANTU_DATOS "$datos" > /dev/null
+
 # ISO híbrida: El Torito para lectores ópticos y VMs, y tabla GPT con la partición EFI para USB.
 xorriso -as mkisofs -iso-level 3 -full-iso9660-filenames -rational-rock \
     -volid "$LABEL" -appid "Antu OS" -publisher "Antu OS" \
-    -partition_offset 16 -append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "$esp" -appended_part_as_gpt \
+    -partition_offset 16 -append_partition 2 C12A7328-F81F-11D2-BA4B-00A0C93EC93B "$esp" \
+    -append_partition 3 EBD0A0A2-B9E5-4433-87C0-68B6B72699C7 "$datos" -appended_part_as_gpt \
     -e --interval:appended_partition_2:all:: -no-emul-boot \
     -o "$OUT/antu-live.iso" "$OUT/iso"
 (cd "$OUT" && sha256sum antu-live.iso > antu-live.iso.sha256)
