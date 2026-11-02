@@ -65,9 +65,9 @@ def symbol_png(height):
 
 
 if __name__ == "__main__":
-    (ROOT / "files/system/usr/share/antu/antu-symbol.svg").write_text(svg_symbol(), encoding="utf-8")
+    (ROOT / "files/system/usr/share/antu/antu-symbol.svg").write_text(svg_symbol(), encoding="utf-8", newline="\n")
     (ROOT / "brand").mkdir(exist_ok=True)
-    (ROOT / "brand/antu-icon.svg").write_text(svg_icon(), encoding="utf-8")
+    (ROOT / "brand/antu-icon.svg").write_text(svg_icon(), encoding="utf-8", newline="\n")
     icon_png(256).save(ROOT / "brand/antu-icon-256.png")
 
     ply = ROOT / "files/system/usr/share/plymouth/themes/antu"

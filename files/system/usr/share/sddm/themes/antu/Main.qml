@@ -79,18 +79,26 @@ Rectangle {
     }
 
     // Fondo: el fondo de pantalla de Antu, desenfocado y oscurecido como en el bloqueo de macOS.
+    // Sin GPU (dibujo por software, por ejemplo en una VM sin 3D) no hay desenfoque: se muestra solo oscurecido.
+    readonly property bool software: GraphicsInfo.api === GraphicsInfo.Software
     Image {
         id: wallpaper
         anchors.fill: parent
         source: "file:///usr/share/wallpapers/Antu/contents/images_dark/3840x2160.png"
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
-        visible: false
+        visible: root.software
+    }
+    Rectangle {
+        anchors.fill: parent
+        visible: root.software
+        color: "#000000"
+        opacity: 0.5
     }
     MultiEffect {
         anchors.fill: parent
         source: wallpaper
-        visible: wallpaper.status === Image.Ready
+        visible: !root.software && wallpaper.status === Image.Ready
         blurEnabled: true
         blurMax: 64
         blur: 1.0
@@ -130,6 +138,7 @@ Rectangle {
 
         ComboBox {
             id: session
+            visible: count > 1  // como en macOS: solo se ofrece cuando hay algo que elegir
             model: sessionModel
             textRole: "name"
             currentIndex: sessionModel.lastIndex

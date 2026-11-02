@@ -34,24 +34,16 @@ if grep -E "themes/antu/|ReferenceError|TypeError|is not a type|is not installed
     exit 1
 fi
 
-# Arranque: Plymouth con su renderizador X11. Si el entorno no lo permite, solo queda el registro.
-mkdir -p /run/plymouth
-plymouthd --no-daemon --debug --debug-file="$OUT/plymouth.log" &
-sleep 2
-plymouth show-splash || echo "plymouth: show-splash falló"
-sleep 3
-import -window root "$OUT/plymouth-1.png" || true
-sleep 6
-import -window root "$OUT/plymouth-2.png" || true
-plymouth quit || true
+# El arranque (Plymouth) no se captura aquí: su renderizador X11 no se activa en este contenedor; se prueba en VM.
 
 # Escritorio: Plasma en una sesión Wayland virtual con un usuario nuevo, que recibe la distribución del tema global.
-# Es informativo: si el entorno de CI no lo permite, solo queda el registro.
+# kwin_wayland lleva capacidades de archivo que el contenedor bloquea; una copia las pierde. Es informativo.
 pacman -S --noconfirm --needed spectacle >/dev/null 2>&1 || true
+cp "$(command -v kwin_wayland)" /tmp/kwin_wayland
 install -d -o jean -g jean -m 700 /run/user/1000
 su jean -c 'export XDG_RUNTIME_DIR=/run/user/1000
   dbus-run-session -- bash -c "
-    kwin_wayland --virtual --width 2560 --height 1600 --no-lockscreen plasmashell > /tmp/plasma.log 2>&1 &
+    /tmp/kwin_wayland --virtual --width 2560 --height 1600 --no-lockscreen plasmashell > /tmp/plasma.log 2>&1 &
     sleep 35
     WAYLAND_DISPLAY=wayland-0 spectacle --background --nonotify --fullscreen --output /tmp/escritorio.png >> /tmp/plasma.log 2>&1
     sleep 5"' || true
