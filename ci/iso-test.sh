@@ -38,8 +38,9 @@ wait_for() {  # archivo patrón segundos
 echo "== 1. La ISO arranca hasta la sesión en vivo"
 "${QEMU[@]}" -cdrom "$B/antu-live.iso" -serial file:"$OUT/serie-en-vivo.log" &
 # Película del arranque: una captura cada 1,5 s (menú, animación «Amanecer» y llegada al escritorio).
+for _ in $(seq 50); do [ -S "$OUT/monitor.sock" ] && break; sleep 0.2; done  # QEMU crea su canal de control
 for i in $(seq -w 1 24); do
-    echo "screendump $OUT/arranque-$i.ppm" | socat - unix:"$OUT/monitor.sock" > /dev/null
+    echo "screendump $OUT/arranque-$i.ppm" | socat - unix:"$OUT/monitor.sock" > /dev/null 2>&1 || true
     sleep 1.5
 done
 sleep 2
