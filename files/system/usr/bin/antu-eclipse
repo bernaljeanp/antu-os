@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Modo juego Eclipse: Steam en su interfaz para mando (Big Picture) dentro de Gamescope, sin el escritorio.
+# Al salir de Big Picture, Steam se cierra y se vuelve a la pantalla de inicio de sesión.
+exec gamescope --steam --fullscreen -- steam -gamepadui

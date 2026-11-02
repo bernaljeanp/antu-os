@@ -16,8 +16,19 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   actualiza, y si algo falla vuelves a la versión anterior desde el menú de arranque.
 - **Arch:** kernel y drivers recientes para hardware nuevo; las actualizaciones bajan solo las capas que cambian.
 
-> **Estado: Hito 0, prueba de concepto.** Arranca con KDE Plasma y la identidad Antu, pero todavía no trae Steam
-> ni instalador gráfico. No la uses aún como sistema principal.
+> **Estado: prueba de concepto.** Arranca con KDE Plasma y la interfaz «macOS gamer» de Antu, y trae Steam, el modo
+> juego Eclipse, Firefox y Discover. Todavía no tiene instalador gráfico. No la uses aún como sistema principal.
+
+## Jugar
+
+- **Steam** viene instalado, con las librerías de 32 bits y el controlador NVIDIA de la misma versión.
+- **Modo Eclipse:** en el inicio de sesión, elige la sesión *Antu Eclipse* (arriba a la derecha) para entrar
+  directo a Steam en su interfaz para mando, a pantalla completa y sin el escritorio. Al salir de Big Picture
+  vuelves al inicio de sesión.
+- **GameMode** y **MangoHud** están disponibles: en las opciones de lanzamiento de un juego de Steam, escribe
+  `gamemoderun mangohud %command%`.
+- **Portátiles híbridos (Intel + NVIDIA):** `prime-run %command%` lanza el juego en la gráfica NVIDIA.
+- **Apps:** Discover instala aplicaciones desde Flathub sin tocar el sistema base.
 
 ## Probar en una VM (5 minutos, desde Windows)
 

@@ -40,10 +40,21 @@ RUN pacman -S --noconfirm base bubblewrap dracut linux linux-firmware intel-ucod
       ostree btrfs-progs e2fsprogs xfsprogs dosfstools skopeo dbus dbus-glib glib2 shadow && \
     pacman -S --clean --noconfirm
 
+# multilib: Steam y las librerías de 32 bits que usan casi todos los juegos.
+RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && pacman -Sy
+
 # Escritorio y NVIDIA. nvidia-open viene compilado para el mismo kernel de arriba.
+# Discover solo con Flatpak (sin PackageKit): las apps se instalan sin tocar el sistema base.
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
-      pipewire pipewire-pulse wireplumber noto-fonts openssh && \
+      pipewire pipewire-pulse wireplumber noto-fonts openssh \
+      firefox firefox-i18n-es-cl discover flatpak && \
+    pacman -S --clean --noconfirm
+
+# Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
+# nvidia-prime da prime-run para portátiles híbridos; vulkan-intel cubre la gráfica integrada.
+RUN pacman -S --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel \
+      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime ttf-liberation && \
     pacman -S --clean --noconfirm
 
 # systemd-homed-firstboot pide crear el primer usuario en la consola, antes de que arranque SDDM.

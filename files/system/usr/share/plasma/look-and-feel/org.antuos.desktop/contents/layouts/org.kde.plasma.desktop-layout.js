@@ -16,7 +16,10 @@ menu.writeConfig("icon", "/usr/share/antu/antu-symbol.svg");
 var tasks = panel.addWidget("org.kde.plasma.icontasks");
 tasks.currentConfigGroup = ["General"];
 tasks.writeConfig("launchers", [
+    "applications:firefox.desktop",
     "preferred://filemanager",
+    "applications:steam.desktop",
+    "applications:org.kde.discover.desktop",
     "applications:org.kde.konsole.desktop",
     "applications:systemsettings.desktop"
 ]);

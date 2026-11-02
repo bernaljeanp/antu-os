@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Antu Eclipse
+Comment=Modo juego: Steam a pantalla completa con Gamescope, sin el escritorio
+Exec=/usr/bin/antu-eclipse
+Type=Application
+DesktopNames=gamescope
