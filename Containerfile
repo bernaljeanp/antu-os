@@ -78,6 +78,8 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scrip
 RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl mask systemd-firstboot.service && \
+    # La red la maneja NetworkManager: el esperador de systemd-networkd fallaría al no tener nada que esperar.
+    systemctl mask systemd-networkd-wait-online.service && \
     passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
