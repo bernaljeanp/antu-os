@@ -1,0 +1,3 @@
+#!/bin/sh
+# Zenit para Linux: perfiles, luces, carga y teclas Alienware (ver zenit ayuda).
+exec /usr/lib/antu/zenit/zenit.py "$@"

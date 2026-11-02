@@ -1,0 +1,11 @@
+[Unit]
+Description=Zenit: perfiles térmicos, luces y teclas Alienware
+
+[Service]
+ExecStart=/usr/lib/antu/zenit/zenit.py demonio
+StateDirectory=zenit
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

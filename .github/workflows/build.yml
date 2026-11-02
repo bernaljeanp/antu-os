@@ -72,6 +72,9 @@ jobs:
             test -f /usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg
             test -f /usr/share/icons/hicolor/256x256/apps/antu.png
             test -f /usr/share/plymouth/themes/antu/cumbre.png
+            # Zenit: su lógica pasa la autoprueba y el servicio corre aunque la VM no sea un Alienware.
+            python3 /usr/lib/antu/zenit/zenit.py autoprueba
+            systemctl is-active zenit
             # Sin relleno: ni LibreOffice ni Firefox en la imagen.
             ! pacman -Qq | grep -qE "^(libreoffice|firefox)"
             [ "$(pacman -Q nvidia-utils | cut -d " " -f 2)" = "$(pacman -Q lib32-nvidia-utils | cut -d " " -f 2)" ]

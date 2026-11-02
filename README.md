@@ -34,6 +34,12 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   la BIOS.
 - **NVIDIA:** DLSS (incluida la generación de fotogramas), Reflex y ray tracing en Proton; G-Sync/VRR y HDR en
   Plasma con Wayland. La suspensión guarda la memoria de la GPU en disco para despertar sin errores.
+- **Zenit** (portátiles Alienware y Dell): el perfil térmico se elige solo (Equilibrado+ con cargador, Equilibrado
+  con batería, Rendimiento al abrir un juego de Steam, Heroic, Lutris o Bottles) y vuelve al cerrar el juego. Las
+  teclas F6 (Performance Boost), F7 (Sigilo) y F9 (luces) funcionan sin Alienware Command Center. En una terminal:
+  `zenit estado` muestra temperaturas y ventiladores; `zenit color FF5A1F`, `zenit color aurora` y `zenit carga 80`
+  cambian las luces y el límite de carga de la batería. Es el mismo Zenit Engine de Windows, sobre las interfaces del
+  kernel; falta probarlo en hardware real.
 - **Más juegos:** Heroic (Epic, GOG, Amazon), Lutris y Bottles (otras tiendas y programas de Windows), ProtonPlus
   (versiones extra de Proton), Discord y Sober (Roblox, no oficial). Se instalan solas en el primer arranque.
 - **Navegador:** Brave, desde Flathub. Se instala solo en el primer arranque con internet y se actualiza aparte
