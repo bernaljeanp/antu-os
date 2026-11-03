@@ -9,7 +9,7 @@ Item {
     property real u: 1
     property string titulo
     property string texto
-    property string tipo: "atencion"  // atencion, bien, peligro
+    property string tipo: "atencion"  // atencion, bien, peligro, antu (una invitación: con el símbolo de Antu)
     readonly property color luz: tipo === "bien" ? "#2FA36B" : (tipo === "peligro" ? "#E2392A" : "#FF5A1F")
     readonly property real radio: 20 * u
     default property alias botones: fila.data
@@ -80,8 +80,8 @@ Item {
                 anchors.fill: parent
                 radius: 16 * aviso.u
                 gradient: Gradient {
-                    GradientStop { position: 0; color: Qt.lighter(aviso.luz, 1.3) }
-                    GradientStop { position: 1; color: Qt.darker(aviso.luz, 1.4) }
+                    GradientStop { position: 0; color: aviso.tipo === "antu" ? "#3A3A42" : Qt.lighter(aviso.luz, 1.3) }
+                    GradientStop { position: 1; color: aviso.tipo === "antu" ? "#16161A" : Qt.darker(aviso.luz, 1.4) }
                 }
                 Reflejo {
                     anchors.left: parent.left
@@ -90,8 +90,15 @@ Item {
                     y: 1
                     fuerza: 0.7
                 }
+                Image {
+                    visible: aviso.tipo === "antu"
+                    anchors.centerIn: parent
+                    source: "file:///usr/share/antu/antu-symbol.svg"
+                    sourceSize.width: 34 * aviso.u
+                    sourceSize.height: 34 * aviso.u
+                }
                 Rectangle {
-                    visible: aviso.tipo !== "bien"
+                    visible: aviso.tipo === "atencion" || aviso.tipo === "peligro"
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: -6 * aviso.u
                     width: 6 * aviso.u
@@ -100,7 +107,7 @@ Item {
                     color: "#FFFFFF"
                 }
                 Rectangle {
-                    visible: aviso.tipo !== "bien"
+                    visible: aviso.tipo === "atencion" || aviso.tipo === "peligro"
                     anchors.centerIn: parent
                     anchors.verticalCenterOffset: 13 * aviso.u
                     width: 7 * aviso.u

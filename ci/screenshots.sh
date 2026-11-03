@@ -67,6 +67,21 @@ python /usr/lib/antu/biblioteca/biblioteca.py --autoprueba || { echo "::error::L
 QT_SCALE_FACTOR=1.5 capturar observatorio root /usr/lib/antu/observatorio/observatorio.py
 QT_SCALE_FACTOR=1.5 capturar aviso root /usr/lib/antu/aviso/aviso.py
 python /usr/lib/antu/observatorio/observatorio.py --autoprueba || { echo "::error::El Observatorio compara mal"; exit 1; }
+python /usr/lib/antu/observatorio/asistente.py --autoprueba || { echo "::error::El asistente recibe mal las mediciones"; exit 1; }
+capturar_con() {  # capturar_con NOMBRE OPCIÓN: el Observatorio con otra pantalla de demostración
+    QT_SCALE_FACTOR=1.5 python /usr/lib/antu/observatorio/observatorio.py "$2" > "$OUT/$1.log" 2>&1 &
+    local app=$!
+    sleep 10
+    kill -0 "$app" 2>/dev/null || { echo "::error::$1 terminó antes de la captura"; cat "$OUT/$1.log"; exit 1; }
+    import -window root "$OUT/$1.png" || { echo "::error::no se pudo capturar $1"; exit 1; }
+    kill "$app" 2>/dev/null
+    if grep -E "\.qml:|Traceback|ReferenceError|TypeError|is not a type|is not installed" "$OUT/$1.log"; then
+        echo "::error::$1 tiene errores o avisos de QML"
+        exit 1
+    fi
+}
+capturar_con observatorio-charla --demo-pregunta
+capturar_con observatorio-activar --demo-activar
 python /usr/lib/antu/observatorio/observador.py --autoprueba || { echo "::error::El Observador lee mal los datos"; exit 1; }
 
 # El arranque y el escritorio de verdad no se capturan aquí, sino en la VM de iso.yml (galería de ci/iso-test.sh).

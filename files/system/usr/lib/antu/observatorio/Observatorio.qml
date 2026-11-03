@@ -27,11 +27,35 @@ ApplicationWindow {
     readonly property var juego: juegos.length > 0 ? juegos[elegido] : null
     readonly property bool hayFotogramas: !!juego && juego.sesiones.some(s => s.fps > 0)
     property bool enTabla: false
+    // La conversación con el asistente: sobre la carta del juego elegido.
+    property bool conversando: false
+    property bool pensando: false
+    property real bajando: -1
+    property string mensajeAsistente: ""
+    ListModel { id: conversacion }
+
+    function preguntar(texto) {
+        if (texto.trim().length === 0 || !root.juego || root.pensando)
+            return
+        root.conversando = true
+        root.pensando = true
+        conversacion.append({ "deAntu": false, "texto": texto.trim() })
+        conversacion.append({ "deAntu": true, "texto": "" })
+        backend.preguntar(root.juego.nombre, texto.trim())
+    }
+
     // 0 nada, 1 preparando, 2 listo, 3 error
     property int vuelta: 0
     property string errorVuelta: ""
 
-    Component.onCompleted: juegos = JSON.parse(backend.juegos)
+    Component.onCompleted: {
+        juegos = JSON.parse(backend.juegos)
+        if (backend.conversacionDeMuestra) {
+            conversando = true
+            conversacion.append({ "deAntu": false, "texto": "¿Por qué me va más lento?" })
+            conversacion.append({ "deAntu": true, "texto": "Bajó de 66 a 58 fotogramas por segundo desde la actualización del 22 de octubre, justo cuando el controlador NVIDIA pasó de la 590.48 a la 595.12. La temperatura sigue en 81 °C y casi no bajó potencia por calor, así que no parece ser eso. Lo más probable es el controlador. Si no cambiaste ningún ajuste del juego, puedes probar con «Volver atrás»." })
+        }
+    }
 
     function colorDe(estado) {
         return estado === "baja" ? "#FF7069" : estado === "sube" ? "#57D98B" : "#A1A1A6"
@@ -42,6 +66,23 @@ ApplicationWindow {
         function onTerminado(error) {
             root.errorVuelta = error
             root.vuelta = error.length > 0 ? 3 : 2
+        }
+        function onRespuesta(texto, terminada) {
+            if (root.pensando)
+                conversacion.setProperty(conversacion.count - 1, "texto", texto)
+            else
+                root.mensajeAsistente = texto
+            if (terminada) {
+                root.pensando = false
+                root.bajando = -1
+            }
+        }
+        function onAvance(fraccion) {
+            root.bajando = fraccion
+        }
+        function onCambioModelo() {
+            root.bajando = -1
+            root.mensajeAsistente = ""
         }
     }
 
@@ -137,6 +178,8 @@ ApplicationWindow {
                     onClicked: {
                         root.elegido = index
                         root.vuelta = 0
+                        root.conversando = false
+                        conversacion.clear()
                     }
                     contentItem: Item { }
                     background: Rectangle {
@@ -218,6 +261,83 @@ ApplicationWindow {
                 }
             }
 
+            // Preguntarle a Antu: sobre el juego elegido. La primera vez, activarlo.
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 14 * root.u
+                visible: root.juegos.length > 0 && backend.asistenteListo
+                Flow {
+                    Layout.fillWidth: true
+                    spacing: 10 * root.u
+                    Repeater {
+                        model: ["¿Por qué me va más lento?", "¿Se está calentando?", "¿Qué puedo mejorar?"]
+                        AbstractButton {
+                            id: sugerencia
+                            required property string modelData
+                            implicitWidth: textoSugerencia.implicitWidth + 32 * root.u
+                            implicitHeight: 44 * root.u
+                            Accessible.name: modelData
+                            onClicked: root.preguntar(modelData)
+                            contentItem: Item { }
+                            background: Rectangle {
+                                radius: 12 * root.u
+                                gradient: Gradient {
+                                    GradientStop { position: 0; color: sugerencia.hovered ? Qt.rgba(1, 1, 1, 0.2) : Qt.rgba(1, 1, 1, 0.13) }
+                                    GradientStop { position: 1; color: sugerencia.hovered ? Qt.rgba(1, 1, 1, 0.1) : Qt.rgba(1, 1, 1, 0.05) }
+                                }
+                                border.width: sugerencia.visualFocus ? 2.5 * root.u : 1
+                                border.color: sugerencia.visualFocus ? "#FFFFFF" : Qt.rgba(1, 1, 1, 0.14)
+                                Reflejo {
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.margins: 10 * root.u
+                                    y: 1
+                                    fuerza: 0.3
+                                }
+                                Text {
+                                    id: textoSugerencia
+                                    anchors.centerIn: parent
+                                    text: sugerencia.modelData
+                                    color: root.ink
+                                    font.family: "Inter"
+                                    font.pixelSize: 19 * root.u
+                                }
+                            }
+                        }
+                    }
+                }
+                GlassField {
+                    id: pregunta
+                    Layout.fillWidth: true
+                    u: root.u
+                    placeholderText: "Pregúntale a Antu sobre este juego"
+                    Accessible.name: "Pregúntale a Antu sobre este juego"
+                    onAccepted: {
+                        root.preguntar(text)
+                        clear()
+                    }
+                }
+            }
+            Aviso {
+                Layout.fillWidth: true
+                visible: root.juegos.length > 0 && !backend.asistenteListo
+                u: root.u
+                tipo: "antu"
+                titulo: root.bajando >= 0 ? "Bajando el asistente: " + Math.round(root.bajando * 100) + " %" : "Pregúntale a Antu por qué rinde así"
+                texto: root.mensajeAsistente.length > 0 ? root.mensajeAsistente
+                     : root.bajando >= 0 ? "Puedes seguir usando el equipo. Si se corta, sigue donde iba."
+                     : "Responde con tus mediciones, en tu propia gráfica. Baja 3,1 GB una sola vez; después funciona sin internet."
+                LavaButton {
+                    u: root.u
+                    enabled: root.bajando < 0
+                    text: root.bajando >= 0 ? "Bajando…" : "Activar"
+                    onClicked: {
+                        root.bajando = 0
+                        root.mensajeAsistente = ""
+                        backend.activarAsistente()
+                    }
+                }
+            }
             Text {
                 Layout.fillWidth: true
                 wrapMode: Text.WordWrap
@@ -267,12 +387,77 @@ ApplicationWindow {
                     text: root.juego ? root.juego.detalle : ""
                 }
 
+                // La conversación con Antu, en vez de la carta.
+                ListView {
+                    id: charla
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.topMargin: 12 * root.u
+                    visible: root.conversando
+                    clip: true
+                    model: conversacion
+                    spacing: 18 * root.u
+                    boundsBehavior: Flickable.StopAtBounds
+                    onContentHeightChanged: if (root.pensando) positionViewAtEnd()
+                    ScrollBar.vertical: ScrollBar { }
+                    delegate: Item {
+                        id: mensaje
+                        required property bool deAntu
+                        required property string texto
+                        width: charla.width
+                        height: burbuja.height + 8 * root.u
+                        Rectangle {  // lo de Antu, sobre vidrio con su canto; lo tuyo, más claro y a la derecha
+                            id: burbuja
+                            anchors.right: mensaje.deAntu ? undefined : parent.right
+                            width: mensaje.deAntu ? parent.width - 40 * root.u : Math.min(parent.width * 0.7, escrito.implicitWidth + 44 * root.u)
+                            height: escrito.implicitHeight + 36 * root.u
+                            radius: 18 * root.u
+                            gradient: Gradient {
+                                GradientStop { position: 0; color: mensaje.deAntu ? "#2B2B32" : "#3A3A42" }
+                                GradientStop { position: 1; color: mensaje.deAntu ? "#1F1F25" : "#26262C" }
+                            }
+                            border.width: 1
+                            border.color: mensaje.deAntu ? Qt.rgba(1, 0.353, 0.122, 0.35) : Qt.rgba(1, 1, 1, 0.14)
+                            Reflejo {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.margins: 14 * root.u
+                                y: 1
+                                fuerza: 0.3
+                            }
+                            Text {
+                                id: escrito
+                                x: 22 * root.u
+                                y: 18 * root.u
+                                width: mensaje.deAntu ? burbuja.width - 44 * root.u : undefined
+                                text: mensaje.texto.length > 0 ? mensaje.texto : "Pensando…"
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                color: mensaje.texto.length > 0 ? root.ink : root.ink3
+                                font.family: "Inter"
+                                font.pixelSize: 24 * root.u
+                                lineHeight: 1.2
+                            }
+                        }
+                    }
+                    footer: Text {
+                        width: charla.width
+                        topPadding: 20 * root.u
+                        wrapMode: Text.WordWrap
+                        text: "Antu responde con tus mediciones y sin internet, pero puede equivocarse. Solo responde: no cambia nada en tu equipo."
+                        color: root.ink3
+                        font.family: "Inter"
+                        font.pixelSize: 19 * root.u
+                    }
+                }
+
                 // La carta, o sus mismos datos como tabla.
                 Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.topMargin: 12 * root.u
                     Layout.minimumHeight: 240 * root.u
+                    visible: !root.conversando
 
                     Canvas {
                         id: carta
@@ -505,7 +690,7 @@ ApplicationWindow {
 
                 // Por qué puede ser y qué más se vio.
                 Repeater {
-                    model: root.juego && root.juego.estado !== "baja" && root.juego.cambios.length > 0 ? root.juego.cambios.split("\n") : []
+                    model: !root.conversando && root.juego && root.juego.estado !== "baja" && root.juego.cambios.length > 0 ? root.juego.cambios.split("\n") : []
                     Linea {
                         required property string modelData
                         text: "Cambió: " + modelData
@@ -513,7 +698,7 @@ ApplicationWindow {
                     }
                 }
                 Repeater {
-                    model: root.juego && root.juego.notas.length > 0 ? root.juego.notas.split("\n") : []
+                    model: !root.conversando && root.juego && root.juego.notas.length > 0 ? root.juego.notas.split("\n") : []
                     Linea {
                         required property string modelData
                         text: modelData
@@ -545,17 +730,17 @@ ApplicationWindow {
                     LavaButton {
                         u: root.u
                         primary: false
-                        text: root.enTabla ? "Ver carta" : "Ver tabla"
-                        onClicked: root.enTabla = !root.enTabla
+                        text: root.conversando ? "Volver a la carta" : (root.enTabla ? "Ver carta" : "Ver tabla")
+                        onClicked: root.conversando ? root.conversando = false : root.enTabla = !root.enTabla
                     }
                 }
                 LavaButton {
                     Layout.topMargin: 8 * root.u
                     u: root.u
                     primary: false
-                    visible: root.hayFotogramas && !!root.juego && root.juego.estado !== "baja"
-                    text: root.enTabla ? "Ver carta" : "Ver tabla"
-                    onClicked: root.enTabla = !root.enTabla
+                    visible: !!root.juego && root.juego.estado !== "baja" && (root.conversando || root.hayFotogramas)
+                    text: root.conversando ? "Volver a la carta" : (root.enTabla ? "Ver carta" : "Ver tabla")
+                    onClicked: root.conversando ? root.conversando = false : root.enTabla = !root.enTabla
                 }
             }
         }

@@ -60,6 +60,10 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 firewalld plasma-firewall git podman distrobox && \
     pacman -S --clean --noconfirm
 
+# Ollama con Vulkan, para el asistente del Observatorio: funciona con NVIDIA, AMD e Intel y ocupa poco. Solo corre al preguntar, y
+# el modelo se baja si la persona activa el asistente.
+RUN pacman -Sy --noconfirm ollama ollama-vulkan && pacman -S --clean --noconfirm
+
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
 # nvidia-prime da prime-run para portátiles híbridos; con switcheroo-control, KDE abre Steam solo en la gráfica dedicada.
 # Un solo sistema para toda gráfica: vulkan-intel y vulkan-radeon cubren

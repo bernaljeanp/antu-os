@@ -347,7 +347,7 @@ def main():
     app = QGuiApplication(sys.argv)
     app.setApplicationName("Biblioteca")
     app.setDesktopFileName("antu-biblioteca")
-    app.setWindowIcon(QIcon.fromTheme("folder-games"))
+    app.setWindowIcon(QIcon.fromTheme("antu-biblioteca"))
     backend = Backend(demo="--demo" in sys.argv)
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("backend", backend)

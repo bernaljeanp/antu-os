@@ -1,0 +1,22 @@
+# Prueba al asistente del Observatorio con su modelo de verdad. A mano: baja 3,1 GB y tarda varios minutos.
+name: asistente
+on:
+  workflow_dispatch:
+
+jobs:
+  preguntar:
+    name: Preguntarle al asistente
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Liberar espacio en disco
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/local/share/boost
+      - name: Instalar podman
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq podman > /dev/null
+      - name: Preguntarle
+        run: bash ci/asistente.sh

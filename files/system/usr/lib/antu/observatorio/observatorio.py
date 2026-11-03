@@ -7,10 +7,13 @@ juego, así que no hay nada que moleste a un antitrampas. Todo queda en este equ
 Solo se comparan sesiones largas y con la misma fuente de energía, y se dice qué cambió; también pudo cambiar un ajuste del
 juego, y eso Antu no lo puede ver: por eso propone volver atrás, nunca lo hace solo.
 
---demo: muestra la interfaz con datos fijos (capturas de CI).
+El asistente (asistente.py) responde preguntas sobre esas mismas mediciones, en la gráfica del equipo y sin internet.
+
+--demo: muestra la interfaz con datos fijos (capturas de CI). --demo-pregunta: además, con una conversación abierta.
 --autoprueba: revisa la comparación.
 """
 import json
+import os
 import pathlib
 import statistics
 import subprocess
@@ -177,13 +180,67 @@ def main():
     from PyQt6.QtGui import QGuiApplication, QIcon
     from PyQt6.QtQml import QQmlApplicationEngine
 
+    import asistente
+    from observador import procesos_de_juego
+
     class Backend(QObject):
         terminado = pyqtSignal(str)
+        respuesta = pyqtSignal(str, bool)  # lo escrito hasta ahora y si ya terminó
+        avance = pyqtSignal(float)  # al bajar el modelo
+        cambioModelo = pyqtSignal()
 
         def __init__(self, es_demo):
             super().__init__()
             self._demo = es_demo
             self._juegos = resumir_todo(demo() if es_demo else leer_sesiones())
+            self._motor = asistente.Motor()
+            self._historia = {}
+
+        @pyqtProperty(bool, notify=cambioModelo)
+        def asistenteListo(self):
+            return "--demo-activar" not in sys.argv and (self._demo or asistente.modelo_listo())
+
+        @pyqtProperty(bool, constant=True)
+        def conversacionDeMuestra(self):
+            return "--demo-pregunta" in sys.argv
+
+        @pyqtSlot()
+        def activarAsistente(self):
+            if not self._demo:
+                threading.Thread(target=self._activar, daemon=True).start()
+
+        def _activar(self):
+            try:
+                if not asistente.hay_espacio():
+                    self.respuesta.emit("No hay espacio: el asistente necesita unos 5 GB libres.", True)
+                    return
+                self._motor.bajar(self.avance.emit)
+                self.cambioModelo.emit()
+            except (OSError, ValueError):
+                self.respuesta.emit("No se pudo bajar. Revisa tu conexión a internet e inténtalo otra vez: sigue donde iba.", True)
+
+        @pyqtSlot(str, str)
+        def preguntar(self, nombre, pregunta):
+            juego = next((j for j in self._juegos if j["nombre"] == nombre), None)
+            if juego and not self._demo:
+                threading.Thread(target=self._preguntar, args=(juego, pregunta), daemon=True).start()
+
+        def _preguntar(self, juego, pregunta):
+            if procesos_de_juego({}):
+                self.respuesta.emit("Cierra el juego primero: el asistente usa tu gráfica y le quitaría rendimiento.", True)
+                return
+            historia = self._historia.setdefault(juego["nombre"], [])
+            try:
+                texto = self._motor.preguntar(asistente.mensajes_para(juego, historia, pregunta),
+                                              lambda t: self.respuesta.emit(t, False))
+            except (OSError, ValueError):
+                self.respuesta.emit("No pude responder esta vez. Inténtalo otra vez.", True)
+                return
+            historia += [{"role": "user", "content": pregunta}, {"role": "assistant", "content": texto}]
+            self.respuesta.emit(texto, True)
+
+        def cerrar(self):
+            self._motor.cerrar()
 
         @pyqtProperty(bool, constant=True)
         def demo(self):
@@ -209,14 +266,16 @@ def main():
     app = QGuiApplication(sys.argv)
     app.setApplicationName("Observatorio")
     app.setDesktopFileName("antu-observatorio")
-    app.setWindowIcon(QIcon.fromTheme("utilities-system-monitor"))
-    backend = Backend("--demo" in sys.argv)
+    app.setWindowIcon(QIcon.fromTheme("antu-observatorio"))
+    backend = Backend(any(a.startswith("--demo") for a in sys.argv))
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("backend", backend)
     engine.load(QUrl.fromLocalFile(str(HERE / "Observatorio.qml")))
     if not engine.rootObjects():
         sys.exit(1)
-    sys.exit(app.exec())
+    codigo = app.exec()
+    backend.cerrar()
+    os._exit(codigo)  # sin desarmar la interfaz: el motor ya se cerró y no queda nada por guardar
 
 
 def autoprueba():

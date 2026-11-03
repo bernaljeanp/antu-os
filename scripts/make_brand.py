@@ -2,6 +2,7 @@
 
 python scripts/make_brand.py           # export frozen native optical renders
 python scripts/make_brand.py --render  # rebuild 3D icons first (BLENDER_BIN)
+python scripts/make_brand.py --only antu-biblioteca antu-observatorio
 Requires Pillow; optional rendering requires Blender 5.x.
 The old flat icon generator has been retired. No raster master is repainted.
 """
@@ -17,7 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PREVIEW = ROOT / "brand/previews"
 MASTERS = ROOT / "brand/masters/icons"
 INK, OBSIDIAN, LAVA, TRACK = "#F5F5F7", "#0B0B0E", "#FF5A1F", "#2E2E33"
-NAMES = ("antu", "antu-inicio", "antu-instalador", "antu-eclipse", "antu-ia")
+NAMES = ("antu", "antu-inicio", "antu-instalador", "antu-eclipse", "antu-ia",
+         "antu-biblioteca", "antu-observatorio")
 SIZES = (1024, 512, 256, 128, 64, 48, 32, 16)
 FONT = ROOT / "files/system/usr/share/fonts/antu/Inter-Variable.ttf"
 
@@ -72,21 +74,28 @@ def logo(width, light=False):
     return im
 
 
-def export_icons():
-    for name in NAMES:
+def export_icons(names=None):
+    all_icons = names is None
+    for name in (NAMES if all_icons else names):
         for size in SIZES:
-            src = Image.open(MASTERS/name/f"{size}.png").convert("RGBA")
+            dest = ROOT / f"files/system/usr/share/icons/hicolor/{size}x{size}/apps/{name}.png"
+            source = MASTERS/name/f"{size}.png"
+            # New optical exports can be reused without adding extra master files.
+            if not source.exists() and name in NAMES[5:]:
+                source = dest
+            src = Image.open(source).convert("RGBA")
             if src.width < size or src.height < size:
                 raise ValueError(f"Refusing to upscale {name} {size}")
             # Each small source is a separate 3D render with optical geometry edits.
             out = src.resize((size, size), Image.Resampling.LANCZOS) if src.size != (size, size) else src
-            dest = ROOT / f"files/system/usr/share/icons/hicolor/{size}x{size}/apps/{name}.png"
             dest.parent.mkdir(parents=True, exist_ok=True)
             out.save(dest, optimize=True)
-            if size in (16, 32, 64, 256):
+            if all_icons and size in (16, 32, 64, 256):
                 p = PREVIEW / "icons" / f"{name}-{size}.png"
                 p.parent.mkdir(parents=True, exist_ok=True)
                 out.save(p)
+    if not all_icons:
+        return
     shutil.copyfile(ROOT/"files/system/usr/share/icons/hicolor/256x256/apps/antu.png", ROOT/"brand/antu-icon-256.png")
     raster = (ROOT/"files/system/usr/share/icons/hicolor/1024x1024/apps/antu.png").read_bytes()
     # Raster container for the README; only the tiny symbol uses vector artwork.
@@ -101,7 +110,7 @@ def previews():
     d = ImageDraw.Draw(sheet)
     d.text((52, 36), "ANTU / MATERIAL Y LUZ", font=font(27, 600), fill=INK)
     d.text((52, 80), "Tamaños reales · 16 / 32 / 64 / 256 px", font=font(19), fill="#C7C7CC")
-    for i, name in enumerate(NAMES):
+    for i, name in enumerate(NAMES[:5]):
         x = 52+i*280
         d.text((x, 140), name, font=font(19), fill=INK)
         for size, y in [(16, 205), (32, 275), (64, 365), (256, 520)]:
@@ -135,15 +144,55 @@ def previews():
     lockups.save(PREVIEW/"logo-variants.png")
 
 
+def family_preview(optical24=MASTERS):
+    """Seven applications, large and at actual micro sizes; no installed file changes."""
+    sheet = Image.new("RGB", (2064, 950), OBSIDIAN)
+    d = ImageDraw.Draw(sheet)
+    d.text((52, 36), "ANTU / FAMILIA DE APLICACIONES", font=font(27, 600), fill=INK)
+    d.text((52, 80), "Obsidiana · canto anodizado · lava #FF5A1F", font=font(19), fill="#C7C7CC")
+    for i, name in enumerate(NAMES):
+        x = 52+i*280
+        d.text((x, 136), name, font=font(18), fill=INK)
+        folder = ROOT/"files/system/usr/share/icons/hicolor"
+        large = Image.open(folder/"256x256/apps"/f"{name}.png").convert("RGBA")
+        sheet.paste(large, (x, 174), large)
+        d.text((x, 442), "256 px · 1:1", font=font(15), fill="#C7C7CC")
+        source = optical24/name/"24.png"
+        # The fallback is already the simplified micro scene, never the large master.
+        small = Image.open(source if source.exists() else folder/"32x32/apps"/f"{name}.png").convert("RGBA")
+        small = small.resize((24, 24), Image.Resampling.LANCZOS)
+        sheet.paste(small, (x, 500), small)
+        d.text((x+40, 503), "24 px · 1:1", font=font(15), fill="#C7C7CC")
+        tiny = Image.open(folder/"16x16/apps"/f"{name}.png").convert("RGBA")
+        sheet.paste(tiny, (x+4, 566), tiny)
+        d.text((x+40, 566), "16 px · 1:1", font=font(15), fill="#C7C7CC")
+        zoom = small.resize((144, 144), Image.Resampling.NEAREST)
+        sheet.paste(zoom, (x, 662), zoom)
+        d.text((x, 824), "24 px · ampliación ×6", font=font(15), fill="#C7C7CC")
+    d.text((52, 900), "Misma cámara, cuadrado redondeado y luz · variantes pequeñas con geometría simplificada",
+           font=font(18), fill="#C7C7CC")
+    PREVIEW.mkdir(parents=True, exist_ok=True)
+    sheet.save(PREVIEW/"familia-con-nuevos.png", optimize=True)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--render", action="store_true")
+    p.add_argument("--only", nargs="+", choices=NAMES, help="Export only these icons; leave other artwork untouched")
     a = p.parse_args()
     if a.render:
         blender = os.environ.get("BLENDER_BIN") or shutil.which("blender")
         if not blender:
             raise SystemExit("Set BLENDER_BIN to Blender 5.x.")
-        subprocess.run([blender, "-b", "-t", "8", "--python-exit-code", "1", "-P", str(ROOT/"scripts/render_art.py"), "--", "icons"], check=True)
+        for name in (a.only or (None,)):
+            command = [blender, "-b", "-t", "8", "--python-exit-code", "1", "-P", str(ROOT/"scripts/render_art.py"), "--", "icons"]
+            if name:
+                command += ["--only", name]
+            subprocess.run(command, check=True)
+    if a.only:
+        export_icons(tuple(a.only))
+        family_preview()
+        return
     write(ROOT/"files/system/usr/share/antu/antu-symbol.svg", symbol_svg())
     write(ROOT/"files/system/usr/share/antu/antu-symbol-light.svg", symbol_svg(True))
     for light, suffix in [(False, ""), (True, "-light")]:
@@ -153,6 +202,7 @@ def main():
     make_plymouth.main()
     export_icons()
     previews()
+    family_preview()
     print("Exact symbol, Inter lockups, native optical icons and the Plymouth boot animation exported.")
 
 

@@ -29,6 +29,9 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **Observatorio:** mide cada juego solo, sin configurar nada y sin cargar nada dentro de él, así que no le molesta a ningún
   antitrampas. Si una actualización empeora un juego, te dice cuánto y qué cambió, y puedes volver a la versión anterior con
   un botón. Los fotogramas se miden en Eclipse; en el escritorio, por ahora, solo temperatura, calor y por qué se cerró.
+- **Asistente del Observatorio:** pregúntale «¿por qué me va lento?» y responde en español con tus mediciones, en tu propia
+  gráfica y sin internet. Es opcional: baja 3,1 GB la primera vez. Solo responde, no cambia nada en tu equipo, y mientras juegas
+  no corre. Se prueba con preguntas reales en `asistente.yml`, pero aún no en una gráfica real, y puede equivocarse.
 - **Modo Eclipse:** ábrelo desde el menú o desde la Biblioteca, o elige la sesión *Antu Eclipse* al iniciar sesión, para
   jugar con Steam en su interfaz para mando, a pantalla completa y sin el escritorio. Al salir de Steam vuelves al
   escritorio sin escribir la contraseña. En un híbrido, la gráfica con la pantalla conectada dibuja y el juego corre en
@@ -190,7 +193,7 @@ la publicada no tiene ninguno de los dos cambios.
 | **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalación junto a Windows y cifrado del disco |
 | **1** | Zenit en Linux (perfiles térmicos, AlienFX, teclas Fn, límite de carga) y USBoot como instalador oficial |
 | **2** | Inicio (primer arranque en español) y Biblioteca (compatibilidad antes de instalar) ya están; falta probarlos en equipos reales |
-| **3** | Asistente local y opcional que explica en español por qué falla un juego |
+| **3** | Asistente local y opcional que explica en español por qué falla un juego (ya está en el Observatorio; falta probarlo en equipos reales) |
 
 El Hito 0 se da por cumplido cuando: la imagen compila, arranca hasta SDDM en la VM de CI, `bootc upgrade` y
 `bootc rollback` funcionan entre dos imágenes, y arranca en hardware real con la GPU NVIDIA funcionando.

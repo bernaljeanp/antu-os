@@ -14,6 +14,8 @@ on:
       - ci/arranque-seguro.sh
       - .github/workflows/arranque-seguro.yml
       - ".github/ISSUE_TEMPLATE/**"
+      - .github/workflows/asistente.yml
+      - ci/asistente.sh
   pull_request:
   schedule:
     - cron: "00 06 * * *" # diario: recoge las actualizaciones de Arch
@@ -81,6 +83,10 @@ jobs:
             # El Observatorio: mide solo en cada cuenta.
             test -x /usr/lib/antu/observatorio/observador.py && test -x /usr/lib/antu/observatorio/observatorio.py
             systemctl --global is-enabled antu-observatorio
+            # El asistente: su motor está, con Vulkan, y no queda corriendo solo.
+            command -v ollama > /dev/null
+            pacman -Q ollama-vulkan > /dev/null
+            if systemctl is-enabled ollama 2> /dev/null | grep -q enabled; then echo "Ollama arranca solo"; exit 1; fi
             # Lo básico de un escritorio: volumen, pantallas, Bluetooth, sonido de los portátiles y wifi.
             pacman -Q plasma-pa kscreen bluez bluedevil kwallet-pam sof-firmware wireless-regdb pipewire-alsa switcheroo-control > /dev/null
             for k in kcm_pulseaudio kcm_kscreen kcm_bluetooth; do test -f /usr/lib/qt6/plugins/plasma/kcms/systemsettings/$k.so; done

@@ -4,6 +4,6 @@ Name=Biblioteca
 GenericName=Juegos
 Comment=Mira si un juego funciona antes de instalarlo
 Exec=/usr/lib/antu/biblioteca/biblioteca.py
-Icon=folder-games
+Icon=antu-biblioteca
 Categories=Game;
 Keywords=juegos;steam;proton;antitrampas;compatibilidad;funciona;roblox;

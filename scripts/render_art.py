@@ -19,7 +19,8 @@ MASTERS = ROOT / "brand/masters"
 PREVIEWS = ROOT / "brand/previews"
 LAVA = (1.0, 0.102, 0.014, 1)
 SILVER = (0.72, 0.74, 0.77, 1)
-ICON_NAMES = ("antu", "antu-inicio", "antu-instalador", "antu-eclipse", "antu-ia")
+ICON_NAMES = ("antu", "antu-inicio", "antu-instalador", "antu-eclipse", "antu-ia",
+              "antu-biblioteca", "antu-observatorio")
 
 
 def reset(width, height, samples=64, transparent=False):
@@ -221,7 +222,7 @@ def icon_scene(name, target=4096, preview=False):
     solid("Obsidian face", squircle(1.755, 4.3), 0.13, 0.12, body, 0.055)
     if not micro:
         curve("Rim catchlight", [(x, y, 0.257) for x, y in squircle(1.715, 4.3)], 0.009, edge, True)
-    k = {16: 1.16, 32: 1.12, 48: 1.075, 64: 1.05, 128: 1.02, 256: 1.01, 512: 1.005}.get(target, 1)
+    k = {16: 1.16, 24: 1.14, 32: 1.12, 48: 1.075, 64: 1.05, 128: 1.02, 256: 1.01, 512: 1.005}.get(target, 1)
     if name == "antu":
         pts = [(-1.08, -0.96), (-0.14, 1.01), (-0.09, 1.09), (0, 1.13),
                (0.09, 1.09), (0.14, 1.01), (1.08, -0.96), (0.72, -0.96),
@@ -268,6 +269,74 @@ def icon_scene(name, target=4096, preview=False):
             pts = [(math.cos(a) * 0.90 * k, math.sin(a) * 0.90 * k, 0.40)
                    for a in np.linspace(0, 2 * math.pi, 160, endpoint=False)]
             curve("Machined optical orbit", pts, 0.055 if compact else 0.035, silver, True)
+    elif name == "antu-biblioteca":
+        # Three original cartridges; the selected one is physically pulled forward.
+        cartridge = material("Optical cartridge case", (0.24, 0.25, 0.27, 1), 0.3, 0.38) if micro else edge
+        for index, y in enumerate((-0.72, -0.04, 0.64)):
+            selected = index == 1
+            x, z = (0.18, 0.64) if selected else (-0.12, 0.34)
+            w, h = 0.91, 0.275
+            notch = 0 if micro else 0.12
+            outline = [(-w, -h), (w, -h), (w, h-notch),
+                       (w-notch, h), (-w+notch, h), (-w, h-notch)]
+            solid("Selected cartridge" if selected else "Stored cartridge",
+                  [((px+x)*k, (py+y)*k) for px, py in outline], z, 0.22, cartridge, 0.035)
+            label_w = 0.64 if selected else 0.59
+            label_h = 0.17 if micro else 0.15
+            if selected or not micro:
+                solid("Lava review label" if selected else "Blank cartridge label",
+                      [((x+px)*k, (y+py)*k) for px, py in
+                       [(-label_w, -label_h), (label_w, -label_h),
+                        (label_w, label_h), (-label_w, label_h)]],
+                      z+0.222, 0.028, orange if selected else body, 0.018)
+            if not compact:
+                # Connector recess and grip cuts disappear in the optical variants.
+                solid("Connector recess", [((x+px)*k, (y+py)*k) for px, py in
+                      [(-0.37, -0.278), (0.37, -0.278), (0.37, -0.22), (-0.37, -0.22)]],
+                      z+0.205, 0.025, dark, 0.008)
+                for side in (-1, 1):
+                    curve("Cartridge grip", [((x+side*0.77)*k, (y-0.11)*k, z+0.224),
+                                             ((x+side*0.77)*k, (y+0.10)*k, z+0.224)],
+                          0.012, silver)
+    elif name == "antu-observatorio":
+        # Architectural dome seen front-on: two thick shells leave a real open slit.
+        # The hemisphere is built around Y so the shared family camera stays fixed.
+        radius, gap, cy, cz = 1.03, (0.18 if micro else 0.13), -0.27, 0.43
+        dome_mat = material("Obsidian dome shell", (0.10, 0.105, 0.12, 1), 0.3, 0.36)
+        for side in (-1, 1):
+            verts, faces = [], []
+            rows, cols = 48, 48
+            for i in range(rows+1):
+                a = math.asin(gap/radius) + (math.pi/2-math.asin(gap/radius))*i/rows
+                x, r = side*radius*math.sin(a), radius*math.cos(a)
+                for j in range(cols+1):
+                    b = math.pi*j/(2*cols)
+                    verts.append((x*k, (cy+r*math.cos(b))*k, cz+r*math.sin(b)))
+            for i in range(rows):
+                for j in range(cols):
+                    q = i*(cols+1)+j
+                    face = (q, q+1, q+cols+2, q+cols+1)
+                    faces.append(face if side == -1 else tuple(reversed(face)))
+            shell = mesh("Open dome shutter", verts, faces, dome_mat)
+            wall = shell.modifiers.new("Obsidian shell thickness", "SOLIDIFY")
+            wall.thickness = 0.075
+            # Narrow cut faces reveal thickness without a chrome outline.
+            r = math.sqrt(radius*radius-gap*gap)
+            lip = [(side*gap*k, (cy+r*math.cos(b))*k, cz+r*math.sin(b))
+                   for b in np.linspace(0, math.pi/2, 64)]
+            curve("Slit cut edge", lip, 0.018 if micro else 0.012, edge)
+        # Low cylindrical drum, with the rotation joint omitted at small sizes.
+        drum = cylinder("Observatory drum", (0, -0.63*k, 0.46), 1.025*k, 0.68*k, dome_mat if micro else edge)
+        drum.rotation_euler.x = math.pi/2
+        drum.scale.y = 0.38
+        if not compact:
+            joint = cylinder("Dome rotation joint", (0, -0.285*k, 0.46), 1.055*k, 0.065, body)
+            joint.rotation_euler.x = math.pi/2
+            joint.scale.y = 0.38
+        # A single lava beam, emerging from the dark opening into the sky.
+        beam = material("Lava guide light", LAVA, 0.05, 0.4, 0.65)
+        curve("Lava beam to the sky", [(0, 0.06*k, 1.48), (0.42*k, 1.40*k, 0.64)],
+              (0.075 if target == 16 else 0.060 if micro else 0.025)*k, beam)
     camera((0, -0.48, 12), (0, 0, 0), ortho=4.25 if compact else 4.35)
     area("Key / softbox northwest", (-3.5, 4.8, 6), (0, 0, 0), 520, 4, (0.93, 0.96, 1), 5)
     area("Narrow silver rim", (4, 1.5, 4), (0, 0, 0), 250, 1.4, (1, 0.94, 0.88), 5)
@@ -276,7 +345,7 @@ def icon_scene(name, target=4096, preview=False):
 
 
 def render_icons(preview=False, only=None, sizes=None):
-    targets = sizes or ([4096] if preview else [4096, 1024, 512, 256, 128, 64, 48, 32, 16])
+    targets = sizes or ([4096] if preview else [4096, 1024, 512, 256, 128, 64, 48, 32, 24, 16])
     for name in ([only] if only else ICON_NAMES):
         for size in targets:
             icon_scene(name, size, preview)
@@ -293,6 +362,6 @@ if __name__ == "__main__":
     p.add_argument("--sizes", default="")
     a = p.parse_args(argv)
     sizes = [int(x) for x in a.sizes.split(",")] if a.sizes else None
-    if sizes and any(x not in (16, 32, 48, 64, 128, 256, 512, 1024, 4096) for x in sizes):
+    if sizes and any(x not in (16, 24, 32, 48, 64, 128, 256, 512, 1024, 4096) for x in sizes):
         p.error("Unsupported optical size")
     render_icons(a.preview, a.only, sizes)
