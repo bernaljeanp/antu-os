@@ -32,4 +32,14 @@ aviso fin
 NEWPASSWORD=prueba-eclipse homectl create prueba --real-name=Prueba --member-of=wheel \
     --storage=directory --enforce-password-policy=no
 PASSWORD=prueba-eclipse homectl activate prueba
+rm -f /etc/sddm.conf.d/90-antu-inicio.conf
+printf '[Autologin]
+User=prueba
+Session=plasma.desktop
+Relogin=false
+' > /etc/sddm.conf.d/50-prueba.conf
+systemctl restart display-manager
+for _ in $(seq 60); do pgrep -u prueba -x plasmashell > /dev/null && break; sleep 3; done
+rm -f /etc/sddm.conf.d/50-prueba.conf
+sleep 30  # Plasma terminando de abrir
 /etc/antu-prueba-eclipse prueba

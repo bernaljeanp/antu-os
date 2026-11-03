@@ -42,4 +42,7 @@ gamemode=$!
 gamescope "${opciones[@]}" -- "${juego[@]}"
 logger -t antu-eclipse "terminó con código $?"
 kill "$gamemode" 2>/dev/null
-exec pkexec /usr/lib/antu/eclipse-helper escritorio
+# Si falla, se llega al inicio de sesión normal. Termina siempre en 0: con un 1, SDDM cree que falló la contraseña y no vuelve
+# a abrir la pantalla, y el jugador se queda con la pantalla negra.
+pkexec /usr/lib/antu/eclipse-helper escritorio
+exit 0

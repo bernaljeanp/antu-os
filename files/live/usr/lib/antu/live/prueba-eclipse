@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Prueba de ci/iso-test.sh: el viaje de ida y vuelta al modo Eclipse con la cuenta indicada. La VM no tiene gráfica Vulkan,
-# así que Gamescope no abre: se prueba justo la salida de emergencia y, con ella, todo el cambio de sesión sin contraseña.
-#   prueba-eclipse CUENTA [plasma]     plasma: cierra la sesión como el acceso del menú, no a la fuerza
+# Prueba de ci/iso-test.sh: el viaje de ida y vuelta al modo Eclipse desde el escritorio de la cuenta indicada. La VM no tiene
+# gráfica Vulkan, así que Gamescope no abre: se prueba justo la salida de emergencia y, con ella, todo el cambio de sesión
+# sin contraseña. Se cierra la sesión como lo hace el menú: si muere a la fuerza, SDDM no vuelve a abrir la pantalla.
+#   prueba-eclipse CUENTA
 cuenta="$1"
 aviso() { echo "ANTU-ECLIPSE: $*" > /dev/ttyS0; }
 hay_plasma() { pgrep -u "$cuenta" -x plasmashell > /dev/null; }
+hay_inicio_de_sesion() { pgrep -f sddm-greeter > /dev/null; }
 eclipse_termino() { journalctl -b -t antu-eclipse --no-pager | grep -q "terminó con código"; }
 esperar() {  # esperar SEGUNDOS COMPROBACIÓN
     local i
@@ -14,27 +16,31 @@ esperar() {  # esperar SEGUNDOS COMPROBACIÓN
     done
     return 1
 }
+cerrar_sesion() {
+    systemd-run --user --machine="$cuenta@" --collect --quiet \
+        gdbus call --session --dest org.kde.Shutdown --object-path /Shutdown --method org.kde.Shutdown.logout > /dev/null
+}
 detalles() {
     {
         journalctl -b -t antu-eclipse --no-pager
         journalctl -b -u sddm --no-pager | tail -n 40
         tail -n 30 "$(getent passwd "$cuenta" | cut -d: -f6)/.local/share/sddm/wayland-session.log"
+        homectl inspect "$cuenta" | grep -E "State|Storage"
     } > /dev/ttyS0 2>&1
 }
 
 PKEXEC_UID="$(id -u "$cuenta")" /usr/lib/antu/eclipse-helper eclipse
-if [ "${2:-}" = plasma ]; then
-    systemd-run --user --machine="$cuenta@" --collect --quiet \
-        gdbus call --session --dest org.kde.Shutdown --object-path /Shutdown --method org.kde.Shutdown.logout > /dev/null
-else
-    loginctl terminate-seat seat0
-fi
+cerrar_sesion
 if esperar 180 eclipse_termino; then aviso "entró a la sesión"; else aviso "no entró"; detalles; fi
 if esperar 240 hay_plasma; then aviso "volvió al escritorio"; else aviso "no volvió"; detalles; fi
 
 # Pasados los 30 segundos, salir ya no vuelve a entrar solo: se llega al inicio de sesión normal.
-sleep 45
-loginctl terminate-seat seat0
-sleep 45
-if hay_plasma; then aviso "se quedó el inicio automático"; detalles; else aviso "inicio normal otra vez"; fi
+sleep 60
+cerrar_sesion
+if esperar 120 hay_inicio_de_sesion && ! hay_plasma; then
+    aviso "inicio normal otra vez"
+else
+    aviso "se quedó el inicio automático"
+    detalles
+fi
 aviso fin
