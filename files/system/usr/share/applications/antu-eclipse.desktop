@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Modo Eclipse
+GenericName=Modo juego
+Comment=Steam a pantalla completa, sin el escritorio
+Exec=/usr/bin/antu-eclipse-entrar
+Icon=antu-eclipse
+Categories=Game;
+Keywords=juego;juegos;steam;mando;big picture;pantalla completa;

@@ -70,6 +70,14 @@ diagnostico_usb() {
     grep -aiE "xhci|usb-storage|usb_storage|scsi|sd[a-z]|by-label|ANTU_LIVE|isofs|Warning|Failed|error" "$OUT/serie-usb-diagnostico.log" | tail -n 70 || true
 }
 
+comprobar_eclipse() {
+    grep -a "ANTU-ECLIPSE:" "$1" || true
+    local esperado
+    for esperado in "entró a la sesión" "volvió al escritorio" "inicio normal otra vez"; do
+        grep -qa "ANTU-ECLIPSE: $esperado" "$1" || { echo "::error::Modo Eclipse: faltó «$esperado» (ver $(basename "$1"))"; exit 1; }
+    done
+}
+
 echo "== 1. El USB arranca hasta la sesión en vivo"
 "${QEMU[@]}" "${USB[@]}" -serial file:"$OUT/serie-en-vivo.log" &
 # Película del arranque: una captura cada 0,5 s (menú, animación «Encendido» y llegada al escritorio).
@@ -96,14 +104,21 @@ echo "== Galería: las pantallas principales en la sesión en vivo"
 cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 quiet splash antu.galeria"
 "${QEMU[@]}" "${USB[@]}" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
     -serial file:"$OUT/serie-galeria.log" &
-for vista in escritorio menu pantalla dolphin zenit informe notificacion bloqueo; do
+for vista in escritorio menu pantalla dolphin zenit informe biblioteca notificacion bloqueo; do
     if ! wait_for "$OUT/serie-galeria.log" "ANTU-GALERIA: $vista" 420; then
         echo "::warning::La galería no llegó a «$vista» (ver serie-galeria.log)"
         break
     fi
     shot "galeria-$vista"
 done
+# Modo Eclipse: se entra desde el escritorio y se vuelve solo, sin contraseña; después el inicio de sesión es el normal.
+if wait_for "$OUT/serie-galeria.log" "ANTU-ECLIPSE: volvió al escritorio" 480; then
+    sleep 15
+    shot galeria-vuelta-de-eclipse
+fi
+wait_for "$OUT/serie-galeria.log" "ANTU-ECLIPSE: fin" 180 || true
 stop
+comprobar_eclipse "$OUT/serie-galeria.log"
 montage "$OUT"/galeria-*.png -tile 2x -geometry 960x540+6+6 -background black "$OUT/galeria.png" || true
 # El informe de verdad: quedó en la partición del USB y no trae direcciones de red.
 sed -n '/ANTU-INFORME-INICIO/,/ANTU-INFORME-FIN/p' "$OUT/serie-galeria.log" > "$OUT/informe-prueba.log"
@@ -193,12 +208,14 @@ sleep 30  # mismo firmware y variables que confirmaron arranque seguro=1 en la I
 shot instalado-seguro
 stop
 
-echo "== 5. Con internet: un programa sin privilegios tiene red, se acepta lo firmado y se rechaza lo que no"
+echo "== 5. Con internet: un programa sin privilegios tiene red, se acepta lo firmado y se rechaza lo que no; y el viaje a Eclipse con una cuenta real"
 "${QEMU[@]}" -nic user,model=virtio-net-pci -serial file:"$OUT/serie-firma.log" &
 wait_for "$OUT/serie-firma.log" "ANTU-FIRMA: fin" 420 || true
+wait_for "$OUT/serie-firma.log" "ANTU-ECLIPSE: fin" 600 || true
 stop
 grep -a "ANTU-FIRMA:" "$OUT/serie-firma.log" || true
 for esperado in "internet OK" "actualizar OK" "sin firma RECHAZADA"; do
     grep -qa "ANTU-FIRMA: $esperado" "$OUT/serie-firma.log" || { echo "::error::Faltó «$esperado» (ver serie-firma.log)"; exit 1; }
 done
+comprobar_eclipse "$OUT/serie-firma.log"
 echo "ANTU: pruebas de la ISO OK"

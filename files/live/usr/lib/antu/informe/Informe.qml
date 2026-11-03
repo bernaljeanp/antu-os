@@ -241,6 +241,10 @@ ApplicationWindow {
                 text: "No encontré la partición de datos del USB, así que quedó en tu carpeta personal. Cópialo a otro "
                       + "USB antes de apagar: al apagar se borra."
             }
+            Body {
+                text: "¿Nos ayudas a que Antu funcione mejor en más equipos? Súbelo en la página de pruebas: es pública, "
+                      + "así que revísalo antes."
+            }
             Flow {
                 Layout.fillWidth: true
                 Layout.topMargin: 10 * root.u
@@ -255,6 +259,12 @@ ApplicationWindow {
                     primary: false
                     text: "Crear otro"
                     onClicked: root.screen = 0
+                }
+                LavaButton {
+                    u: root.u
+                    primary: false
+                    text: "Página de pruebas"
+                    onClicked: Qt.openUrlExternally("https://github.com/bernaljeanp/antu-os/issues/new?template=equipo.yml")
                 }
             }
         }

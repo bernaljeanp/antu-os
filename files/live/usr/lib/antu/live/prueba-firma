@@ -27,3 +27,9 @@ else
     aviso "sin firma OTRO ERROR: $(echo "$salida" | tail -n 2 | tr '\n' ' ')"
 fi
 aviso fin
+
+# El viaje a Eclipse con una cuenta como las que crea Inicio (systemd-homed): con ella se decide si la vuelta pide contraseña.
+NEWPASSWORD=prueba-eclipse homectl create prueba --real-name=Prueba --member-of=wheel \
+    --storage=directory --enforce-password-policy=no
+PASSWORD=prueba-eclipse homectl activate prueba
+/etc/antu-prueba-eclipse prueba

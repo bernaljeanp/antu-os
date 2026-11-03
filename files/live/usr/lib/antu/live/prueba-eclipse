@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Prueba de ci/iso-test.sh: el viaje de ida y vuelta al modo Eclipse con la cuenta indicada. La VM no tiene gráfica Vulkan,
+# así que Gamescope no abre: se prueba justo la salida de emergencia y, con ella, todo el cambio de sesión sin contraseña.
+#   prueba-eclipse CUENTA [plasma]     plasma: cierra la sesión como el acceso del menú, no a la fuerza
+cuenta="$1"
+aviso() { echo "ANTU-ECLIPSE: $*" > /dev/ttyS0; }
+hay_plasma() { pgrep -u "$cuenta" -x plasmashell > /dev/null; }
+eclipse_termino() { journalctl -b -t antu-eclipse --no-pager | grep -q "terminó con código"; }
+esperar() {  # esperar SEGUNDOS COMPROBACIÓN
+    local i
+    for ((i = 0; i < $1; i += 3)); do
+        "$2" && return 0
+        sleep 3
+    done
+    return 1
+}
+detalles() {
+    {
+        journalctl -b -t antu-eclipse --no-pager
+        journalctl -b -u sddm --no-pager | tail -n 40
+        tail -n 30 "$(getent passwd "$cuenta" | cut -d: -f6)/.local/share/sddm/wayland-session.log"
+    } > /dev/ttyS0 2>&1
+}
+
+PKEXEC_UID="$(id -u "$cuenta")" /usr/lib/antu/eclipse-helper eclipse
+if [ "${2:-}" = plasma ]; then
+    systemd-run --user --machine="$cuenta@" --collect --quiet \
+        gdbus call --session --dest org.kde.Shutdown --object-path /Shutdown --method org.kde.Shutdown.logout > /dev/null
+else
+    loginctl terminate-seat seat0
+fi
+if esperar 180 eclipse_termino; then aviso "entró a la sesión"; else aviso "no entró"; detalles; fi
+if esperar 240 hay_plasma; then aviso "volvió al escritorio"; else aviso "no volvió"; detalles; fi
+
+# Pasados los 30 segundos, salir ya no vuelve a entrar solo: se llega al inicio de sesión normal.
+sleep 45
+loginctl terminate-seat seat0
+sleep 45
+if hay_plasma; then aviso "se quedó el inicio automático"; detalles; else aviso "inicio normal otra vez"; fi
+aviso fin

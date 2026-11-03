@@ -11,7 +11,8 @@ Distro gamer chilena: Arch atómico para portátiles gamer con NVIDIA.</p>
 
 Antu significa *sol* en mapudungun, y es también el nombre de uno de los telescopios VLT de Paranal.
 
-- **NVIDIA primero:** SteamOS no soporta NVIDIA; Antu sí, con `nvidia-open` compilado para el kernel de la imagen.
+- **NVIDIA primero:** SteamOS no soporta NVIDIA; Antu sí, con `nvidia-open` compilado para el kernel de la imagen. El
+  mismo USB sirve también para AMD e Intel.
 - **Atómica:** el sistema es una imagen ([bootc](https://github.com/bootc-dev/bootc)). Se actualiza entero o no se
   actualiza, y si algo falla vuelves a la versión anterior desde el menú de arranque.
 - **Arch:** kernel y drivers recientes para hardware nuevo; las actualizaciones bajan solo las capas que cambian.
@@ -23,11 +24,14 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 ## Jugar
 
 - **Steam** viene instalado, con las librerías de 32 bits y el controlador NVIDIA de la misma versión.
-- **Modo Eclipse:** en el inicio de sesión, elige la sesión *Antu Eclipse* (arriba a la derecha) para entrar
-  directo a Steam en su interfaz para mando, a pantalla completa y sin el escritorio. Al salir de Big Picture
-  vuelves al inicio de sesión.
+- **Biblioteca:** busca un juego y te dice en palabras simples si funciona y por qué, antes de que lo instales. Junta
+  a Valve, ProtonDB y AreWeAntiCheatYet, y manda el antitrampas: también responde por Fortnite o Valorant.
+- **Modo Eclipse:** ábrelo desde el menú o desde la Biblioteca, o elige la sesión *Antu Eclipse* al iniciar sesión, para
+  jugar con Steam en su interfaz para mando, a pantalla completa y sin el escritorio. Al salir de Steam vuelves al
+  escritorio sin escribir la contraseña. En un híbrido, la gráfica con la pantalla conectada dibuja y el juego corre en
+  NVIDIA. Toda la vuelta está probada en máquinas virtuales; Gamescope con una gráfica real falta probarlo.
 - **GameMode** y **MangoHud** están disponibles: en las opciones de lanzamiento de un juego de Steam, escribe
-  `gamemoderun mangohud %command%`.
+  `gamemoderun mangohud %command%`. Mayús derecha + F12 muestra u oculta los datos.
 - **Portátiles híbridos (Intel + NVIDIA):** `prime-run %command%` lanza el juego en la gráfica NVIDIA, que se
   apaga sola cuando no se usa (RTD3) para cuidar la batería. Dynamic Boost (`nvidia-powerd`) arranca solo si hay
   NVIDIA. El cambio automático Advanced Optimus de algunos portátiles no existe en Linux: el modo MUX se fija en
@@ -105,6 +109,17 @@ Las dos usan la última versión estable de `ghcr.io/bernaljeanp/antu-nvidia`.
 
 Equipo de referencia: Alienware 16X Aurora (Core Ultra 9 275HX, RTX 5070 Laptop), con pruebas en curso.
 
+## Equipos
+
+| Gráfica | Estado |
+|---|---|
+| NVIDIA GTX 16xx, RTX 20xx o más nueva | Es el objetivo principal. Falta confirmarlo en equipos reales |
+| AMD e Intel | Traen su controlador, pero aún nadie los ha probado |
+| NVIDIA más antigua (GTX 10xx o anterior) | No funciona: `nvidia-open` no la soporta y usaría gráficos básicos |
+
+Aún no hay ningún equipo confirmado. Si tienes uno, arranca el USB en vivo, crea el *Informe del equipo* y
+[cuéntanos cómo te fue](https://github.com/bernaljeanp/antu-os/issues/new?template=equipo.yml): así se llena esta tabla.
+
 ## Primer arranque
 
 **Inicio**, el asistente gráfico, aparece solo la primera vez: idioma y teclado, zona horaria, tu cuenta, el
@@ -168,7 +183,7 @@ la publicada no tiene ninguno de los dos cambios.
 | **0b** | Inicio (primer arranque gráfico), USB en vivo e instalador gráfico *(en curso)* |
 | **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalación junto a Windows y cifrado del disco |
 | **1** | Zenit en Linux (perfiles térmicos, AlienFX, teclas Fn, límite de carga) y USBoot como instalador oficial |
-| **2** | Inicio (primer arranque en español), Biblioteca (compatibilidad antes de instalar) |
+| **2** | Inicio (primer arranque en español) y Biblioteca (compatibilidad antes de instalar) ya están; falta probarlos en equipos reales |
 | **3** | Asistente local y opcional que explica en español por qué falla un juego |
 
 El Hito 0 se da por cumplido cuando: la imagen compila, arranca hasta SDDM en la VM de CI, `bootc upgrade` y
@@ -177,7 +192,8 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 
 ## Contribuir
 
-- Abre un *issue* con tu modelo de PC y lo que funciona o falla: los informes de hardware son lo más valioso ahora.
+- [Cuéntanos cómo funciona en tu PC](https://github.com/bernaljeanp/antu-os/issues/new?template=equipo.yml): los
+  informes de equipos reales son lo más valioso ahora.
 - Los cambios entran por *pull request* y deben pasar el workflow `antu` (compilación y prueba de arranque).
 - Si tocas los colores, ejecuta `python scripts/check_colors.py` (contraste WCAG ≥ 4.5:1).
 - Al contribuir aceptas que tu código se publique con la licencia del proyecto (GPL-3.0-or-later) y tu arte con

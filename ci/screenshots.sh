@@ -62,6 +62,8 @@ fi
 # Zenit por pantalla completa: por su nombre, import no encuentra una ventana legible (la foto salía vacía sin avisar).
 QT_SCALE_FACTOR=1.5 capturar zenit root /usr/lib/antu/zenit/app.py
 QT_SCALE_FACTOR=1.5 capturar actualizaciones "Actualizaciones de Antu" /usr/lib/antu/actualizaciones/actualizaciones.py
+QT_SCALE_FACTOR=1.5 capturar biblioteca root /usr/lib/antu/biblioteca/biblioteca.py
+python /usr/lib/antu/biblioteca/biblioteca.py --autoprueba || { echo "::error::La Biblioteca da veredictos equivocados"; exit 1; }
 
 # El arranque y el escritorio de verdad no se capturan aquí, sino en la VM de iso.yml (galería de ci/iso-test.sh).
 exit 0

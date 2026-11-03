@@ -13,6 +13,7 @@ on:
       # Prueba aparte de la cadena de arranque seguro.
       - ci/arranque-seguro.sh
       - .github/workflows/arranque-seguro.yml
+      - ".github/ISSUE_TEMPLATE/**"
   pull_request:
   schedule:
     - cron: "00 06 * * *" # diario: recoge las actualizaciones de Arch
@@ -51,6 +52,9 @@ jobs:
           : > "$RUNNER_TEMP/sin-llave"  # esta imagen no se publica: no recibe la llave de arranque
           podman build --build-arg ANTU_CI=1 --secret id=antu_arranque,src="$RUNNER_TEMP/sin-llave" -t localhost/antu-test:latest .
 
+      - name: Modo Eclipse elige bien la gráfica
+        run: bash ci/eclipse-graficas.sh
+
       - name: Prueba de arranque en VM
         run: |
           probar() {
@@ -61,6 +65,18 @@ jobs:
             [ -z "$failed" ] || { echo "Unidades con fallo:"; echo "$failed"; exit 1; }
             systemctl is-active NetworkManager sddm
             modinfo -n nvidia
+            # Un solo sistema para toda gráfica: controlador de núcleo y Vulkan de 64 y 32 bits para AMD e Intel.
+            modinfo -n amdgpu
+            modinfo -n i915
+            for g in radeon intel; do [ "$(ls /usr/share/vulkan/icd.d/ | grep -c "^${g}_icd")" -ge 2 ]; done
+            # Modo Eclipse: todo lo que usa existe, y esta versión de Gamescope acepta sus opciones.
+            test -x /usr/lib/antu/eclipse-helper
+            command -v kdialog gdbus gamemoded mangoapp logger pkexec > /dev/null
+            for o in --steam --mangoapp --adaptive-sync --prefer-vk-device; do gamescope --help 2>&1 | grep -q -- "$o"; done
+            test -f /usr/share/polkit-1/rules.d/50-antu-eclipse.rules
+            # La Biblioteca: su acceso apunta a un programa que existe.
+            test -x /usr/lib/antu/biblioteca/biblioteca.py && grep -q "Exec=/usr/lib/antu/biblioteca/biblioteca.py" /usr/share/applications/antu-biblioteca.desktop
+            test -f /etc/MangoHud/MangoHud.conf
             # Cualquier programa puede leer la configuración de red y de nombres, no solo root.
             setpriv --reuid=65534 --regid=65534 --clear-groups cat /etc/resolv.conf /etc/hosts /etc/nsswitch.conf > /dev/null
             # Cursor de Antu: la biblioteca real del sistema lo lee, también por un nombre alternativo, y es el predeterminado.

@@ -1,4 +1,45 @@
 #!/usr/bin/env bash
 # Modo juego Eclipse: Steam en su interfaz para mando (Big Picture) dentro de Gamescope, sin el escritorio.
-# Al salir de Big Picture, Steam se cierra y se vuelve a la pantalla de inicio de sesión.
-exec gamescope --steam --fullscreen -- steam -gamepadui
+# Al salir de Big Picture, o si Gamescope no puede abrir, se vuelve al escritorio (ver /usr/lib/antu/eclipse-helper).
+# --mostrar: solo dice qué ejecutaría (ci/eclipse-graficas.sh).
+DRM="${ANTU_DRM:-/sys/class/drm}"
+NVIDIA=0x10de
+
+# Gamescope solo muestra imagen en la gráfica que tiene la pantalla conectada. Si NVIDIA tiene una, gana ella: sin copias
+# entre gráficas, menos latencia. En un híbrido con la pantalla en la integrada, esta compone y el juego corre en NVIDIA.
+tarjeta=""
+for estado in "$DRM"/card[0-9]*-*/status; do
+    [ "$(cat "$estado" 2>/dev/null)" = connected ] || continue
+    conector="$(basename "$(dirname "$estado")")"
+    t="${conector%%-*}"
+    [ -n "$tarjeta" ] || tarjeta="$t"
+    if [ "$(cat "$DRM/$t/device/vendor")" = "$NVIDIA" ]; then
+        tarjeta="$t"
+        break
+    fi
+done
+
+opciones=(--steam --fullscreen --mangoapp --adaptive-sync)
+juego=(steam -gamepadui)
+if [ -n "$tarjeta" ]; then
+    fabricante="$(cat "$DRM/$tarjeta/device/vendor")"
+    modelo="$(cat "$DRM/$tarjeta/device/device")"
+    opciones+=(--prefer-vk-device "${fabricante#0x}:${modelo#0x}")
+    # Solo para Steam y sus juegos: Gamescope tiene que seguir viendo la gráfica integrada.
+    if [ "$fabricante" != "$NVIDIA" ] && grep -qs "$NVIDIA" "$DRM"/card[0-9]*/device/vendor; then
+        juego=(env __NV_PRIME_RENDER_OFFLOAD=1 __VK_LAYER_NV_optimus=NVIDIA_only "${juego[@]}")
+    fi
+fi
+
+if [ "${1:-}" = --mostrar ]; then
+    echo gamescope "${opciones[@]}" -- "${juego[@]}"
+    exit 0
+fi
+
+logger -t antu-eclipse "entrando: ${opciones[*]}"
+gamemoded -r &  # la CPU en rendimiento mientras dure el modo juego
+gamemode=$!
+gamescope "${opciones[@]}" -- "${juego[@]}"
+logger -t antu-eclipse "terminó con código $?"
+kill "$gamemode" 2>/dev/null
+exec pkexec /usr/lib/antu/eclipse-helper escritorio

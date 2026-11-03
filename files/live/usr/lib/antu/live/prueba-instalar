@@ -14,6 +14,7 @@ if ANTU_KARGS="console=ttyS0,115200 systemd.show_status=1 systemd.log_target=con
     [ -d "$etc/upper" ] && etc="$etc/upper"
     mkdir -p "$etc/systemd/system/multi-user.target.wants"
     cp /usr/lib/antu/live/prueba-firma "$etc/antu-prueba-firma"
+    cp /usr/lib/antu/live/prueba-eclipse "$etc/antu-prueba-eclipse"
     printf '[Unit]\nDescription=Prueba de firmas e internet\nConditionPathExists=/dev/ttyS0\n[Service]\nType=exec\nExecStart=/etc/antu-prueba-firma\n' \
         > "$etc/systemd/system/antu-prueba-firma.service"
     ln -s ../antu-prueba-firma.service "$etc/systemd/system/multi-user.target.wants/antu-prueba-firma.service"

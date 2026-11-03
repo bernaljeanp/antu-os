@@ -1,0 +1,60 @@
+name: Probé Antu en mi equipo
+description: Cuéntanos cómo funciona Antu en tu PC, funcione bien o mal. Es la ayuda más valiosa ahora.
+title: "[Equipo] "
+labels: ["equipo"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por probar Antu. No hace falta instalarlo: basta con arrancar el USB en vivo.
+
+        **Esta página es pública.** El Informe del equipo no incluye números de serie, direcciones de red ni nombres de
+        wifi, pero ábrelo y revísalo antes de subirlo.
+  - type: input
+    id: modelo
+    attributes:
+      label: Modelo del equipo
+      placeholder: "Alienware m18 R2"
+    validations:
+      required: true
+  - type: dropdown
+    id: grafica
+    attributes:
+      label: Gráfica
+      options:
+        - NVIDIA con gráfica integrada (la mayoría de los portátiles)
+        - Solo NVIDIA
+        - AMD
+        - Intel
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Fecha o versión del USB de Antu
+      placeholder: "2 de noviembre de 2026"
+  - type: checkboxes
+    id: funciona
+    attributes:
+      label: Marca lo que probaste y funcionó bien
+      options:
+        - label: Arranca hasta el escritorio
+        - label: Pantalla y brillo
+        - label: Sonido
+        - label: Wifi
+        - label: Bluetooth
+        - label: Teclado, luces y teclas Fn
+        - label: Suspender y despertar
+        - label: Steam y un juego
+        - label: Modo Eclipse
+        - label: Arranque seguro activado
+  - type: textarea
+    id: problemas
+    attributes:
+      label: Qué falló o se vio mal
+      description: Lo que hiciste y lo que pasó, con tus palabras. Las fotos de la pantalla ayudan mucho.
+  - type: textarea
+    id: informe
+    attributes:
+      label: Informe del equipo
+      description: En el USB en vivo, abre «Informe del equipo», crea el informe y arrastra aquí el archivo `informe-….txt`.

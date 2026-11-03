@@ -56,11 +56,12 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
-# nvidia-prime da prime-run para portátiles híbridos; vulkan-intel cubre la gráfica integrada. zram-generator: memoria
-# comprimida en vez de swap en disco (ver usr/lib/systemd/zram-generator.conf).
+# nvidia-prime da prime-run para portátiles híbridos. Un solo sistema para toda gráfica: vulkan-intel y vulkan-radeon cubren
+# las integradas y los equipos sin NVIDIA. kdialog: el aviso antes de entrar a Eclipse. zram-generator: memoria comprimida
+# en vez de swap en disco (ver usr/lib/systemd/zram-generator.conf).
 # -Sy: la limpieza de capas anteriores (pacman -Sc) puede borrar la base de datos sincronizada de multilib.
-RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel \
-      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime vulkan-tools ttf-liberation zram-generator && \
+RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel vulkan-radeon lib32-vulkan-radeon \
+      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime vulkan-tools ttf-liberation zram-generator kdialog && \
     pacman -S --clean --noconfirm
 
 # USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.
@@ -124,6 +125,6 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts python3 /antu-sc
 
 LABEL containers.bootc=1
 LABEL org.opencontainers.image.title="Antu OS" \
-      org.opencontainers.image.description="Distro gamer chilena: Arch atómico con NVIDIA y KDE Plasma."
+      org.opencontainers.image.description="Distro gamer chilena: Arch atómico con NVIDIA, AMD o Intel y KDE Plasma."
 
 RUN bootc container lint

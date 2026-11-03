@@ -1,0 +1,9 @@
+// Modo Eclipse: quien usa el equipo cambia entre el escritorio y Eclipse sin contraseña. El programa solo acepta esos
+// dos destinos y solo vuelve a abrir la cuenta que lo pidió, así que no da ningún privilegio más.
+polkit.addRule(function (action, subject) {
+    if (action.id == "org.freedesktop.policykit.exec" &&
+        action.lookup("program") == "/usr/lib/antu/eclipse-helper" &&
+        subject.local && subject.active) {
+        return polkit.Result.YES;
+    }
+});

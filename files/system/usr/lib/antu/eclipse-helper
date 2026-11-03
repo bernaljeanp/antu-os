@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Cambia entre el escritorio y el modo Eclipse sin pedir otra vez la contraseña: deja a SDDM un inicio de sesión automático
+# para la cuenta que lo pide, solo a esa sesión, y lo apaga a los 30 segundos: el siguiente inicio de sesión vuelve a ser
+# normal. SDDM guarda los valores en memoria, por eso se apaga con Relogin=false y no borrando el archivo; el archivo lo
+# borra su servicio al arrancar (sddm.service.d), por si el equipo se apaga justo en esos 30 segundos.
+set -euo pipefail
+CONF=/etc/sddm.conf.d/zz-antu-eclipse.conf
+
+case "${1:-}" in
+    eclipse) sesion=antu-eclipse.desktop ;;
+    escritorio) sesion=plasma.desktop ;;
+    *) echo "Uso: $0 eclipse|escritorio" >&2; exit 2 ;;
+esac
+usuario="$(id -nu "${PKEXEC_UID:?Se ejecuta con pkexec}")"
+
+mkdir -p "$(dirname "$CONF")"
+printf '[Autologin]\nUser=%s\nSession=%s\nRelogin=true\n' "$usuario" "$sesion" > "$CONF"
+systemctl stop antu-eclipse-apagar.timer 2>/dev/null || true
+systemd-run --quiet --collect --unit=antu-eclipse-apagar --on-active=30 \
+    /bin/sh -c "printf '[Autologin]\nRelogin=false\n' > $CONF"
+
+# Con systemd-homed la carpeta personal se cierra al salir, y sin contraseña no vuelve a abrirse: se mantiene en uso
+# mientras dura el cambio.
+systemd-run --quiet --collect --working-directory="$(getent passwd "$usuario" | cut -d: -f6)" /usr/bin/sleep 30

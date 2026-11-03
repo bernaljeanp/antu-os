@@ -32,6 +32,7 @@ var primeras = live ? ["applications:antu-instalador.desktop", "applications:ant
 tasks.writeConfig("launchers", primeras.concat([
     "preferred://filemanager",
     "applications:steam.desktop",
+    "applications:antu-biblioteca.desktop",
     "applications:org.kde.discover.desktop",
     "applications:zenit.desktop",
     "applications:systemsettings.desktop"
