@@ -77,6 +77,7 @@ ApplicationWindow {
         property var lineas: []
         property color punto: root.lava
         Layout.fillWidth: true
+        Layout.fillHeight: true
         Layout.preferredWidth: 1
         implicitHeight: contenido.implicitHeight + 56 * root.u
         radius: 18 * root.u

@@ -97,10 +97,11 @@ RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
     printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc plymouth "\nadd_drivers+=" usb_storage uas sd_mod "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
     kver="$(ls /usr/lib/modules)" && dracut --force "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
 
-# Solo para la prueba de arranque en CI: SSH para revisar la VM y sin el asistente de primer
-# arranque, que esperaría en la consola para siempre. La imagen publicada no lleva ninguno de los dos cambios.
+# Solo para la prueba de arranque en CI: SSH para revisar la VM, con su puerto abierto en el firewall (si no, la prueba
+# solo pasa cuando alcanza a conectarse antes de que el firewall cargue), y sin el asistente de primer arranque, que
+# esperaría en la consola para siempre. La imagen publicada no lleva ninguno de estos cambios.
 ARG ANTU_CI=0
-RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service; fi
+RUN if [ "${ANTU_CI}" = 1 ]; then systemctl enable sshd && systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service && sed -i 's#</zone>#  <service name="ssh"/>\n</zone>#' /usr/lib/firewalld/zones/antu.xml && grep -q 'service name="ssh"' /usr/lib/firewalld/zones/antu.xml; fi
 
 # Arranque seguro: shim firmado por Microsoft, y núcleo y cargador con la llave de Antu. Va después de ANTU_CI para que la
 # imagen publicable no reutilice esta capa de la imagen de prueba, que se compila sin la llave.

@@ -146,6 +146,7 @@ if (ARRANQUE) {
     fill_src = Image("fill.png");
     fill = Sprite();
     fill.SetPosition(bar_x, bar_y, 7);
+    fill.SetOpacity(0);  # el progreso llega desde el primer momento; la barra aparece después de la consola
     for (i = 0; i < 3; i++) etapa_img[i] = pieza("etapa-" + i + ".png");
     etapa = Sprite();
     etapa_k = -1;
