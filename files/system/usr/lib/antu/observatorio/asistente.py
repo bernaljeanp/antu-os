@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Asistente del Observatorio: responde sobre un juego con tus mediciones, en tu propia gráfica y sin internet.
 
-Usa Ollama, que viene en el sistema, y un modelo que se baja una sola vez cuando la persona lo activa. El motor se abre solo al
+Las conclusiones las calcula Antu y el modelo solo las explica: probado con preguntas reales, un modelo pequeño que deduce por su
+cuenta culpa al calor aunque la temperatura no haya cambiado. Usa Ollama, que viene en el sistema, y un modelo que se baja una sola vez cuando la persona lo activa. El motor se abre solo al
 preguntar y se cierra con la ventana: mientras juegas no ocupa nada. Solo responde: no ejecuta nada en el equipo. Nada sale de aquí.
 
 --autoprueba: revisa lo que se le entrega al modelo.
@@ -12,6 +13,7 @@ import os
 import pathlib
 import re
 import shutil
+import statistics
 import subprocess
 import sys
 import time
@@ -23,14 +25,18 @@ PUERTO = 11435
 URL = f"http://127.0.0.1:{PUERTO}"
 CARPETA = pathlib.Path.home() / ".local/share/antu/asistente"
 SESIONES_EN_CONTEXTO = 12
+TEMP_ALTA = 90  # °C: desde aquí una gráfica de portátil suele empezar a bajar potencia
+CALOR_ALTO = 0.05  # parte del tiempo bajando potencia por calor
+CAMBIO_DE_TEMP = 5  # °C: menos que esto es lo normal entre sesiones
 
-SISTEMA = """Eres el asistente de Antu OS, un sistema para jugar. Respondes sobre el rendimiento de un juego usando solo las mediciones que te entregan.
+SISTEMA = """Eres el asistente de Antu OS, un sistema para jugar. Explicas en palabras simples lo que Antu ya calculó sobre un juego.
 
 Reglas:
-- Responde en español, en un máximo de cinco frases cortas y en texto simple, sin listas ni formato.
-- Usa los números de las mediciones. Nunca inventes un número, una causa segura ni un dato que no esté en ellas.
-- Si las mediciones no alcanzan para responder, dilo y explica qué faltaría medir.
-- Di «lo más probable» cuando sea una deducción. Coincidir en la fecha no demuestra la causa.
+- Responde en español, en un máximo de cuatro frases cortas y en texto simple, sin listas ni formato.
+- Las CONCLUSIONES ya están calculadas y son correctas. Básate en ellas y nunca las contradigas ni agregues otra causa.
+- Responde solo lo que te preguntan: usa la conclusión que corresponda y no menciones datos que no vengan al caso.
+- Usa los números tal como aparecen. Nunca inventes un número ni un dato.
+- Si las conclusiones no alcanzan para responder, dilo y explica qué faltaría medir.
 - Nunca pidas abrir una terminal ni escribir comandos. Todo se hace desde las ventanas de Antu.
 
 Qué puede hacer la persona:
@@ -42,15 +48,60 @@ Qué puede hacer la persona:
 - Si un juego no abre o no deja entrar a partidas en línea: la Biblioteca dice si funciona y si su antitrampas lo permite."""
 
 
+def conclusiones(juego):
+    """Lo que se sabe por cálculo, para que el modelo no tenga que deducirlo."""
+    ss = juego.get("sesiones", [])
+    if not ss:
+        return []
+    tramos = juego.get("tramos") or [{"desde": 0, "hasta": len(ss) - 1}]
+
+    def del_tramo(tramo, campo):
+        return [s[campo] for s in ss[tramo["desde"]:tramo["hasta"] + 1] if s.get(campo)]
+
+    salida = []
+    if juego.get("fps"):
+        salida.append(f"Ahora da unos {juego['fps']} fotogramas por segundo.")
+    else:
+        salida.append("Los fotogramas no se midieron: no se puede decir cuántos da. Se miden al jugar en el modo Eclipse.")
+    if juego.get("estado") == "baja" and juego.get("detalle"):
+        salida.append(juego["titulo"] + ". " + juego["detalle"])
+
+    temps = del_tramo(tramos[-1], "temp")
+    calor = max(del_tramo(tramos[-1], "calor"), default=0)
+    if temps and max(temps) >= TEMP_ALTA:
+        salida.append(f"La gráfica llega a {max(temps):.0f} °C: está caliente.")
+    elif temps:
+        salida.append(f"La gráfica llega a {max(temps):.0f} °C: es normal para un portátil jugando, no está sobrecalentada.")
+    if calor >= CALOR_ALTO:
+        salida.append(f"Bajó potencia por calor el {calor * 100:.0f} % del tiempo: el calor sí le está quitando rendimiento.")
+    elif temps:
+        salida.append("Casi no bajó potencia por calor: el calor no le está quitando rendimiento.")
+    if len(tramos) > 1 and temps and del_tramo(tramos[-2], "temp"):
+        diferencia = statistics.median(temps) - statistics.median(del_tramo(tramos[-2], "temp"))
+        if abs(diferencia) < CAMBIO_DE_TEMP:
+            salida.append("La temperatura no cambió con la actualización: no explica ningún cambio de rendimiento.")
+        else:
+            salida.append(f"Con la actualización, la gráfica quedó {abs(diferencia):.0f} °C más {'caliente' if diferencia > 0 else 'fría'}.")
+    if ss[-1].get("energia") == "Batería":
+        salida.append("La última sesión fue con batería, y con batería el equipo rinde menos.")
+    if juego.get("estado") == "baja":
+        if juego.get("cambios") and calor < CALOR_ALTO:
+            cambio = "; ".join(juego["cambios"].split("\n"))
+            salida.append(f"Lo más probable es que la baja venga de lo que cambió en el sistema ({cambio}). No está demostrado: también pudo cambiar un ajuste del juego.")
+        elif calor < CALOR_ALTO:
+            salida.append("No se sabe qué causó la baja: lo único seguro es que coincide con la actualización. También pudo cambiar un ajuste del juego.")
+    if juego.get("notas"):
+        for nota in juego["notas"].split("\n"):
+            if "memoria" in nota or "cerró" in nota or "gráfica dejó" in nota or "inválido" in nota:
+                salida.append(nota)
+    return salida
+
+
 def contexto(juego):
-    """Las mediciones de un juego (lo que arma observatorio.resumir), en palabras para el modelo."""
-    lineas = [f"Juego: {juego['nombre']}", f"Estado: {juego['titulo']}"]
-    if juego.get("detalle"):
-        lineas.append(f"Detalle: {juego['detalle']}")
+    """Lo calculado y las mediciones de un juego (lo que arma observatorio.resumir), en palabras para el modelo."""
+    lineas = [f"Juego: {juego['nombre']}", "CONCLUSIONES:"] + [f"- {c}" for c in conclusiones(juego)]
     if juego.get("cambios"):
         lineas.append("Qué cambió en el sistema: " + "; ".join(juego["cambios"].split("\n")))
-    if juego.get("notas"):
-        lineas.append("Última sesión: " + " ".join(juego["notas"].split("\n")))
     sesiones = []
     for s in juego.get("sesiones", [])[-SESIONES_EN_CONTEXTO:]:
         fps = f"{s['fps']:.0f} fotogramas por segundo" if s.get("fps") else "fotogramas sin medir"
@@ -151,7 +202,7 @@ def autoprueba():
              "notas": "Bajó a 41.\nLlegó a 81 °C.",
              "sesiones": [{"fecha": f"{d} oct", "fps": 60, "bajo": 40, "temp": 80, "minutos": 45, "energia": "Cargador"} for d in range(1, 21)]}
     c = contexto(juego)
-    assert "NVIDIA: 1 → 2; Núcleo: 3 → 4" in c and "Bajó a 41. Llegó a 81 °C." in c
+    assert "NVIDIA: 1 → 2; Núcleo: 3 → 4" in c
     assert "20 oct" in c and "- 1 oct:" not in c  # solo las últimas
     assert "con cargador" in c
     sin_fps = {"nombre": "J", "titulo": "T", "sesiones": [{"fecha": "1 oct", "fps": 0, "bajo": 0, "temp": 0, "minutos": 1, "energia": "Batería"}]}
@@ -159,6 +210,23 @@ def autoprueba():
     assert limpiar("<think>hmm</think> Hola") == "Hola" and limpiar("<think>a medias") == ""
     assert mensajes_para(juego, [{"role": "assistant", "content": "a"}], "¿por qué?")[-1]["content"] == "¿por qué?"
     assert modelo_listo(pathlib.Path("/no/existe")) is False
+
+    # Lo calculado, que es lo que el modelo no debe deducir por su cuenta.
+    def sesion(temp, calor=0.01, fps=60, energia="Cargador"):
+        return {"fecha": "1 oct", "fps": fps, "bajo": 40, "temp": temp, "calor": calor, "minutos": 40, "energia": energia}
+
+    def conclusion(sesiones, tramos=None, **otros):
+        base = {"nombre": "J", "titulo": "Rinde 12 % menos", "detalle": "De 66 a 58.", "fps": "58", "estado": "baja", "sesiones": sesiones}
+        return " ".join(conclusiones({**base, "tramos": tramos or [{"desde": 0, "hasta": len(sesiones) - 1}], **otros}))
+
+    dos_tramos = [{"desde": 0, "hasta": 0}, {"desde": 1, "hasta": 1}]
+    igual = conclusion([sesion(80), sesion(81)], dos_tramos, cambios="NVIDIA: 1 → 2")
+    assert "no está sobrecalentada" in igual and "no explica" in igual and "NVIDIA: 1 → 2" in igual and "calor sí" not in igual
+    caliente = conclusion([sesion(80), sesion(93, calor=0.3)], dos_tramos, cambios="NVIDIA: 1 → 2")
+    assert "está caliente" in caliente and "calor sí" in caliente and "13 °C más caliente" in caliente and "Lo más probable" not in caliente
+    assert "No se sabe qué causó" in conclusion([sesion(80), sesion(80)], dos_tramos)
+    assert "con batería" in conclusion([sesion(80, energia="Batería")])
+    assert "no se midieron" in conclusion([sesion(0, fps=0)], fps="", estado="pocas")
     print("Asistente: lo que recibe el modelo está correcto")
 
 
@@ -166,22 +234,27 @@ def real():
     """Preguntas de verdad con mediciones inventadas. Falla si no usa los datos o si manda a la terminal."""
     from observatorio import demo, resumir_todo
 
-    juegos = {j["nombre"]: j for j in resumir_todo(demo())}
+    caliente = [{"juego": "Caluroso", "appid": 1, "inicio": 1000 + i, "minutos": 40, "fps": f, "fps_bajo": f - 20, "cargador": True,
+                 "gpu_temp": t, "calor": c, "version": v, "nvidia": "1", "nucleo": "7.2"}
+                for i, (f, t, c, v) in enumerate(((70, 78, 0, "a"), (71, 79, 0, "a"), (55, 94, 0.3, "b"), (54, 95, 0.32, "b")))]
+    juegos = {j["nombre"]: j for j in resumir_todo(demo() + caliente)}
     motor = Motor()
     try:
         motor.bajar(lambda f: None)
         fallas = 0
-        for nombre, pregunta, debe in (
-            ("ELDEN RING", "¿Por qué me va más lento?", ("58", "NVIDIA")),
-            ("ELDEN RING", "¿Se está calentando demasiado?", ("81",)),
-            ("Cyberpunk 2077", "¿Por qué se cerró?", ("memoria",)),
-            ("Cyberpunk 2077", "¿A cuántos fotogramas corre?", ("medi",)),
+        for nombre, pregunta, debe, no_debe in (
+            ("ELDEN RING", "¿Por qué me va más lento?", ("NVIDIA",), ("se calentó más", "redujera la potencia")),
+            ("ELDEN RING", "¿Se está calentando demasiado?", ("81", "normal"), ()),
+            ("Caluroso", "¿Por qué me va más lento?", ("calor",), ("controlador",)),
+            ("Cyberpunk 2077", "¿Por qué se cerró?", ("memoria",), ("°C",)),
+            ("Cyberpunk 2077", "¿A cuántos fotogramas corre?", ("medi",), ("°C",)),
         ):
             inicio = time.time()
             respuesta = motor.preguntar(mensajes_para(juegos[nombre], [], pregunta), lambda t: None)
             print(f"\n[{nombre}] {pregunta} ({time.time() - inicio:.0f} s)\n{respuesta}", flush=True)
-            if not all(p.lower() in respuesta.lower() for p in debe) or "terminal" in respuesta.lower():
-                print(f"::error::El asistente no respondió con los datos: esperaba {debe}")
+            texto = respuesta.lower()
+            if not all(p.lower() in texto for p in debe) or any(p.lower() in texto for p in (*no_debe, "terminal")):
+                print(f"::error::El asistente no respondió con los datos: debía decir {debe} y no decir {no_debe}")
                 fallas += 1
         sys.exit(1 if fallas else 0)
     finally:

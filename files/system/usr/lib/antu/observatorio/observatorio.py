@@ -137,7 +137,7 @@ def resumir(nombre, sesiones):
         "imagen": URL_IMAGEN.format(int(ultima["appid"])) if ultima.get("appid") else "",
         "fps": f"{fps:.0f}" if fps else "", "reciente": ultima["inicio"],
         "sesiones": [{"fecha": fecha(s["inicio"], False), "fps": s.get("fps") or 0, "bajo": s.get("fps_bajo") or 0,
-                      "minutos": s.get("minutos", 0), "temp": s.get("gpu_temp") or 0,
+                      "minutos": s.get("minutos", 0), "temp": s.get("gpu_temp") or 0, "calor": s.get("calor") or 0,
                       "energia": "Cargador" if s.get("cargador") else "Batería"} for s in ss],
         "tramos": [{"desde": t["desde"], "hasta": t["hasta"], "fps": t["fps"] or 0,
                     "fecha": fecha(ss[t["desde"]]["inicio"], False)} for t in tramos],
