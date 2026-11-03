@@ -28,6 +28,18 @@ serie pantalla
 sleep 10
 pkill -x systemsettings
 
+en_sesion systemsettings kcm_pulseaudio
+sleep 15
+serie sonido
+sleep 10
+pkill -x systemsettings
+
+en_sesion systemsettings kcm_bluetooth
+sleep 15
+serie bluetooth
+sleep 10
+pkill -x systemsettings
+
 en_sesion dolphin /usr/share/wallpapers
 sleep 10
 serie dolphin
@@ -51,6 +63,14 @@ sleep 12
 serie biblioteca
 sleep 10
 pkill -f biblioteca.py
+
+# GameMode sin comandos: un juego de mentira, que Zenit detecta por su carpeta y le pide a GameMode.
+mkdir -p /var/tmp/steamapps/common/JuegoDePrueba
+cp /usr/bin/sleep /var/tmp/steamapps/common/JuegoDePrueba/juego
+en_sesion /var/tmp/steamapps/common/JuegoDePrueba/juego 40
+sleep 15
+serie "gamemode $(systemd-run --user --machine=antu@ --wait --pipe --quiet gamemoded -s 2>&1)"
+pkill -f JuegoDePrueba
 
 # El informe de verdad, con su limpieza y su guardado en el USB; se copia a la consola para revisarlo.
 resultado="$(echo "(creado por la prueba)" | /usr/lib/antu/informe-helper)"

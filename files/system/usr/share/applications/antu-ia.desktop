@@ -2,6 +2,6 @@
 Type=Application
 Name=Instalar IA local
 Comment=Instala Alpaca con Ollama para usar modelos de IA sin internet (varios GB)
-Exec=konsole --hold -e /usr/bin/antu-ia
+Exec=/usr/bin/antu-ia
 Icon=antu-ia
 Categories=System;

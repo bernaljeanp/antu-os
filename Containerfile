@@ -49,19 +49,25 @@ RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && \
 # Escritorio y NVIDIA. nvidia-open viene compilado para el mismo kernel de arriba.
 # Discover solo con Flatpak (sin PackageKit): las apps se instalan sin tocar el sistema base.
 # El navegador (Brave) llega desde Flathub en el primer arranque: ver antu-apps.service.
+# plasma-desktop deja como opcional mucho de lo que se espera de un escritorio: volumen (plasma-pa), pantallas (kscreen),
+# Bluetooth, llavero al iniciar sesión, información del equipo, permisos de apps, avisos de discos y Thunderbolt. Sonido de los
+# portátiles recientes (sof-firmware), canales de wifi del país (wireless-regdb), discos de Windows y USB (ntfs-3g, exfatprogs).
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
-      pipewire pipewire-pulse wireplumber noto-fonts openssh \
+      plasma-pa kscreen bluez bluedevil kwallet-pam kinfocenter kde-gtk-config breeze-gtk flatpak-kcm plasma-disks \
+      plasma-thunderbolt ffmpegthumbs sof-firmware wireless-regdb ntfs-3g exfatprogs \
+      pipewire pipewire-pulse pipewire-alsa wireplumber noto-fonts openssh \
       discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 firewalld plasma-firewall git podman distrobox && \
     pacman -S --clean --noconfirm
 
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
-# nvidia-prime da prime-run para portátiles híbridos. Un solo sistema para toda gráfica: vulkan-intel y vulkan-radeon cubren
+# nvidia-prime da prime-run para portátiles híbridos; con switcheroo-control, KDE abre Steam solo en la gráfica dedicada.
+# Un solo sistema para toda gráfica: vulkan-intel y vulkan-radeon cubren
 # las integradas y los equipos sin NVIDIA. kdialog: el aviso antes de entrar a Eclipse. zram-generator: memoria comprimida
 # en vez de swap en disco (ver usr/lib/systemd/zram-generator.conf).
 # -Sy: la limpieza de capas anteriores (pacman -Sc) puede borrar la base de datos sincronizada de multilib.
 RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel vulkan-radeon lib32-vulkan-radeon \
-      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime vulkan-tools ttf-liberation zram-generator kdialog && \
+      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime switcheroo-control vulkan-tools ttf-liberation zram-generator kdialog && \
     pacman -S --clean --noconfirm
 
 # USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.
@@ -83,7 +89,7 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scrip
 # cada versión nueva en segundo plano y la deja lista para el próximo reinicio.
 # Firewall: zona antu (solo lo que llega sin pedirlo se bloquea; ver usr/lib/firewalld/zones/antu.xml).
 # La red la maneja NetworkManager: systemd-networkd queda apagado, también en el primer arranque (10-antu.preset).
-RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer firewalld \
+RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer firewalld bluetooth switcheroo-control \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl disable systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service && \
     sed -i 's/^DefaultZone=.*/DefaultZone=antu/' /etc/firewalld/firewalld.conf && \

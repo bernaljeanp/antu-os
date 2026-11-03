@@ -16,6 +16,11 @@ on:
       - ci/iso-test.sh
       - .github/workflows/iso.yml
   workflow_dispatch:
+    inputs:
+      aprobar:
+        description: "Aprobar la rama nueva de NVIDIA o el núcleo nuevo (ya probados en un equipo real)"
+        type: boolean
+        default: false
 
 # Una prueba en curso nunca se corta: la siguiente espera su turno.
 concurrency:
@@ -34,6 +39,7 @@ jobs:
     permissions:
       contents: read
       packages: write  # para promover al canal estable la versión que pasó la prueba
+      issues: write  # para avisar cuando una versión espera aprobación
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -75,6 +81,8 @@ jobs:
       - name: Promover al canal estable
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APROBAR: ${{ inputs.aprobar }}
         run: |
           image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia"
           digest="$(cat iso-build/digest)"
@@ -83,6 +91,32 @@ jobs:
           cosign verify "$image@$digest" --certificate-oidc-issuer https://token.actions.githubusercontent.com \
             --certificate-identity-regexp "^https://github.com/${GITHUB_REPOSITORY}/" > /dev/null
           # La firma con la llave de Antu (la que comprobarán los equipos) ya se comprobó en make-iso.sh.
+
+          # Freno: la VM no tiene gráfica real. Las correcciones pasan solas, pero una rama nueva de NVIDIA o una versión nueva
+          # del núcleo esperan a que alguien las apruebe tras probarlas en un equipo. Lo aprobado queda como etiqueta.
+          versiones="$(sudo podman run --rm localhost/antu-live pacman -Q nvidia-utils linux)"
+          rama="$(awk '$1 == "nvidia-utils" {split($2, v, "."); print v[1]}' <<< "$versiones")"
+          nucleo="$(awk '$1 == "linux" {split($2, v, "."); print v[1] "." v[2]}' <<< "$versiones")"
+          [ -n "$rama" ] && [ -n "$nucleo" ]
+          marca="aprobada-nvidia-$rama-nucleo-$nucleo"
+          etiquetas="$(skopeo list-tags "docker://$image")"
+          if ! grep -q "\"$marca\"" <<< "$etiquetas"; then
+            if grep -q '"aprobada-' <<< "$etiquetas" && [ "$APROBAR" != true ]; then
+              titulo="Probar en un equipo real: NVIDIA $rama con núcleo $nucleo"
+              usb="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+              if [ "$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$titulo in:title" --json number --jq length)" = 0 ]; then
+                gh issue create --repo "$GITHUB_REPOSITORY" --title "$titulo" --body "Esta versión pasó todas las pruebas en máquinas virtuales, pero esas pruebas no tienen gráfica real, así que no llegará sola a los equipos.
+
+          1. Baja el USB de [esta prueba]($usb) y arráncalo en un equipo con NVIDIA.
+          2. Comprueba que el escritorio y un juego funcionan.
+          3. Si está bien, apruébala: en Actions, abre **iso**, elige **Run workflow** y marca la casilla de aprobar."
+              fi
+              echo "::notice::$titulo: espera aprobación, no pasa al canal estable"
+              exit 0
+            fi
+            sudo skopeo copy --all --preserve-digests --quiet "docker://$image@$digest" "docker://$image:$marca"
+          fi
+
           for tag in stable latest "$(date -u +%Y%m%d)"; do
             sudo skopeo copy --all --preserve-digests --quiet "docker://$image@$digest" "docker://$image:$tag"
           done

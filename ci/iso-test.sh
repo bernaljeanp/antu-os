@@ -104,7 +104,7 @@ echo "== Galería: las pantallas principales en la sesión en vivo"
 cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 quiet splash antu.galeria"
 "${QEMU[@]}" "${USB[@]}" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
     -serial file:"$OUT/serie-galeria.log" &
-for vista in escritorio menu pantalla dolphin zenit informe biblioteca notificacion bloqueo; do
+for vista in escritorio menu pantalla sonido bluetooth dolphin zenit informe biblioteca notificacion bloqueo; do
     if ! wait_for "$OUT/serie-galeria.log" "ANTU-GALERIA: $vista" 420; then
         echo "::warning::La galería no llegó a «$vista» (ver serie-galeria.log)"
         break
@@ -119,6 +119,7 @@ fi
 wait_for "$OUT/serie-galeria.log" "ANTU-ECLIPSE: fin" 180 || true
 stop
 comprobar_eclipse "$OUT/serie-galeria.log"
+grep -qa "ANTU-GALERIA: gamemode.*is active" "$OUT/serie-galeria.log" || { echo "::error::GameMode no se activó solo con un juego abierto (ver serie-galeria.log)"; exit 1; }
 montage "$OUT"/galeria-*.png -tile 2x -geometry 960x540+6+6 -background black "$OUT/galeria.png" || true
 # El informe de verdad: quedó en la partición del USB y no trae direcciones de red.
 sed -n '/ANTU-INFORME-INICIO/,/ANTU-INFORME-FIN/p' "$OUT/serie-galeria.log" > "$OUT/informe-prueba.log"

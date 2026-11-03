@@ -30,10 +30,11 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   jugar con Steam en su interfaz para mando, a pantalla completa y sin el escritorio. Al salir de Steam vuelves al
   escritorio sin escribir la contraseña. En un híbrido, la gráfica con la pantalla conectada dibuja y el juego corre en
   NVIDIA. Toda la vuelta está probada en máquinas virtuales; Gamescope con una gráfica real falta probarlo.
-- **GameMode** y **MangoHud** están disponibles: en las opciones de lanzamiento de un juego de Steam, escribe
-  `gamemoderun mangohud %command%`. Mayús derecha + F12 muestra u oculta los datos.
-- **Portátiles híbridos (Intel + NVIDIA):** `prime-run %command%` lanza el juego en la gráfica NVIDIA, que se
-  apaga sola cuando no se usa (RTD3) para cuidar la batería. Dynamic Boost (`nvidia-powerd`) arranca solo si hay
+- **GameMode** se activa solo al abrir un juego con el cargador conectado, sin escribir nada en Steam y sin cargar nada
+  dentro del juego. **MangoHud** muestra los datos de rendimiento: en Eclipse, desde el menú rápido de Steam; en el
+  escritorio, con `mangohud %command%` en las opciones de lanzamiento del juego (Mayús derecha + F12 los oculta).
+- **Portátiles híbridos (Intel + NVIDIA):** al abrirlo desde el menú o el panel, Steam corre solo en la gráfica NVIDIA, que
+  se apaga sola cuando nadie la usa (RTD3) para cuidar la batería: cierra Steam del todo si quieres que descanse. Dynamic Boost (`nvidia-powerd`) arranca solo si hay
   NVIDIA. El cambio automático Advanced Optimus de algunos portátiles no existe en Linux: el modo MUX se fija en
   la BIOS.
 - **NVIDIA:** DLSS (incluida la generación de fotogramas), Reflex y ray tracing en Proton; G-Sync/VRR y HDR en
@@ -55,7 +56,7 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **Básicos:** VLC, Mission Center (administrador de tareas), OBS Studio y EasyEffects (sonido: reemplaza el
   ajuste Dolby de Windows, que no existe en Linux), desde Flathub en el primer arranque. En la imagen: Ark (abre
   RAR, 7z y ZIP), Gwenview, Spectacle, Kate, KCalc y USBoot.
-- **IA local opcional:** «Instalar IA local» en el menú (o `antu-ia`) instala Alpaca con Ollama; no viene
+- **IA local opcional:** «Instalar IA local» en el menú instala Alpaca con Ollama; no viene
   preinstalada porque ocupa varios GB.
 - **Programar:** con «Voy a programar» en Inicio, Antu prepara al iniciar sesión una caja de Arch (Distrobox) con
   VS Code, Git, Node, Python, Rust, Go, Claude Code y Codex, y deja VS Code y «Terminal de desarrollo» en el menú.
@@ -203,7 +204,8 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 
 - La prueba en VM no tiene GPU: comprueba que el módulo NVIDIA existe, no que funcione en una RTX real.
 - La imagen base está fijada por digest, pero los paquetes de Arch se toman del día: el canal estable es lo que
-  protege a los equipos instalados de una actualización de Arch con fallas.
+  protege a los equipos instalados de una actualización de Arch con fallas. Como la VM no tiene gráfica real, una rama nueva
+  de NVIDIA o una versión nueva del núcleo no llegan solas: esperan a que alguien las apruebe tras probarlas en un equipo.
 - Cada equipo solo acepta versiones de Antu firmadas con su llave, y Antu arranca con Secure Boot activo tras registrar su
   llave una sola vez. Todo esto se probó en máquinas virtuales con las llaves de Microsoft; falta confirmarlo en equipos reales.
 - El instalador usa el disco entero; instalar junto a Windows en el mismo disco aún no está disponible.

@@ -94,6 +94,28 @@ def en_cargador():
     return not tipos or any(leer(d + "/online") == "1" for d in tipos)  # sin cargador detectable: escritorio
 
 
+def pendientes_gamemode(vivos, registrados):
+    """Por cada juego, un proceso vivo que pedirle a GameMode. registrados ({juego: pid}) se actualiza."""
+    for juego in [j for j, pid in registrados.items() if pid not in vivos]:
+        del registrados[juego]
+    nuevos = []
+    for pid, juego in vivos.items():
+        if juego and juego not in registrados:
+            registrados[juego] = pid
+            nuevos.append(pid)
+    return nuevos
+
+
+def pedir_gamemode(pid):
+    """GameMode desde afuera: sin comandos en Steam y sin cargar nada dentro del juego, nada que moleste a un antitrampas."""
+    try:
+        cuenta = pwd.getpwuid(os.stat(ruta(f"/proc/{pid}")).st_uid).pw_name
+        subprocess.run(["systemd-run", "--user", f"--machine={cuenta}@", "--collect", "--quiet", "gamemoded", f"-r{pid}"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5)
+    except (OSError, KeyError, subprocess.SubprocessError):
+        pass
+
+
 def juego_de(cmdline):
     """El juego que corre en este proceso, o None. Steam nativo por su carpeta; Proton, Heroic, Lutris y Bottles
     por el .exe que ejecuta Wine; Roblox por Sober."""
@@ -289,6 +311,7 @@ class Zenit:
         self.boost = self.sigilo = False
         self.juego = None
         self.vistos = {}  # pid -> juego o None: cada proceso se revisa una sola vez
+        self.con_gamemode = {}  # juego -> pid que se le pidió a GameMode
         self.procesos = procesos or self.leer_procesos
         self.luces_puestas = False
 
@@ -339,6 +362,9 @@ class Zenit:
         juegos = self.procesos()
         self.juego = juegos[0] if juegos else None
         self.aplicar()
+        if en_cargador():  # con batería, un juego no debe subir el consumo más de lo que ya pide el perfil
+            for pid in pendientes_gamemode(self.vistos, self.con_gamemode):
+                pedir_gamemode(pid)
         if not self.luces_puestas and controlador_luces():  # al arrancar, cuando el USB ya está listo
             self.luces_puestas = True
             try:
@@ -571,6 +597,12 @@ def autoprueba():
         assert bytes_salida(bytes([0x06, 0x00, 0xFF, 0x75, 0x08, 0x95, 0x21, 0x91, 0x02])) == 33
         temps, fans = sensores()
         assert temps == {"CPU": 61} and list(fans.values()) == [2400], (temps, fans)
+    registrados = {}
+    assert pendientes_gamemode({1: None, 2: "hades", 3: "hades"}, registrados) == [2]
+    assert pendientes_gamemode({1: None, 2: "hades", 3: "hades"}, registrados) == []  # pedirlo dos veces lo apagaría
+    assert pendientes_gamemode({3: "hades"}, registrados) == [3]  # cerró el lanzador: sigue el juego
+    assert pendientes_gamemode({}, registrados) == [] and registrados == {}
+
     print("Zenit: autoprueba OK")
 
 

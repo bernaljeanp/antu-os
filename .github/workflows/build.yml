@@ -77,6 +77,12 @@ jobs:
             # La Biblioteca: su acceso apunta a un programa que existe.
             test -x /usr/lib/antu/biblioteca/biblioteca.py && grep -q "Exec=/usr/lib/antu/biblioteca/biblioteca.py" /usr/share/applications/antu-biblioteca.desktop
             test -f /etc/MangoHud/MangoHud.conf
+            # Lo básico de un escritorio: volumen, pantallas, Bluetooth, sonido de los portátiles y wifi.
+            pacman -Q plasma-pa kscreen bluez bluedevil kwallet-pam sof-firmware wireless-regdb pipewire-alsa switcheroo-control > /dev/null
+            for k in kcm_pulseaudio kcm_kscreen kcm_bluetooth; do test -f /usr/lib/qt6/plugins/plasma/kcms/systemsettings/$k.so; done
+            systemctl is-enabled bluetooth switcheroo-control
+            # Por este aviso de su acceso, KDE abre Steam en la gráfica dedicada, con la lista que da switcheroo-control.
+            grep -q "PrefersNonDefaultGPU=true" /usr/share/applications/steam.desktop
             # Cualquier programa puede leer la configuración de red y de nombres, no solo root.
             setpriv --reuid=65534 --regid=65534 --clear-groups cat /etc/resolv.conf /etc/hosts /etc/nsswitch.conf > /dev/null
             # Cursor de Antu: la biblioteca real del sistema lo lee, también por un nombre alternativo, y es el predeterminado.
