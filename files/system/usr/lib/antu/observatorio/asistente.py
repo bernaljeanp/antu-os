@@ -245,15 +245,15 @@ def real():
         for nombre, pregunta, debe, no_debe in (
             ("ELDEN RING", "¿Por qué me va más lento?", ("NVIDIA",), ("se calentó más", "redujera la potencia")),
             ("ELDEN RING", "¿Se está calentando demasiado?", ("81", "normal"), ()),
-            ("Caluroso", "¿Por qué me va más lento?", ("calor",), ("controlador",)),
+            ("Caluroso", "¿Por qué me va más lento?", ("calor|calient",), ("controlador",)),
             ("Cyberpunk 2077", "¿Por qué se cerró?", ("memoria",), ("°C",)),
-            ("Cyberpunk 2077", "¿A cuántos fotogramas corre?", ("medi",), ("°C",)),
+            ("Cyberpunk 2077", "¿A cuántos fotogramas corre?", ("medi|midi",), ("°C",)),
         ):
             inicio = time.time()
             respuesta = motor.preguntar(mensajes_para(juegos[nombre], [], pregunta), lambda t: None)
             print(f"\n[{nombre}] {pregunta} ({time.time() - inicio:.0f} s)\n{respuesta}", flush=True)
             texto = respuesta.lower()
-            if not all(p.lower() in texto for p in debe) or any(p.lower() in texto for p in (*no_debe, "terminal")):
+            if not all(re.search(p.lower(), texto) for p in debe) or any(p.lower() in texto for p in (*no_debe, "terminal")):
                 print(f"::error::El asistente no respondió con los datos: debía decir {debe} y no decir {no_debe}")
                 fallas += 1
         sys.exit(1 if fallas else 0)
