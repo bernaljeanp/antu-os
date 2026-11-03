@@ -22,20 +22,15 @@ pinned="${IMAGE%:*}@$digest"
 echo "Imagen: $pinned"
 echo "$digest" > "$OUT/digest"  # la versión exacta que se prueba y se promueve
 podman build -f Containerfile.live --build-arg BASE="$pinned" -t localhost/antu-live .
-# Se baja como la bajará cada equipo: exigiendo la firma con la llave de Antu. Aviso, no bloqueo, hasta que esté probada.
+# Se baja como la bajará cada equipo, exigiendo la firma con la llave de Antu: una versión sin ella no llega al USB.
 cat > "$OUT/politica.json" <<JSON
 {"default": [{"type": "reject"}],
  "transports": {"docker": {"${IMAGE%:*}": [{"type": "sigstoreSigned", "signedIdentity": {"type": "matchRepository"},
                                             "keyPath": "$PWD/files/system/etc/pki/containers/antu.pub"}]}}}
 JSON
-if skopeo --policy "$OUT/politica.json" --registries.d files/system/etc/containers/registries.d \
-    copy --quiet --remove-signatures "docker://$pinned" "oci:$OUT/iso/antu/imagen"; then
-    echo "Firma con la llave de Antu: correcta"
-else
-    echo "::warning::La versión no pasó la comprobación de firma con la llave de Antu"
-    rm -rf "$OUT/iso/antu/imagen"
-    skopeo copy --quiet "docker://$pinned" "oci:$OUT/iso/antu/imagen"
-fi
+skopeo --policy "$OUT/politica.json" --registries.d files/system/etc/containers/registries.d \
+    copy --quiet --remove-signatures "docker://$pinned" "oci:$OUT/iso/antu/imagen"
+echo "Firma con la llave de Antu: correcta"
 
 mnt="$(podman image mount localhost/antu-live)"
 kver="$(ls "$mnt/usr/lib/modules")"
@@ -52,7 +47,7 @@ podman image unmount localhost/antu-live > /dev/null
 # Partición EFI: systemd-boot con el sistema en vivo y una entrada de gráficos básicos para cuando NVIDIA falle.
 cat > "$OUT/esp/loader/loader.conf" <<CONF
 default antu.conf
-timeout 5
+timeout 3
 editor no
 CONF
 cat > "$OUT/esp/loader/entries/antu.conf" <<CONF

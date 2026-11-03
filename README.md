@@ -66,7 +66,8 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
    (unos 7 GB). Trae `antu-live.iso.sha256` para comprobar la descarga.
 2. Grábala en un USB de 16 GB o más con [USBoot](https://github.com/bernaljeanp/usboot), o con cualquier grabador en
    modo imagen (DD). El USB se borra entero.
-3. Desactiva **Secure Boot** en la BIOS: la ISO aún no está firmada.
+3. **Arranque seguro (Secure Boot):** puedes dejarlo activo. La primera vez que enciendas con el USB, registra la llave de Antu
+   siguiendo [la guía con fotos](files/live/usr/share/antu/guia-arranque-seguro.png). Se hace una sola vez.
 4. Arranca desde el USB (en Alienware y Dell, con F12). Antu arranca en vivo, sin tocar el disco, y abre
    **Instalar Antu**. Si la pantalla se queda negra, elige en el menú de arranque *modo seguro: sin NVIDIA*.
 5. Elige el disco, confirma el borrado y espera entre 5 y 20 minutos. No hace falta internet: la imagen viaja en el USB.
@@ -90,7 +91,7 @@ Las dos usan la última versión estable de `ghcr.io/bernaljeanp/antu-nvidia`.
 
 ## Instalar desde otro Linux (SSD o USB externo)
 
-1. Desactiva **Secure Boot** en la BIOS. Las imágenes aún no están firmadas.
+1. Desactiva **Secure Boot** en la BIOS: este camino no instala la cadena de arranque seguro. Si lo quieres activo, usa el USB.
 2. Arranca un USB de Fedora Workstation en modo en vivo (puedes crearlo con [USBoot](https://github.com/bernaljeanp/usboot)).
 3. Conecta el disco externo, abre una terminal y ejecuta:
    ```bash
@@ -165,9 +166,9 @@ la publicada no tiene ninguno de los dos cambios.
 |---|---|
 | **0** | Arch + bootc + NVIDIA + KDE + identidad, con prueba de arranque automática *(en curso)* |
 | **0b** | Inicio (primer arranque gráfico), USB en vivo e instalador gráfico *(en curso)* |
-| **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalación junto a Windows, Secure Boot y verificación de la firma en cada equipo |
+| **1** | Capa de juegos (Steam, Gamescope, modo Eclipse), instalación junto a Windows y cifrado del disco |
 | **1** | Zenit en Linux (perfiles térmicos, AlienFX, teclas Fn, límite de carga) y USBoot como instalador oficial |
-| **2** | Inicio (primer arranque en español), Biblioteca (compatibilidad antes de instalar), modo Familia |
+| **2** | Inicio (primer arranque en español), Biblioteca (compatibilidad antes de instalar) |
 | **3** | Asistente local y opcional que explica en español por qué falla un juego |
 
 El Hito 0 se da por cumplido cuando: la imagen compila, arranca hasta SDDM en la VM de CI, `bootc upgrade` y
@@ -187,8 +188,8 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 - La prueba en VM no tiene GPU: comprueba que el módulo NVIDIA existe, no que funcione en una RTX real.
 - La imagen base está fijada por digest, pero los paquetes de Arch se toman del día: el canal estable es lo que
   protege a los equipos instalados de una actualización de Arch con fallas.
-- Cada versión va firmada, pero los equipos instalados todavía no comprueban la firma por sí mismos antes de
-  actualizar. Sin Secure Boot todavía: la ISO y el sistema instalado necesitan Secure Boot desactivado.
+- Cada equipo solo acepta versiones de Antu firmadas con su llave, y Antu arranca con Secure Boot activo tras registrar su
+  llave una sola vez. Todo esto se probó en máquinas virtuales con las llaves de Microsoft; falta confirmarlo en equipos reales.
 - El instalador usa el disco entero; instalar junto a Windows en el mismo disco aún no está disponible.
 - `bootc upgrade` en un sistema instalado necesita que el paquete `ghcr.io/bernaljeanp/antu-nvidia` sea público.
 - La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) ya tiene arranque animado «Encendido», inicio de
