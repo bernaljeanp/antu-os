@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Observatorio
+GenericName=Rendimiento de tus juegos
+Comment=Cómo rinde cada juego y si una actualización lo cambió
+Exec=/usr/lib/antu/observatorio/observatorio.py
+Icon=utilities-system-monitor
+Categories=Game;
+Keywords=fotogramas;fps;rendimiento;juegos;temperatura;actualización;

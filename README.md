@@ -26,6 +26,9 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **Steam** viene instalado, con las librerías de 32 bits y el controlador NVIDIA de la misma versión.
 - **Biblioteca:** busca un juego y te dice en palabras simples si funciona y por qué, antes de que lo instales. Junta
   a Valve, ProtonDB y AreWeAntiCheatYet, y manda el antitrampas: también responde por Fortnite o Valorant.
+- **Observatorio:** mide cada juego solo, sin configurar nada y sin cargar nada dentro de él, así que no le molesta a ningún
+  antitrampas. Si una actualización empeora un juego, te dice cuánto y qué cambió, y puedes volver a la versión anterior con
+  un botón. Los fotogramas se miden en Eclipse; en el escritorio, por ahora, solo temperatura, calor y por qué se cerró.
 - **Modo Eclipse:** ábrelo desde el menú o desde la Biblioteca, o elige la sesión *Antu Eclipse* al iniciar sesión, para
   jugar con Steam en su interfaz para mando, a pantalla completa y sin el escritorio. Al salir de Steam vuelves al
   escritorio sin escribir la contraseña. En un híbrido, la gráfica con la pantalla conectada dibuja y el juego corre en
@@ -203,6 +206,8 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
 ## Límites conocidos
 
 - La prueba en VM no tiene GPU: comprueba que el módulo NVIDIA existe, no que funcione en una RTX real.
+- Zenit tiene sus luces y teclas especiales solo en Alienware. En las demás marcas usa lo estándar del sistema: perfiles
+  de energía, temperaturas, ventiladores y límite de carga, si el equipo los ofrece. Falta probarlo en equipos reales.
 - La imagen base está fijada por digest, pero los paquetes de Arch se toman del día: el canal estable es lo que
   protege a los equipos instalados de una actualización de Arch con fallas. Como la VM no tiene gráfica real, una rama nueva
   de NVIDIA o una versión nueva del núcleo no llegan solas: esperan a que alguien las apruebe tras probarlas en un equipo.

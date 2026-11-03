@@ -19,7 +19,9 @@ for estado in "$DRM"/card[0-9]*-*/status; do
     fi
 done
 
-opciones=(--steam --fullscreen --mangoapp --adaptive-sync)
+# Gamescope informa los fotogramas por esta tubería: el Observatorio los mide sin entrar al juego.
+estadisticas="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/antu-gamescope-stats"
+opciones=(--steam --fullscreen --mangoapp --adaptive-sync --stats-path "$estadisticas")
 juego=(steam -gamepadui)
 if [ -n "$tarjeta" ]; then
     fabricante="$(cat "$DRM/$tarjeta/device/vendor")"
@@ -36,6 +38,7 @@ if [ "${1:-}" = --mostrar ]; then
     exit 0
 fi
 
+[ -p "$estadisticas" ] || mkfifo -m 600 "$estadisticas"
 logger -t antu-eclipse "entrando: ${opciones[*]}"
 gamescope "${opciones[@]}" -- "${juego[@]}"
 logger -t antu-eclipse "terminó con código $?"

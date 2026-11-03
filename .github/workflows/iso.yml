@@ -99,7 +99,7 @@ jobs:
           nucleo="$(awk '$1 == "linux" {split($2, v, "."); print v[1] "." v[2]}' <<< "$versiones")"
           [ -n "$rama" ] && [ -n "$nucleo" ]
           marca="aprobada-nvidia-$rama-nucleo-$nucleo"
-          etiquetas="$(skopeo list-tags "docker://$image")"
+          etiquetas="$(sudo skopeo list-tags "docker://$image")"
           if ! grep -q "\"$marca\"" <<< "$etiquetas"; then
             if grep -q '"aprobada-' <<< "$etiquetas" && [ "$APROBAR" != true ]; then
               titulo="Probar en un equipo real: NVIDIA $rama con núcleo $nucleo"

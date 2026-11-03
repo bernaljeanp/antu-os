@@ -70,7 +70,15 @@ cp /usr/bin/sleep /var/tmp/steamapps/common/JuegoDePrueba/juego
 en_sesion /var/tmp/steamapps/common/JuegoDePrueba/juego 40
 sleep 15
 serie "gamemode $(systemd-run --user --machine=antu@ --wait --pipe --quiet gamemoded -s 2>&1)"
-pkill -f JuegoDePrueba
+
+# El Observatorio midió ese juego solo: cuando termina, queda su sesión.
+sleep 35
+serie "observatorio $(tail -n 1 "$(getent passwd antu | cut -d: -f6)/.local/share/antu/observatorio/sesiones.jsonl" 2>&1)"
+en_sesion /usr/lib/antu/observatorio/observatorio.py
+sleep 10
+serie observatorio-ventana
+sleep 10
+pkill -f observatorio.py
 
 # El informe de verdad, con su limpieza y su guardado en el USB; se copia a la consola para revisarlo.
 resultado="$(echo "(creado por la prueba)" | /usr/lib/antu/informe-helper)"

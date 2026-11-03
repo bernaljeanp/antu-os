@@ -1,0 +1,13 @@
+[Unit]
+Description=Observatorio: mide los juegos desde afuera, sin tocarlos
+# Las cuentas de sistema (el inicio de sesión, Inicio) no juegan.
+ConditionUser=!@system
+
+[Service]
+ExecStart=/usr/lib/antu/observatorio/observador.py
+Restart=on-failure
+RestartSec=30
+Nice=10
+
+[Install]
+WantedBy=default.target

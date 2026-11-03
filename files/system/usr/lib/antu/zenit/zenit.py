@@ -134,25 +134,31 @@ def juego_de(cmdline):
     return None
 
 
+SENSOR_CPU = {"coretemp": "Package", "k10temp": "Tctl"}  # Intel y AMD
+
+
 def sensores():
     temps, fans = {}, {}
     for d in glob.glob(ruta("/sys/class/hwmon/hwmon*")):
         nombre = leer(d + "/name")
-        if nombre not in ("alienware_wmi", "coretemp"):
-            continue
-        for t in sorted(glob.glob(d + "/temp*_input")):
+        for t in sorted(glob.glob(d + "/temp*_input")) if nombre == "alienware_wmi" or nombre in SENSOR_CPU else ():
             etiqueta = leer(t.replace("_input", "_label"), os.path.basename(t))
-            if nombre == "coretemp" and not etiqueta.startswith("Package"):
+            if nombre in SENSOR_CPU and not etiqueta.startswith(SENSOR_CPU[nombre]):
                 continue
-            temps.setdefault("CPU" if nombre == "coretemp" else etiqueta, int(leer(t, "0")) // 1000)
-        for f in sorted(glob.glob(d + "/fan*_input")):
+            temps.setdefault("CPU" if nombre in SENSOR_CPU else etiqueta, int(leer(t, "0")) // 1000)
+        for f in sorted(glob.glob(d + "/fan*_input")):  # de cualquier marca: asus, thinkpad, dell_smm…
             fans[leer(f.replace("_input", "_label"), os.path.basename(f)[:4])] = int(leer(f, "0"))
     return temps, fans
 
 
-# ---------- Batería: atributos de la BIOS de Dell (los mismos que usa Zenit en Windows) ----------
+# ---------- Batería: atributos de la BIOS de Dell (los mismos que usa Zenit en Windows) o el límite estándar del núcleo ----------
 
 SYSMAN = "/sys/class/firmware-attributes/dell-wmi-sysman/attributes"
+
+
+def topes_de_bateria():
+    """El límite estándar del núcleo: ASUS, Lenovo, HP, MSI y otras marcas."""
+    return glob.glob(ruta("/sys/class/power_supply/BAT*/charge_control_end_threshold"))
 
 
 def umbrales(limite):
@@ -166,7 +172,11 @@ def poner_carga(limite):
         return ruta(f"{SYSMAN}/{n}/current_value")
 
     if not os.path.exists(attr("PrimaryBattChargeCfg")):
-        raise RuntimeError("Este equipo no tiene ajustes de carga en la BIOS (dell-wmi-sysman).")
+        if not topes_de_bateria():
+            raise RuntimeError("Este equipo no permite fijar el límite de carga desde Linux.")
+        for tope in topes_de_bateria():  # sin modo adaptativo: sin límite
+            escribir(tope, limite or 100)
+        return
     if limite is None:
         escribir(attr("PrimaryBattChargeCfg"), "Adaptive")
         return
@@ -183,14 +193,17 @@ def poner_carga(limite):
 
 def estado_carga():
     modo = leer(ruta(f"{SYSMAN}/PrimaryBattChargeCfg/current_value"))
-    tope = leer(ruta(f"{SYSMAN}/CustomChargeStop/current_value"), "0")
+    if not modo and topes_de_bateria():
+        modo, tope = "Custom", leer(topes_de_bateria()[0], "100")
+    else:
+        tope = leer(ruta(f"{SYSMAN}/CustomChargeStop/current_value"), "0")
     return modo, int(tope) if tope.isdigit() else 0
 
 
 def leer_carga():
-    modo = leer(ruta(f"{SYSMAN}/PrimaryBattChargeCfg/current_value"))
+    modo, tope = estado_carga()
     if modo == "Custom":
-        return f"hasta {leer(ruta(f'{SYSMAN}/CustomChargeStop/current_value'))} %"
+        return f"hasta {tope} %"
     return {"Adaptive": "adaptativa", "Standard": "completa", "": "no disponible"}.get(modo, modo)
 
 
@@ -434,6 +447,8 @@ class Zenit:
             self.guardar()
         elif o == "carga" and len(args) == 2 and args[1] in ("60", "80", "100", "adaptativa"):
             poner_carga(None if args[1] == "adaptativa" else int(args[1]))
+            self.estado["carga"] = args[1]
+            self.guardar()
         else:
             return {"ok": False, "error": "Orden desconocida. Escribe «zenit ayuda»."}
         self.aplicar()
@@ -442,6 +457,12 @@ class Zenit:
 
 def demonio():
     zenit = Zenit()
+    # El límite estándar se pierde al apagar en varias marcas; el de Dell queda en la BIOS.
+    if topes_de_bateria() and zenit.estado.get("carga"):
+        try:
+            poner_carga(None if zenit.estado["carga"] == "adaptativa" else int(zenit.estado["carga"]))
+        except (OSError, RuntimeError, ValueError):
+            pass
     if os.path.exists(SOCKET):
         os.unlink(SOCKET)
     servidor = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -602,6 +623,25 @@ def autoprueba():
     assert pendientes_gamemode({1: None, 2: "hades", 3: "hades"}, registrados) == []  # pedirlo dos veces lo apagaría
     assert pendientes_gamemode({3: "hades"}, registrados) == [3]  # cerró el lanzador: sigue el juego
     assert pendientes_gamemode({}, registrados) == [] and registrados == {}
+
+    # Otras marcas: límite estándar del núcleo, procesador AMD y ventiladores con otro nombre.
+    with tempfile.TemporaryDirectory() as raiz:
+        RAIZ = raiz
+        tope = raiz + "/sys/class/power_supply/BAT0/charge_control_end_threshold"
+        os.makedirs(os.path.dirname(tope))
+        escribir(tope, "100")
+        assert estado_carga() == ("Custom", 100)
+        poner_carga(80)
+        assert leer(tope) == "80" and leer_carga() == "hasta 80 %"
+        poner_carga(None)
+        assert leer(tope) == "100"
+        os.makedirs(raiz + "/sys/class/hwmon/hwmon0")
+        os.makedirs(raiz + "/sys/class/hwmon/hwmon1")
+        for archivo, valor in (("hwmon0/name", "k10temp"), ("hwmon0/temp1_input", "72000"), ("hwmon0/temp1_label", "Tctl"),
+                               ("hwmon1/name", "asus"), ("hwmon1/fan1_input", "3100"), ("hwmon1/fan1_label", "cpu_fan")):
+            escribir(raiz + "/sys/class/hwmon/" + archivo, valor)
+        assert sensores() == ({"CPU": 72}, {"cpu_fan": 3100})
+        RAIZ = ""
 
     print("Zenit: autoprueba OK")
 

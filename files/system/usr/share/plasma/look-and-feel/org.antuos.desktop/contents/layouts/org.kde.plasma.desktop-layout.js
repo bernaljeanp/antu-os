@@ -23,6 +23,7 @@ tasks.writeConfig("launchers", primeras.concat([
     "preferred://filemanager",
     "applications:steam.desktop",
     "applications:antu-biblioteca.desktop",
+    "applications:antu-observatorio.desktop",
     "applications:org.kde.discover.desktop",
     "applications:zenit.desktop",
     "applications:systemsettings.desktop"

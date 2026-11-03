@@ -632,7 +632,7 @@ ApplicationWindow {
                     }
                     Nota {
                         text: panelBateria.disponible
-                              ? "Se guarda en la BIOS: vale aunque Zenit no esté abierto. Cargar menos desgasta menos la batería."
+                              ? "Queda guardado: vale aunque Zenit no esté abierto. Cargar menos desgasta menos la batería."
                               : "Este equipo no permite fijar el límite de carga desde Linux."
                         color: root.ink3
                         font.pixelSize: 19 * root.u

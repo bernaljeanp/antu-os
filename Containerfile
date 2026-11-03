@@ -92,6 +92,7 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scrip
 RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer firewalld bluetooth switcheroo-control \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl disable systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service && \
+    systemctl --global enable antu-observatorio && \
     sed -i 's/^DefaultZone=.*/DefaultZone=antu/' /etc/firewalld/firewalld.conf && \
     systemctl mask systemd-firstboot.service && \
     passwd -l root && \
