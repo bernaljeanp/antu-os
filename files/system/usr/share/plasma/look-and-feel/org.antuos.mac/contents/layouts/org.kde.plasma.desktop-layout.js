@@ -14,6 +14,14 @@ bar.addWidget("org.kde.plasma.systemtray");
 var reloj = bar.addWidget("org.kde.plasma.digitalclock");
 reloj.currentConfigGroup = ["Appearance"];
 reloj.writeConfig("use24hFormat", 2);  // como el inicio de sesión
+// Una sola línea, como en macOS: sin los dos renglones apretados ni la fecha en números.
+reloj.writeConfig("dateDisplayFormat", 1);
+reloj.writeConfig("dateFormat", "custom");
+reloj.writeConfig("customDateFormat", "ddd d MMM");
+reloj.writeConfig("autoFontAndSize", false);
+reloj.writeConfig("fontFamily", "Inter");
+reloj.writeConfig("fontWeight", 500);
+reloj.writeConfig("fontSize", 11);
 
 var dock = new Panel;
 dock.location = "bottom";

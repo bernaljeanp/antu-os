@@ -33,6 +33,8 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   jugar con Steam en su interfaz para mando, a pantalla completa y sin el escritorio. Al salir de Steam vuelves al
   escritorio sin escribir la contraseña. En un híbrido, la gráfica con la pantalla conectada dibuja y el juego corre en
   NVIDIA. Toda la vuelta está probada en máquinas virtuales; Gamescope con una gráfica real falta probarlo.
+- **Botones y avisos con material:** lo principal es lava con luz propia y lo demás, una tecla retroiluminada que baja al
+  apretarla. Las ventanas de sistema de KDE todavía usan su propio estilo.
 - **GameMode** se activa solo al abrir un juego con el cargador conectado, sin escribir nada en Steam y sin cargar nada
   dentro del juego. **MangoHud** muestra los datos de rendimiento: en Eclipse, desde el menú rápido de Steam; en el
   escritorio, con `mangohud %command%` en las opciones de lanzamiento del juego (Mayús derecha + F12 los oculta).

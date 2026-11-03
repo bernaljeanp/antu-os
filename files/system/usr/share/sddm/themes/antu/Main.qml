@@ -34,6 +34,27 @@ Rectangle {
         return text.charAt(0).toUpperCase() + text.slice(1)
     }
 
+    // Campo hundido en el vidrio: sombra adentro arriba y luz en el canto de abajo; al escribir, se enciende en lava.
+    component Hundido: Rectangle {
+        id: hundido
+        property bool foco: false
+        radius: height / 2
+        gradient: Gradient {
+            GradientStop { position: 0; color: hundido.foco ? root.lava : Qt.rgba(0, 0, 0, 0.6) }
+            GradientStop { position: 1; color: hundido.foco ? root.lava : Qt.rgba(1, 1, 1, 0.3) }
+        }
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: hundido.foco ? 2 * root.u : 1
+            radius: height / 2
+            gradient: Gradient {
+                GradientStop { position: 0; color: "#0E0E12" }
+                GradientStop { position: 0.3; color: "#1A1A1F" }
+                GradientStop { position: 1; color: "#26262C" }
+            }
+        }
+    }
+
     function login() {
         const name = users.count > 0 && currentUser ? currentUser.uName : usernameField.text
         if (name.length === 0)
@@ -241,11 +262,8 @@ Rectangle {
             verticalAlignment: TextInput.AlignVCenter
             Accessible.name: "Usuario"
             onAccepted: password.forceActiveFocus()
-            background: Rectangle {
-                radius: height / 2
-                color: root.glass
-                border.width: usernameField.activeFocus ? 2 * root.u : 1
-                border.color: usernameField.activeFocus ? root.lava : root.glassEdge
+            background: Hundido {
+                foco: usernameField.activeFocus
             }
         }
 
@@ -272,11 +290,8 @@ Rectangle {
             onAccepted: root.login()
             onTextEdited: root.failed = false
             Keys.onEscapePressed: text = ""
-            background: Rectangle {
-                radius: height / 2
-                color: root.glass
-                border.width: password.activeFocus ? 2 * root.u : 1
-                border.color: password.activeFocus ? root.lava : root.glassEdge
+            background: Hundido {
+                foco: password.activeFocus
             }
 
             RoundButton {
@@ -289,9 +304,23 @@ Rectangle {
                 focusPolicy: Qt.NoFocus
                 Accessible.name: "Entrar"
                 onClicked: root.login()
-                background: Rectangle {
+                background: Rectangle {  // lava con luz propia: canto claro arriba, cuerpo con degradado
                     radius: width / 2
-                    color: enter.down ? root.lavaDeep : root.lava
+                    gradient: Gradient {
+                        GradientStop { position: 0; color: "#FFB48A" }
+                        GradientStop { position: 0.45; color: "#E2480F" }
+                        GradientStop { position: 1; color: "#7C2605" }
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        radius: width / 2
+                        gradient: Gradient {
+                            GradientStop { position: 0; color: enter.down ? "#E2480F" : "#F97A3C" }
+                            GradientStop { position: 0.55; color: enter.down ? "#B93A0A" : "#E2480F" }
+                            GradientStop { position: 1; color: "#B93A0A" }
+                        }
+                    }
                 }
                 contentItem: Image {
                     source: "arrow.svg"

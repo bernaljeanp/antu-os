@@ -165,14 +165,25 @@ ApplicationWindow {
     }
 
     component Chip: Rectangle {
+        id: chip
         property string texto
         property bool encendido: false
         implicitWidth: chipTexto.implicitWidth + 36 * root.u
         implicitHeight: 40 * root.u
         radius: height / 2
-        color: encendido ? Qt.rgba(1, 0.353, 0.122, 0.18) : Qt.rgba(1, 1, 1, 0.07)
+        gradient: Gradient {
+            GradientStop { position: 0; color: chip.encendido ? Qt.rgba(1, 0.42, 0.18, 0.34) : Qt.rgba(1, 1, 1, 0.13) }
+            GradientStop { position: 1; color: chip.encendido ? Qt.rgba(1, 0.3, 0.08, 0.16) : Qt.rgba(1, 1, 1, 0.05) }
+        }
         border.width: 1
-        border.color: encendido ? Qt.rgba(1, 0.353, 0.122, 0.55) : Qt.rgba(1, 1, 1, 0.12)
+        border.color: encendido ? Qt.rgba(1, 0.353, 0.122, 0.6) : Qt.rgba(1, 1, 1, 0.13)
+        Reflejo {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: chip.radius
+            y: 1
+            fuerza: 0.28
+        }
         Text {
             id: chipTexto
             anchors.centerIn: parent
@@ -184,7 +195,7 @@ ApplicationWindow {
         }
     }
 
-    // Opción elegible (perfil, límite de carga): resaltada en lava cuando está activa.
+    // Opción elegible (perfil, límite de carga): una tecla oscura; la elegida se enciende por debajo, como un teclado retroiluminado.
     component Opcion: AbstractButton {
         id: opcion
         property string titulo
@@ -194,13 +205,59 @@ ApplicationWindow {
         Layout.fillWidth: true
         implicitHeight: 96 * root.u
         Accessible.name: titulo + (activa ? ", activo" : "")
-        background: Rectangle {
-            radius: 16 * root.u
-            color: opcion.activa && !opcion.tenue ? Qt.rgba(1, 0.353, 0.122, 0.20)
-                 : opcion.hovered ? Qt.rgba(1, 1, 1, 0.09) : Qt.rgba(1, 1, 1, 0.04)
-            border.width: opcion.activa || opcion.visualFocus ? 2 * root.u : 1
-            border.color: opcion.activa || opcion.visualFocus ? root.lava : Qt.rgba(1, 1, 1, 0.10)
-            Behavior on color { ColorAnimation { duration: 140 } }
+        background: Item {
+            Halo {
+                anchors.fill: parent
+                radio: 16 * root.u
+                alcance: 10 * root.u
+                fuerza: opcion.enabled ? 0.34 : 0
+                bajada: 6 * root.u
+            }
+            Halo {
+                anchors.fill: parent
+                radio: 16 * root.u
+                tono: root.lava
+                alcance: 18 * root.u
+                fuerza: opcion.activa ? (opcion.tenue ? 0.14 : 0.32) : 0
+                bajada: 7 * root.u
+            }
+            Rectangle {  // la ranura por donde sale la luz
+                visible: opcion.activa
+                anchors.fill: parent
+                anchors.topMargin: 8 * root.u
+                anchors.bottomMargin: -4 * root.u
+                radius: 16 * root.u
+                color: root.lava
+                opacity: opcion.tenue ? 0.5 : 1
+            }
+            Rectangle {  // el canto
+                anchors.fill: parent
+                radius: 16 * root.u
+                gradient: Gradient {
+                    GradientStop { position: 0; color: opcion.enabled ? "#54545E" : "#2E2E34" }
+                    GradientStop { position: 0.2; color: "#2A2A31" }
+                    GradientStop { position: 1; color: "#0E0E11" }
+                }
+                Rectangle {  // la cara
+                    anchors.fill: parent
+                    anchors.margins: 1
+                    anchors.bottomMargin: 3 * root.u
+                    radius: 15 * root.u
+                    gradient: Gradient {
+                        GradientStop { position: 0; color: opcion.hovered ? "#36363E" : "#2D2D34" }
+                        GradientStop { position: 1; color: opcion.hovered ? "#25252B" : "#1D1D22" }
+                    }
+                }
+            }
+            Rectangle {  // foco con teclado
+                visible: opcion.visualFocus
+                anchors.fill: parent
+                anchors.margins: -4 * root.u
+                radius: 20 * root.u
+                color: "transparent"
+                border.width: 2.5 * root.u
+                border.color: "#FFFFFF"
+            }
         }
         contentItem: Column {
             spacing: 4 * root.u

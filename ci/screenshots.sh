@@ -65,6 +65,7 @@ QT_SCALE_FACTOR=1.5 capturar actualizaciones "Actualizaciones de Antu" /usr/lib/
 QT_SCALE_FACTOR=1.5 capturar biblioteca root /usr/lib/antu/biblioteca/biblioteca.py
 python /usr/lib/antu/biblioteca/biblioteca.py --autoprueba || { echo "::error::La Biblioteca da veredictos equivocados"; exit 1; }
 QT_SCALE_FACTOR=1.5 capturar observatorio root /usr/lib/antu/observatorio/observatorio.py
+QT_SCALE_FACTOR=1.5 capturar aviso root /usr/lib/antu/aviso/aviso.py
 python /usr/lib/antu/observatorio/observatorio.py --autoprueba || { echo "::error::El Observatorio compara mal"; exit 1; }
 python /usr/lib/antu/observatorio/observador.py --autoprueba || { echo "::error::El Observador lee mal los datos"; exit 1; }
 

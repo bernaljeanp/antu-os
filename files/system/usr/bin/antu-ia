@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # IA local opcional de Antu: instala Alpaca (chat) con Ollama dentro, desde Flathub, solo para este usuario.
 # No viene preinstalada porque ocupa varios GB; Ollama usa la GPU NVIDIA cuando está disponible.
-TITULO="IA local"
-kdialog --title "$TITULO" --continue-label "Instalar" --warningcontinuecancel \
-    "Se instalará Alpaca, un chat con modelos de IA que funcionan sin internet. Ocupa varios GB." || exit 0
-kdialog --title "$TITULO" --passivepopup "Instalando en segundo plano. Te aviso cuando termine." 8
+AVISO=/usr/lib/antu/aviso/aviso.py
+"$AVISO" --titulo "Instalar la IA local" --aceptar "Instalar" --cancelar "Ahora no" \
+    --texto "Se instalará Alpaca, un chat con modelos de IA que funcionan sin internet. Ocupa varios GB." || exit 0
+gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications \
+    --method org.freedesktop.Notifications.Notify "Antu" 0 "antu-ia" "Instalando la IA local" \
+    "Sigue en segundo plano. Te aviso cuando termine." "[]" "{}" 8000 > /dev/null
 if flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo \
     && flatpak install --user --noninteractive flathub com.jeffser.Alpaca com.jeffser.Alpaca.Plugins.Ollama; then
-    kdialog --title "$TITULO" --msgbox "Listo: abre Alpaca desde el menú y descarga un modelo desde sus ajustes."
+    "$AVISO" --tipo bien --titulo "La IA local está lista" --aceptar "Listo" \
+        --texto "Abre Alpaca desde el menú y descarga un modelo desde sus ajustes."
 else
-    kdialog --title "$TITULO" --error "No se pudo instalar. Revisa tu conexión a internet y vuelve a intentarlo."
+    "$AVISO" --tipo peligro --titulo "No se pudo instalar" --aceptar "Cerrar" \
+        --texto "Revisa tu conexión a internet y vuelve a intentarlo."
 fi

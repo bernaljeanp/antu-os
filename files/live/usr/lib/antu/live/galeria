@@ -80,6 +80,12 @@ serie observatorio-ventana
 sleep 10
 pkill -f observatorio.py
 
+en_sesion /usr/lib/antu/aviso/aviso.py --demo
+sleep 6
+serie aviso
+sleep 10
+pkill -f aviso.py
+
 # El informe de verdad, con su limpieza y su guardado en el USB; se copia a la consola para revisarlo.
 resultado="$(echo "(creado por la prueba)" | /usr/lib/antu/informe-helper)"
 serie "informe-resultado $resultado"

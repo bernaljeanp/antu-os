@@ -63,11 +63,11 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
 # Capa de juegos: Steam, Gamescope (modo Eclipse), GameMode, MangoHud y los controladores de 32 bits.
 # nvidia-prime da prime-run para portátiles híbridos; con switcheroo-control, KDE abre Steam solo en la gráfica dedicada.
 # Un solo sistema para toda gráfica: vulkan-intel y vulkan-radeon cubren
-# las integradas y los equipos sin NVIDIA. kdialog: el aviso antes de entrar a Eclipse. zram-generator: memoria comprimida
+# las integradas y los equipos sin NVIDIA. zram-generator: memoria comprimida
 # en vez de swap en disco (ver usr/lib/systemd/zram-generator.conf).
 # -Sy: la limpieza de capas anteriores (pacman -Sc) puede borrar la base de datos sincronizada de multilib.
 RUN pacman -Sy --noconfirm steam lib32-nvidia-utils lib32-vulkan-icd-loader vulkan-intel lib32-vulkan-intel vulkan-radeon lib32-vulkan-radeon \
-      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime switcheroo-control vulkan-tools ttf-liberation zram-generator kdialog && \
+      gamescope gamemode lib32-gamemode mangohud lib32-mangohud nvidia-prime switcheroo-control vulkan-tools ttf-liberation zram-generator && \
     pacman -S --clean --noconfirm
 
 # USBoot, la app de Antu para crear USB de arranque: su AppImage se extrae en la imagen, así no necesita FUSE.

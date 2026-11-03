@@ -40,16 +40,20 @@ def marco(r, opacidad, sombra, margen):
     def borde(o):
         return f'class="ColorScheme-Text" style="fill:currentColor;fill-opacity:{o}"'
 
-    luz, linea = 0.16, 0.09  # el borde de arriba recibe la luz
+    luz, linea = 0.26, 0.09  # el borde de arriba recibe la luz
+    brillo = 'style="fill:url(#brillo)"'  # y el vidrio la deja caer hacia abajo
     i = r - 1  # radio interior
     # Esquinas: un cuarto de disco de vidrio y el anillo del borde, sin superponerse (el vidrio es translúcido).
     g("topleft",
       f'<path {fondo} d="M1,{r} A{i},{i} 0 0 1 {r},1 L{r},{r} Z"/>',
+      f'<path {brillo} d="M1,{r} A{i},{i} 0 0 1 {r},1 L{r},{r} Z"/>',
       f'<path {borde(luz)} d="M0,{r} A{r},{r} 0 0 1 {r},0 L{r},1 A{i},{i} 0 0 0 1,{r} Z"/>')
     g("top", f'<rect {fondo} x="{r}" y="1" width="{C}" height="{r - 1}"/>',
+      f'<rect {brillo} x="{r}" y="1" width="{C}" height="{r - 1}"/>',
       f'<rect {borde(luz)} x="{r}" y="0" width="{C}" height="1"/>')
     g("topright",
       f'<path {fondo} d="M{r + C},1 A{i},{i} 0 0 1 {L - 1},{r} L{r + C},{r} Z"/>',
+      f'<path {brillo} d="M{r + C},1 A{i},{i} 0 0 1 {L - 1},{r} L{r + C},{r} Z"/>',
       f'<path {borde(luz)} d="M{r + C},0 A{r},{r} 0 0 1 {L},{r} L{L - 1},{r} A{i},{i} 0 0 0 {r + C},1 Z"/>')
     g("left", f'<rect {fondo} x="1" y="{r}" width="{r - 1}" height="{C}"/>',
       f'<rect {borde(linea)} x="0" y="{r}" width="1" height="{C}"/>')
@@ -184,7 +188,10 @@ def tareas():
     alto = len(estados) * (L + 4)
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{L}" height="{alto}" viewBox="0 0 {L} {alto}">\n'
             '<defs><style id="current-color-scheme" type="text/css">'
-            '.ColorScheme-Text{color:#f5f5f7}.ColorScheme-Highlight{color:#ff5a1f}</style></defs>\n'
+            '.ColorScheme-Text{color:#f5f5f7}.ColorScheme-Highlight{color:#ff5a1f}</style>'
+            f'<linearGradient id="brillo" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="{r}">'
+            '<stop offset="0" stop-color="#ffffff" stop-opacity="0.11"/>'
+            '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>\n'
             + "\n".join(piezas) + "\n</svg>\n")
 
 

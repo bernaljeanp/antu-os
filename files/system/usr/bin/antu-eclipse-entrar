@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Entra al modo Eclipse desde el escritorio: avisa, deja listo el cambio y cierra la sesión de Plasma.
-kdialog --title "Modo Eclipse" --continue-label "Entrar a Eclipse" --warningcontinuecancel \
-    "Steam se abrirá a pantalla completa y se cerrarán las ventanas del escritorio. Guarda lo que tengas abierto.<br><br>Al salir de Steam, vuelves aquí." \
+/usr/lib/antu/aviso/aviso.py --titulo "Entrar a Eclipse" --aceptar "Entrar a Eclipse" --cancelar "Ahora no" \
+    --texto "Steam se abrirá a pantalla completa y se cerrarán las ventanas del escritorio. Guarda lo que tengas abierto. Al salir de Steam, vuelves aquí." \
     || exit 0
 pkexec /usr/lib/antu/eclipse-helper eclipse \
     && exec gdbus call --session --dest org.kde.Shutdown --object-path /Shutdown --method org.kde.Shutdown.logout

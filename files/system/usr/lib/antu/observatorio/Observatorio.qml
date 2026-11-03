@@ -505,7 +505,7 @@ ApplicationWindow {
 
                 // Por qué puede ser y qué más se vio.
                 Repeater {
-                    model: root.juego && root.juego.cambios.length > 0 ? root.juego.cambios.split("\n") : []
+                    model: root.juego && root.juego.estado !== "baja" && root.juego.cambios.length > 0 ? root.juego.cambios.split("\n") : []
                     Linea {
                         required property string modelData
                         text: "Cambió: " + modelData
@@ -519,26 +519,24 @@ ApplicationWindow {
                         text: modelData
                     }
                 }
-                Linea {
-                    visible: root.vuelta === 2 || root.vuelta === 3
-                    color: root.vuelta === 3 ? "#FF7069" : root.ink
-                    text: root.vuelta === 3 ? root.errorVuelta : "Listo: al reiniciar, Antu vuelve a la versión anterior. Tus archivos no cambian."
-                }
-                Linea {
-                    visible: !!root.juego && root.juego.estado === "baja" && root.vuelta === 0
-                    color: root.ink3
-                    text: "También pudo cambiar por un ajuste del juego: revísalo antes de volver atrás."
-                }
-
-                Flow {
+                Aviso {
                     Layout.fillWidth: true
                     Layout.topMargin: 8 * root.u
-                    spacing: 14 * root.u
+                    visible: !!root.juego && root.juego.estado === "baja"
+                    u: root.u
+                    tipo: root.vuelta === 3 ? "peligro" : (root.vuelta === 2 ? "bien" : "atencion")
+                    titulo: root.vuelta === 2 ? "Listo: al reiniciar vuelves a la versión anterior"
+                          : root.vuelta === 3 ? "No se pudo preparar la versión anterior"
+                          : "Puedes volver a la versión anterior"
+                    texto: root.vuelta === 2 ? "Tus archivos no cambian."
+                         : root.vuelta === 3 ? root.errorVuelta
+                         : (root.juego && root.juego.cambios.length > 0 ? "Cambió: " + root.juego.cambios.replace(/\n/g, ". ") + ". " : "")
+                           + "También pudo cambiar por un ajuste del juego: revísalo antes de volver atrás."
                     LavaButton {
                         u: root.u
-                        visible: !!root.juego && root.juego.estado === "baja" && root.vuelta !== 2
+                        visible: root.vuelta !== 2
                         enabled: root.vuelta !== 1
-                        text: root.vuelta === 1 ? "Preparando…" : "Volver a la versión anterior"
+                        text: root.vuelta === 1 ? "Preparando…" : "Volver atrás"
                         onClicked: {
                             root.vuelta = 1
                             backend.volver()
@@ -547,10 +545,17 @@ ApplicationWindow {
                     LavaButton {
                         u: root.u
                         primary: false
-                        visible: root.hayFotogramas
                         text: root.enTabla ? "Ver carta" : "Ver tabla"
                         onClicked: root.enTabla = !root.enTabla
                     }
+                }
+                LavaButton {
+                    Layout.topMargin: 8 * root.u
+                    u: root.u
+                    primary: false
+                    visible: root.hayFotogramas && !!root.juego && root.juego.estado !== "baja"
+                    text: root.enTabla ? "Ver carta" : "Ver tabla"
+                    onClicked: root.enTabla = !root.enTabla
                 }
             }
         }
