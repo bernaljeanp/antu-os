@@ -68,7 +68,7 @@ jobs:
             # Un solo sistema para toda gráfica: controlador de núcleo y Vulkan de 64 y 32 bits para AMD e Intel.
             modinfo -n amdgpu
             modinfo -n i915
-            for g in radeon intel; do [ "$(ls /usr/share/vulkan/icd.d/ | grep -c "^${g}_icd")" -ge 2 ]; done
+            for g in radeon intel; do test -f /usr/share/vulkan/icd.d/${g}_icd.json; test -f /usr/lib/libvulkan_$g.so; test -f /usr/lib32/libvulkan_$g.so; done
             # Modo Eclipse: todo lo que usa existe, y esta versión de Gamescope acepta sus opciones.
             test -x /usr/lib/antu/eclipse-helper
             command -v kdialog gdbus gamemoded mangoapp logger pkexec > /dev/null
