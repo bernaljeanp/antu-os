@@ -23,8 +23,8 @@ ApplicationWindow {
     readonly property color superficie: "#17171C"
 
     property var juegos: []
-    property int elegido: 0
-    readonly property var juego: juegos.length > 0 ? juegos[elegido] : null
+    property int elegido: -1  // al entrar, solo los juegos
+    readonly property var juego: elegido >= 0 && elegido < juegos.length ? juegos[elegido] : null
     readonly property bool hayFotogramas: !!juego && juego.sesiones.some(s => s.fps > 0)
     property bool enTabla: false
     // La conversación con el asistente: sobre la carta del juego elegido.
@@ -50,6 +50,8 @@ ApplicationWindow {
 
     Component.onCompleted: {
         juegos = JSON.parse(backend.juegos)
+        if (backend.eligeAlInicio)
+            elegido = 0
         if (backend.conversacionDeMuestra) {
             conversando = true
             conversacion.append({ "deAntu": false, "texto": "¿Por qué me va más lento?" })
@@ -84,6 +86,11 @@ ApplicationWindow {
             root.bajando = -1
             root.mensajeAsistente = ""
         }
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        onActivated: root.elegido = -1
     }
 
     Image {
@@ -132,10 +139,9 @@ ApplicationWindow {
         visible: root.juegos.length > 0
         spacing: 0
 
-        // La lista: el nombre, cuánto rinde y si cambió.
+        // Los juegos mandan: portadas grandes, lo que rinden y si cambió. El detalle se abre al elegir uno.
         ColumnLayout {
-            Layout.fillWidth: false
-            Layout.preferredWidth: 620 * root.u
+            Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.margins: 40 * root.u
             spacing: 24 * root.u
@@ -157,23 +163,26 @@ ApplicationWindow {
                 }
             }
 
-            ListView {
-                id: lista
+            GridView {
+                id: rejilla
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 model: root.juegos
-                currentIndex: root.elegido
-                spacing: 6 * root.u
                 clip: true
+                keyNavigationEnabled: true
                 boundsBehavior: Flickable.StopAtBounds
+                readonly property int columnas: root.juego ? 2 : Math.max(2, Math.floor(width / (430 * root.u)))
+                cellWidth: width / columnas
+                cellHeight: cellWidth * 215 / 460 + 112 * root.u
                 ScrollBar.vertical: ScrollBar { }
                 delegate: AbstractButton {
-                    id: fila
+                    id: tarjeta
                     required property var modelData
                     required property int index
                     readonly property bool activa: root.elegido === index
-                    width: lista.width
-                    height: 112 * root.u
+                    readonly property bool empeoro: modelData.estado === "baja"
+                    width: rejilla.cellWidth
+                    height: rejilla.cellHeight
                     Accessible.name: modelData.nombre + ": " + modelData.etiqueta
                     onClicked: {
                         root.elegido = index
@@ -182,45 +191,25 @@ ApplicationWindow {
                         conversacion.clear()
                     }
                     contentItem: Item { }
-                    background: Rectangle {
-                        radius: 14 * root.u
-                        color: fila.activa ? Qt.rgba(1, 1, 1, 0.13) : (fila.hovered ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
-                        border.width: fila.visualFocus ? 3 * root.u : 0
-                        border.color: "#FFFFFF"
+                    background: TarjetaDeJuego {
+                        u: root.u
+                        imagen: tarjeta.modelData.imagen
+                        nombre: tarjeta.modelData.nombre
+                        activa: tarjeta.activa
+                        alerta: tarjeta.empeoro
+                        encima: tarjeta.hovered
+                        foco: tarjeta.visualFocus
                         RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 12 * root.u
-                            spacing: 16 * root.u
-                            Rectangle {
-                                Layout.preferredWidth: 188 * root.u
-                                Layout.preferredHeight: 88 * root.u
-                                radius: 8 * root.u
-                                color: Qt.rgba(1, 1, 1, 0.06)
-                                clip: true
-                                Text {
-                                    anchors.centerIn: parent
-                                    visible: portada.status !== Image.Ready
-                                    text: fila.modelData.nombre.charAt(0)
-                                    textFormat: Text.PlainText
-                                    color: Qt.rgba(1, 1, 1, 0.2)
-                                    font.family: "Inter"
-                                    font.pixelSize: 44 * root.u
-                                    font.weight: Font.Bold
-                                }
-                                Image {
-                                    id: portada
-                                    anchors.fill: parent
-                                    source: fila.modelData.imagen
-                                    fillMode: Image.PreserveAspectCrop
-                                    asynchronous: true
-                                }
-                            }
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 12 * root.u
                             ColumnLayout {
                                 Layout.fillWidth: true
                                 spacing: 4 * root.u
                                 Text {
                                     Layout.fillWidth: true
-                                    text: fila.modelData.nombre
+                                    text: tarjeta.modelData.nombre
                                     textFormat: Text.PlainText
                                     elide: Text.ElideRight
                                     color: root.ink
@@ -234,11 +223,11 @@ ApplicationWindow {
                                         implicitWidth: 11 * root.u
                                         implicitHeight: 11 * root.u
                                         radius: width / 2
-                                        color: root.colorDe(fila.modelData.estado)
+                                        color: root.colorDe(tarjeta.modelData.estado)
                                     }
                                     Text {
                                         Layout.fillWidth: true
-                                        text: fila.modelData.etiqueta
+                                        text: tarjeta.modelData.etiqueta
                                         textFormat: Text.PlainText
                                         elide: Text.ElideRight
                                         color: root.ink2
@@ -248,96 +237,28 @@ ApplicationWindow {
                                 }
                             }
                             Text {
-                                visible: fila.modelData.fps.length > 0
-                                text: fila.modelData.fps + " fps"
+                                visible: tarjeta.modelData.fps.length > 0
+                                text: tarjeta.modelData.fps
                                 color: root.ink
                                 font.family: "Inter"
-                                font.pixelSize: 22 * root.u
-                                font.weight: Font.Medium
-                                font.features: ({ "tnum": 1 })
+                                font.pixelSize: 38 * root.u
+                                font.weight: Font.Bold
+                            }
+                            Text {
+                                visible: tarjeta.modelData.fps.length > 0
+                                Layout.alignment: Qt.AlignBottom
+                                Layout.bottomMargin: 5 * root.u
+                                Layout.leftMargin: -6 * root.u
+                                text: "fps"
+                                color: root.ink3
+                                font.family: "Inter"
+                                font.pixelSize: 19 * root.u
                             }
                         }
                     }
                 }
             }
 
-            // Preguntarle a Antu: sobre el juego elegido. La primera vez, activarlo.
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 14 * root.u
-                visible: root.juegos.length > 0 && backend.asistenteListo
-                Flow {
-                    Layout.fillWidth: true
-                    spacing: 10 * root.u
-                    Repeater {
-                        model: ["¿Por qué me va más lento?", "¿Se está calentando?", "¿Qué puedo mejorar?"]
-                        AbstractButton {
-                            id: sugerencia
-                            required property string modelData
-                            implicitWidth: textoSugerencia.implicitWidth + 32 * root.u
-                            implicitHeight: 44 * root.u
-                            Accessible.name: modelData
-                            onClicked: root.preguntar(modelData)
-                            contentItem: Item { }
-                            background: Rectangle {
-                                radius: 12 * root.u
-                                gradient: Gradient {
-                                    GradientStop { position: 0; color: sugerencia.hovered ? Qt.rgba(1, 1, 1, 0.2) : Qt.rgba(1, 1, 1, 0.13) }
-                                    GradientStop { position: 1; color: sugerencia.hovered ? Qt.rgba(1, 1, 1, 0.1) : Qt.rgba(1, 1, 1, 0.05) }
-                                }
-                                border.width: sugerencia.visualFocus ? 2.5 * root.u : 1
-                                border.color: sugerencia.visualFocus ? "#FFFFFF" : Qt.rgba(1, 1, 1, 0.14)
-                                Reflejo {
-                                    anchors.left: parent.left
-                                    anchors.right: parent.right
-                                    anchors.margins: 10 * root.u
-                                    y: 1
-                                    fuerza: 0.3
-                                }
-                                Text {
-                                    id: textoSugerencia
-                                    anchors.centerIn: parent
-                                    text: sugerencia.modelData
-                                    color: root.ink
-                                    font.family: "Inter"
-                                    font.pixelSize: 19 * root.u
-                                }
-                            }
-                        }
-                    }
-                }
-                GlassField {
-                    id: pregunta
-                    Layout.fillWidth: true
-                    u: root.u
-                    placeholderText: "Pregúntale a Antu sobre este juego"
-                    Accessible.name: "Pregúntale a Antu sobre este juego"
-                    onAccepted: {
-                        root.preguntar(text)
-                        clear()
-                    }
-                }
-            }
-            Aviso {
-                Layout.fillWidth: true
-                visible: root.juegos.length > 0 && !backend.asistenteListo
-                u: root.u
-                tipo: "antu"
-                titulo: root.bajando >= 0 ? "Bajando el asistente: " + Math.round(root.bajando * 100) + " %" : "Pregúntale a Antu por qué rinde así"
-                texto: root.mensajeAsistente.length > 0 ? root.mensajeAsistente
-                     : root.bajando >= 0 ? "Puedes seguir usando el equipo. Si se corta, sigue donde iba."
-                     : "Responde con tus mediciones, en tu propia gráfica. Baja 3,1 GB una sola vez; después funciona sin internet."
-                LavaButton {
-                    u: root.u
-                    enabled: root.bajando < 0
-                    text: root.bajando >= 0 ? "Bajando…" : "Activar"
-                    onClicked: {
-                        root.bajando = 0
-                        root.mensajeAsistente = ""
-                        backend.activarAsistente()
-                    }
-                }
-            }
             Text {
                 Layout.fillWidth: true
                 wrapMode: Text.WordWrap
@@ -350,8 +271,10 @@ ApplicationWindow {
 
         // La carta del juego elegido.
         Rectangle {
-            Layout.fillWidth: true
+            Layout.fillWidth: false
+            Layout.preferredWidth: 1020 * root.u
             Layout.fillHeight: true
+            visible: root.juego !== null
             color: root.superficie
             border.width: 1
             border.color: Qt.rgba(1, 1, 1, 0.14)
@@ -361,15 +284,24 @@ ApplicationWindow {
                 anchors.margins: 44 * root.u
                 spacing: 16 * root.u
 
-                Text {
+                RowLayout {
                     Layout.fillWidth: true
-                    text: root.juego ? root.juego.nombre : ""
-                    textFormat: Text.PlainText
-                    elide: Text.ElideRight
-                    color: root.ink3
-                    font.family: "Inter"
-                    font.pixelSize: 24 * root.u
-                    font.weight: Font.Medium
+                    Text {
+                        Layout.fillWidth: true
+                        text: root.juego ? root.juego.nombre : ""
+                        textFormat: Text.PlainText
+                        elide: Text.ElideRight
+                        color: root.ink3
+                        font.family: "Inter"
+                        font.pixelSize: 24 * root.u
+                        font.weight: Font.Medium
+                    }
+                    LavaButton {
+                        u: root.u * 0.8
+                        primary: false
+                        text: "Cerrar"
+                        onClicked: root.elegido = -1
+                    }
                 }
                 Text {
                     Layout.fillWidth: true
@@ -741,6 +673,85 @@ ApplicationWindow {
                     visible: !!root.juego && root.juego.estado !== "baja" && (root.conversando || root.hayFotogramas)
                     text: root.conversando ? "Volver a la carta" : (root.enTabla ? "Ver carta" : "Ver tabla")
                     onClicked: root.conversando ? root.conversando = false : root.enTabla = !root.enTabla
+                }
+
+                // Preguntarle a Antu: sobre el juego elegido. La primera vez, activarlo.
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 14 * root.u
+                    visible: root.juegos.length > 0 && backend.asistenteListo
+                    Flow {
+                        Layout.fillWidth: true
+                        visible: !root.conversando
+                        spacing: 10 * root.u
+                        Repeater {
+                            model: ["¿Por qué me va más lento?", "¿Se está calentando?", "¿Qué puedo mejorar?"]
+                            AbstractButton {
+                                id: sugerencia
+                                required property string modelData
+                                implicitWidth: textoSugerencia.implicitWidth + 32 * root.u
+                                implicitHeight: 44 * root.u
+                                Accessible.name: modelData
+                                onClicked: root.preguntar(modelData)
+                                contentItem: Item { }
+                                background: Rectangle {
+                                    radius: 12 * root.u
+                                    gradient: Gradient {
+                                        GradientStop { position: 0; color: sugerencia.hovered ? Qt.rgba(1, 1, 1, 0.2) : Qt.rgba(1, 1, 1, 0.13) }
+                                        GradientStop { position: 1; color: sugerencia.hovered ? Qt.rgba(1, 1, 1, 0.1) : Qt.rgba(1, 1, 1, 0.05) }
+                                    }
+                                    border.width: sugerencia.visualFocus ? 2.5 * root.u : 1
+                                    border.color: sugerencia.visualFocus ? "#FFFFFF" : Qt.rgba(1, 1, 1, 0.14)
+                                    Reflejo {
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.margins: 10 * root.u
+                                        y: 1
+                                        fuerza: 0.3
+                                    }
+                                    Text {
+                                        id: textoSugerencia
+                                        anchors.centerIn: parent
+                                        text: sugerencia.modelData
+                                        color: root.ink
+                                        font.family: "Inter"
+                                        font.pixelSize: 19 * root.u
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    GlassField {
+                        id: pregunta
+                        Layout.fillWidth: true
+                        u: root.u
+                        placeholderText: "Pregúntale a Antu sobre este juego"
+                        Accessible.name: "Pregúntale a Antu sobre este juego"
+                        onAccepted: {
+                            root.preguntar(text)
+                            clear()
+                        }
+                    }
+                }
+                Aviso {
+                    Layout.fillWidth: true
+                    visible: root.juegos.length > 0 && !backend.asistenteListo
+                    u: root.u
+                    tipo: "antu"
+                    titulo: root.bajando >= 0 ? "Bajando el asistente: " + Math.round(root.bajando * 100) + " %" : "Pregúntale a Antu por qué rinde así"
+                    texto: root.mensajeAsistente.length > 0 ? root.mensajeAsistente
+                         : root.bajando >= 0 ? "Puedes seguir usando el equipo. Si se corta, sigue donde iba."
+                         : "Responde con tus mediciones, en tu propia gráfica. Baja 3,1 GB una sola vez; después funciona sin internet."
+                    LavaButton {
+                        u: root.u
+                        enabled: root.bajando < 0
+                        text: root.bajando >= 0 ? "Bajando…" : "Activar"
+                        onClicked: {
+                            root.bajando = 0
+                            root.mensajeAsistente = ""
+                            backend.activarAsistente()
+                        }
+                    }
                 }
             }
         }

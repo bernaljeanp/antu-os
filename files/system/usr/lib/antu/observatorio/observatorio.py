@@ -9,7 +9,7 @@ juego, y eso Antu no lo puede ver: por eso propone volver atrás, nunca lo hace 
 
 El asistente (asistente.py) responde preguntas sobre esas mismas mediciones, en la gráfica del equipo y sin internet.
 
---demo: muestra la interfaz con datos fijos (capturas de CI). --demo-pregunta: además, con una conversación abierta.
+--demo: muestra la interfaz con datos fijos (capturas de CI). --demo-detalle, --demo-pregunta y --demo-activar abren esas pantallas.
 --autoprueba: revisa la comparación.
 """
 import json
@@ -199,6 +199,10 @@ def main():
         @pyqtProperty(bool, notify=cambioModelo)
         def asistenteListo(self):
             return "--demo-activar" not in sys.argv and (self._demo or asistente.modelo_listo())
+
+        @pyqtProperty(bool, constant=True)
+        def eligeAlInicio(self):
+            return any(a in sys.argv for a in ("--demo-detalle", "--demo-pregunta", "--demo-activar"))
 
         @pyqtProperty(bool, constant=True)
         def conversacionDeMuestra(self):

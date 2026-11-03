@@ -80,6 +80,7 @@ capturar_con() {  # capturar_con NOMBRE OPCIÓN: el Observatorio con otra pantal
         exit 1
     fi
 }
+capturar_con observatorio-detalle --demo-detalle
 capturar_con observatorio-charla --demo-pregunta
 capturar_con observatorio-activar --demo-activar
 python /usr/lib/antu/observatorio/observador.py --autoprueba || { echo "::error::El Observador lee mal los datos"; exit 1; }

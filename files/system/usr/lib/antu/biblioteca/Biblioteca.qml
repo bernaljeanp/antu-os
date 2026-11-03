@@ -143,32 +143,6 @@ ApplicationWindow {
         }
     }
 
-    // Portada: la de Steam; si no hay, la inicial del juego sobre vidrio.
-    component Portada: Rectangle {
-        id: portadaBase
-        property string imagen
-        property string nombre
-        color: Qt.rgba(1, 1, 1, 0.06)
-        clip: true
-        Text {
-            anchors.centerIn: parent
-            visible: foto.status !== Image.Ready
-            text: portadaBase.nombre.charAt(0)
-            textFormat: Text.PlainText
-            color: Qt.rgba(1, 1, 1, 0.16)
-            font.family: "Inter"
-            font.pixelSize: 96 * root.u
-            font.weight: Font.Bold
-        }
-        Image {
-            id: foto
-            anchors.fill: parent
-            source: portadaBase.imagen
-            fillMode: Image.PreserveAspectCrop
-            asynchronous: true
-        }
-    }
-
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 44 * root.u
@@ -246,53 +220,18 @@ ApplicationWindow {
                 Accessible.name: nombre + ": " + titulo
                 onClicked: root.elegido = index
                 contentItem: Item { }
-                background: Rectangle {
-                    x: 8 * root.u
-                    y: 8 * root.u
-                    width: parent.width - 16 * root.u
-                    height: parent.height - 16 * root.u
-                    radius: 16 * root.u
-                    color: tarjeta.hovered || root.elegido === tarjeta.index ? Qt.rgba(1, 1, 1, 0.13) : Qt.rgba(1, 1, 1, 0.07)
-                    border.width: tarjeta.visualFocus ? 3 * root.u : (root.elegido === tarjeta.index ? 2 * root.u : 1)
-                    border.color: tarjeta.visualFocus ? "#FFFFFF"
-                                : root.elegido === tarjeta.index ? root.lava : Qt.rgba(1, 1, 1, 0.14)
-                    clip: true
-                    Behavior on color { ColorAnimation { duration: 120 } }
-                    Portada {
-                        id: portada
-                        x: 1
-                        y: 1
-                        width: parent.width - 2
-                        height: width * 215 / 460
-                        radius: 15 * root.u
-                        imagen: tarjeta.imagen
-                        nombre: tarjeta.nombre
-                    }
-                    Rectangle {
-                        anchors.top: portada.top
-                        anchors.right: portada.right
-                        anchors.margins: 10 * root.u
-                        visible: tarjeta.instalado
-                        implicitWidth: instaladoTexto.implicitWidth + 22 * root.u
-                        implicitHeight: instaladoTexto.implicitHeight + 10 * root.u
-                        radius: height / 2
-                        color: Qt.rgba(0, 0, 0, 0.72)
-                        Text {
-                            id: instaladoTexto
-                            anchors.centerIn: parent
-                            text: "Instalado"
-                            color: root.ink
-                            font.family: "Inter"
-                            font.pixelSize: 17 * root.u
-                            font.weight: Font.Medium
-                        }
-                    }
+                background: TarjetaDeJuego {
+                    u: root.u
+                    imagen: tarjeta.imagen
+                    nombre: tarjeta.nombre
+                    insignia: tarjeta.instalado ? "Instalado" : ""
+                    activa: root.elegido === tarjeta.index
+                    encima: tarjeta.hovered
+                    foco: tarjeta.visualFocus
                     ColumnLayout {
                         anchors.left: parent.left
                         anchors.right: parent.right
-                        anchors.top: portada.bottom
-                        anchors.margins: 16 * root.u
-                        anchors.topMargin: 12 * root.u
+                        anchors.verticalCenter: parent.verticalCenter
                         spacing: 5 * root.u
                         Text {
                             Layout.fillWidth: true
@@ -375,7 +314,8 @@ ApplicationWindow {
             Portada {
                 Layout.fillWidth: true
                 Layout.preferredHeight: width * 215 / 460
-                radius: 14 * root.u
+                u: root.u
+                radio: 14 * root.u
                 visible: !!root.juego && root.juego.imagen.length > 0
                 imagen: root.juego ? root.juego.imagen : ""
                 nombre: root.juego ? root.juego.nombre : ""
