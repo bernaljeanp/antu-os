@@ -8,3 +8,12 @@ third_party
 *.md
 **/__pycache__
 **/*.pyc
+iso-build
+pruebas-iso
+build-descarga
+entrega-descarga
+capturas-descarga
+prueba-publica
+descarga-publicar
+descarga-linux
+descarga-windows

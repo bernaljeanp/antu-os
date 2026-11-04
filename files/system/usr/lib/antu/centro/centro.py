@@ -5,14 +5,15 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import sys
 import time
 
 from PyQt6.QtCore import QObject, QProcess, QTimer, Qt, QUrl, pyqtSignal
 from PyQt6.QtGui import QDesktopServices, QFont, QIcon
-from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFileDialog, QFormLayout, QHBoxLayout,
+from PyQt6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog, QFileDialog, QFormLayout, QHBoxLayout,
     QLabel, QLineEdit, QMainWindow, QMessageBox, QProgressBar, QPushButton, QScrollArea, QTabWidget,
-    QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget)
+    QTextBrowser, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget)
 from catalogo import APPS
 from respaldo import Restic, destination
 from rendimiento import comparar
@@ -191,8 +192,25 @@ class Centro(QMainWindow):
         box.addWidget(self.label("La restauración se verifica y se guarda en Restauraciones-Antu. Tus archivos actuales no se sobrescriben. Si olvidas la frase de cifrado no podremos recuperar el respaldo."))
         box.addWidget(self.label("Si una actualización falla, puedes volver a la versión anterior. Esa operación recupera el sistema; las copias anteriores protegen tus archivos."))
         self.button("Abrir Actualizaciones de Antu", lambda: QProcess.startDetached("/usr/bin/python3", ["/usr/lib/antu/actualizaciones/actualizaciones.py"]), box)
-        self.button("Abrir guía de recuperación", lambda: QDesktopServices.openUrl(QUrl.fromLocalFile("/usr/share/doc/antu/recuperacion.html")), box)
+        self.button("Abrir guía de recuperación", self.recovery_guide, box)
         box.addStretch()
+
+    def recovery_guide(self):
+        try:
+            html = Path("/usr/share/doc/antu/recuperacion.html").read_text(encoding="utf-8")
+        except OSError:
+            self.status.setText("No se pudo abrir la guía local. Puedes consultar las copias desde esta ventana.")
+            return
+        dialog = QDialog(self); dialog.setWindowTitle("Guía de recuperación de Antu")
+        dialog.resize(880, 680); dialog.setMinimumSize(620, 480)
+        layout = QVBoxLayout(dialog); layout.setContentsMargins(24, 24, 24, 24)
+        reader = QTextBrowser(); reader.setOpenExternalLinks(False); reader.setOpenLinks(False)
+        # Heredar la paleta nativa: también debe poder leerse con Salar y sin navegador instalado.
+        reader.setHtml(re.sub(r"<style>.*?</style>", "", html, flags=re.DOTALL))
+        layout.addWidget(reader)
+        close = QPushButton("Cerrar"); close.clicked.connect(dialog.accept)
+        row = QHBoxLayout(); row.addStretch(); row.addWidget(close); layout.addLayout(row)
+        dialog.exec()
 
     def choose_repo(self):
         path = QFileDialog.getExistingDirectory(self, "Elige una carpeta en el disco de respaldo", "/run/media")
