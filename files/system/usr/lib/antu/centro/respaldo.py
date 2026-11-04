@@ -66,6 +66,10 @@ class Restic:
             if proc.returncode:
                 errors.seek(0)
                 error = errors.read().decode(errors="replace")
+                code = proc.returncode
+                # Restic anterior a 0.17.1 usa 1 también para una frase incorrecta.
+                if code == 1 and "wrong password or no key found" in error.casefold():
+                    code = 12
                 messages = {
                     3: "No se pudieron leer todos los archivos. La copia no se declara completa; revisa los permisos del origen.",
                     10: "No se encontró el repositorio. Conecta el disco correcto y vuelve a buscar las copias.",
@@ -73,7 +77,7 @@ class Restic:
                     12: "La frase de cifrado no coincide con este respaldo. Revísala sin crear otro repositorio.",
                     130: "Operación cancelada. Revisa las copias disponibles; no se declara una nueva copia verificada.",
                 }
-                message = messages[130] if self.cancelled.is_set() else messages.get(proc.returncode,
+                message = messages[130] if self.cancelled.is_set() else messages.get(code,
                     "El respaldo no terminó. Comprueba la conexión, el espacio y los permisos del disco; no se declara completo.")
                 failure = RuntimeError(message)
                 failure.diagnostic = error.strip()[-1800:]
