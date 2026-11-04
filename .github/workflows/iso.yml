@@ -57,8 +57,9 @@ jobs:
           # Otro push de Live puede llegar mientras compila una base más reciente.
           # Su workflow_run recogerá esas correcciones cuando termine la última imagen.
           if [ "$GITHUB_EVENT_NAME" != workflow_dispatch ]; then
+            trigger="${{ github.event.workflow_run.id || 0 }}"
             ongoing="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/build.yml/runs?branch=main&per_page=20" \
-              --jq '[.workflow_runs[] | select(.status != "completed")] | length')"
+              --jq "[.workflow_runs[] | select(.status != \"completed\" and .id != $trigger)] | length")"
             if [ "$ongoing" -gt 0 ]; then
               echo "Hay una imagen en compilación o en espera. La ISO espera el resultado más reciente."
               echo "ejecutar=false" >> "$GITHUB_OUTPUT"
