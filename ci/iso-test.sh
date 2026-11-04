@@ -284,7 +284,7 @@ if ! wait_for "$OUT/serie-cifrado.log" "Startup finished in" 600; then
     exec 9>&-
     kill "$reader" 2>/dev/null || true
     wait || true
-    echo "::error::El disco cifrado no arrancó después de desbloquearlo."
+    echo "::error::No se pudo confirmar el arranque completo del sistema cifrado; revisar serie-cifrado.log y su captura."
     exit 1
 fi
 sleep 15
@@ -293,4 +293,8 @@ echo quit | socat - unix:"$OUT/monitor.sock" > /dev/null
 exec 9>&-
 kill "$reader" 2>/dev/null || true
 wait || true
+if grep -qaE 'dracut-crypt-generator.*failed|antu-apps.service: Failed' "$OUT/serie-cifrado.log"; then
+    echo "::error::El arranque cifrado conserva errores de generador o preparación sin conexión."
+    exit 1
+fi
 echo "ANTU: pruebas de la ISO OK"

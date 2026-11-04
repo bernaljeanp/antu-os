@@ -122,7 +122,8 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts \
     python3 /antu-scripts/verificar-escritorio.py --runtime > /usr/share/antu/escritorio.json
 
 # Initramfs con los módulos de bootc, regenerado después de instalar kernel y NVIDIA.
-RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
+RUN --mount=type=bind,source=files/scripts,target=/antu-scripts \
+    python3 /antu-scripts/corregir-dracut.py && mkdir -p /usr/lib/dracut/dracut.conf.d && \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-module.conf && \
     printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc plymouth crypt "\nadd_drivers+=" usb_storage uas sd_mod dm_crypt "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
     kver="$(ls /usr/lib/modules)" && dracut --force "/usr/lib/modules/${kver}/initramfs.img" "${kver}"

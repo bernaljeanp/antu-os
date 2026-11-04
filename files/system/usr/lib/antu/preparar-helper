@@ -15,6 +15,40 @@ from catalogo import APPS, seleccionar
 
 STATE = Path("/var/lib/antu/preparacion.json")
 PAUSED = Path("/var/lib/antu/apps-pausadas")
+LOCK = Path("/run/antu-preparar.lock")
+
+
+def network_status():
+    values = {}
+    for name in ("State", "Metered"):
+        result = subprocess.run(["busctl", "get-property", "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager",
+                                 "org.freedesktop.NetworkManager", name], capture_output=True, text=True)
+        values[name] = result.stdout.strip() if result.returncode == 0 else ""
+    if values["State"] not in ("u 60", "u 70"):
+        return False, "Esperando conexión a internet"
+    if values["Metered"] not in ("u 0", "u 1", "u 2", "u 3", "u 4"):
+        return False, "Esperando comprobar el límite de datos de la red"
+    if values["Metered"] in ("u 1", "u 3"):
+        return False, "Esperando una red sin límite de datos"
+    return True, ""
+
+
+def waiting(app, reason):
+    # Una descarga manual conserva el control de su progreso mientras el automático espera.
+    with LOCK.open("w") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return
+        try:
+            value = json.loads(STATE.read_text())
+        except (OSError, ValueError):
+            value = {"apps": {}}
+        if not isinstance(value, dict) or not isinstance(value.get("apps"), dict):
+            value = {"apps": {}}
+        value.setdefault("apps", {})[app] = {"status": reason}
+        value["updated_at"] = time.time()
+        save(value)
 
 
 def save(value):
@@ -124,11 +158,12 @@ def main():
         ids = [key for key, value in APPS.items() if value[2]]
         # El navegador automático espera una red sin límite. Una selección manual es una acción explícita.
         while True:
-            meter = subprocess.run(["busctl", "get-property", "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager",
-                                    "org.freedesktop.NetworkManager", "Metered"], capture_output=True, text=True)
-            if meter.stdout.strip() not in ("u 1", "u 3"):
+            if PAUSED.exists() or Path("/var/lib/antu/apps-v2").exists():
+                return
+            ready, reason = network_status()
+            if ready:
                 break
-            save({"updated_at": time.time(), "apps": {ids[0]: {"status": "Esperando una red sin límite de datos"}}})
+            waiting(ids[0], reason)
             time.sleep(30)
             if PAUSED.exists() or Path("/var/lib/antu/apps-v2").exists():
                 return
@@ -138,7 +173,7 @@ def main():
     else:
         raise ValueError("Acción no válida.")
     ids = seleccionar(ids)
-    with open("/run/antu-preparar.lock", "w") as lock:
+    with LOCK.open("w") as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:

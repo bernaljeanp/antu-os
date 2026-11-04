@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Datos reales en directorios temporales; nunca usa discos del anfitrión."""
 import importlib.util
+from importlib.machinery import SourceFileLoader
+import hashlib
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -21,6 +24,46 @@ from respaldo import Restic, destination
 spec = importlib.util.spec_from_file_location("storage", REPO / "files/live/usr/lib/antu/instalador/almacenamiento.py")
 storage = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(storage)
+loader = SourceFileLoader("preparer", str(REPO / "files/system/usr/lib/antu/preparar-helper"))
+spec = importlib.util.spec_from_loader("preparer", loader)
+preparer = importlib.util.module_from_spec(spec); loader.exec_module(preparer)
+spec = importlib.util.spec_from_file_location("dracut_fix", REPO / "files/scripts/corregir-dracut.py")
+dracut_fix = importlib.util.module_from_spec(spec); spec.loader.exec_module(dracut_fix)
+
+
+class ArranqueYRed(unittest.TestCase):
+    def test_sin_red_o_red_medida_no_descarga_automaticamente(self):
+        for state, metered, expected in ((20, 0, False), (70, 1, False), (70, 3, False), (70, 2, True)):
+            def bus(args, **_):
+                return subprocess.CompletedProcess(args, 0, "u " + str(state if args[-1] == "State" else metered))
+            with patch.object(preparer.subprocess, "run", side_effect=bus):
+                self.assertEqual(preparer.network_status()[0], expected)
+
+    def test_espera_no_pisa_el_progreso_manual(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory); state = base / "estado.json"; lock = base / "descarga.lock"
+            original = {"apps": {"com.brave.Browser": {"status": "descargando", "percent": 42}, "otra": {"status": "instalada"}}}
+            state.write_text(json.dumps(original))
+            with patch.object(preparer, "STATE", state), patch.object(preparer, "LOCK", lock):
+                with lock.open("w") as held:
+                    fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    preparer.waiting("com.brave.Browser", "Esperando conexión")
+                    self.assertEqual(json.loads(state.read_text()), original)
+                preparer.waiting("com.brave.Browser", "Esperando conexión")
+                self.assertEqual(json.loads(state.read_text())["apps"]["otra"], {"status": "instalada"})
+
+    @unittest.skipUnless(shutil.which("bash"), "requiere bash")
+    def test_generador_no_sale_con_error_por_return_global(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "generador.sh"
+            source = "set -e\n" + "\n".join(before.rstrip("\n") for before, _ in dracut_fix.CHANGES) + "\n"
+            path.write_text(source)
+            self.assertNotEqual(subprocess.run(["bash", str(path)], capture_output=True).returncode, 0)
+            self.assertTrue(dracut_fix.fix(path, hashlib.sha256(source.encode()).hexdigest()))
+            self.assertEqual(subprocess.run(["bash", str(path)], capture_output=True).returncode, 0)
+            self.assertFalse(dracut_fix.fix(path))
+            path.write_text(source + "\n")
+            with self.assertRaises(RuntimeError): dracut_fix.fix(path)
 
 
 class Instalacion(unittest.TestCase):
