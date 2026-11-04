@@ -177,11 +177,11 @@ def install(device, fingerprint, mode, encryption, plan_id, password):
                 extra = ["--karg=rd.luks.uuid=" + query(["cryptsetup", "luksUUID", root])]
             format_root(rootfs)
             run(["mkfs.vfat", "-F", "32", "-n", "ANTU_EFI", esp])
-            run(["mount", rootfs, directory])
+            run(["mount", "-t", "ext4", rootfs, directory])
             mounted.append(directory)
             target_esp = Path(directory, "boot/efi")
             target_esp.mkdir(parents=True)
-            run(["mount", esp, str(target_esp)])
+            run(["mount", "-t", "vfat", esp, str(target_esp)])
             mounted.append(str(target_esp))
             kargs = ["--karg=" + k for k in os.environ.get("ANTU_KARGS", "").split()]
             run(["bootc", "install", "to-filesystem", "--composefs-backend", "--bootloader=systemd", "--skip-finalize",
