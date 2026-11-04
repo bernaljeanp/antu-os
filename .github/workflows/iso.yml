@@ -21,10 +21,14 @@ on:
         description: "Aprobar la rama nueva de NVIDIA o el núcleo nuevo (ya probados en un equipo real)"
         type: boolean
         default: false
+      solo_almacenamiento:
+        description: "Ensayo aislado de cifrado y particiones; no publica ni promueve una ISO"
+        type: boolean
+        default: false
 
 # Una prueba en curso nunca se corta: la siguiente espera su turno.
 concurrency:
-  group: iso
+  group: ${{ inputs.solo_almacenamiento && 'iso-almacenamiento' || 'iso' }}
   cancel-in-progress: false
 
 jobs:
@@ -97,6 +101,7 @@ jobs:
 
       # El instalador en modo demo dentro del sistema en vivo; falla si su interfaz tiene errores de QML.
       - name: Capturas de la interfaz en vivo
+        if: inputs.solo_almacenamiento != true
         run: |
           mkdir -p capturas
           sudo podman run --rm -v "$PWD/capturas:/out" -v "$PWD/ci:/ci:ro" localhost/antu-live bash /ci/screenshots.sh
@@ -112,13 +117,17 @@ jobs:
 
       - name: Probar en QEMU
         id: prueba_iso
-        run: sudo bash ci/iso-test.sh iso-build
+        env:
+          ANTU_STORAGE_ONLY: ${{ inputs.solo_almacenamiento }}
+        run: sudo env ANTU_STORAGE_ONLY="$ANTU_STORAGE_ONLY" bash ci/iso-test.sh iso-build
 
       # La versión que pasó la prueba completa (USB, instalación y arranque del disco) pasa al canal estable, el que
       # siguen los equipos instalados. Mismo contenido y misma firma: solo cambia la etiqueta.
       - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        if: inputs.solo_almacenamiento != true
 
       - name: Promover al canal estable
+        if: inputs.solo_almacenamiento != true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -163,6 +172,7 @@ jobs:
           echo "Canal estable: $image@$digest"
 
       - name: Publicar descarga duradera y firmada
+        if: inputs.solo_almacenamiento != true
         id: publicacion
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -215,7 +225,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Subir ISO
-        if: always() && steps.prueba_iso.outcome == 'success'
+        if: always() && steps.prueba_iso.outcome == 'success' && inputs.solo_almacenamiento != true
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: antu-live-iso

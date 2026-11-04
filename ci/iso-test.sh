@@ -78,6 +78,7 @@ comprobar_eclipse() {
     done
 }
 
+if [ "${ANTU_STORAGE_ONLY:-false}" != true ]; then
 echo "== 1. El USB arranca hasta la sesión en vivo"
 "${QEMU[@]}" "${USB[@]}" -serial file:"$OUT/serie-en-vivo.log" &
 # Película del arranque: una captura cada 0,5 s (menú, animación «Encendido» y llegada al escritorio).
@@ -232,6 +233,7 @@ for esperado in "internet OK" "actualizar OK" "sin firma RECHAZADA"; do
     grep -qa "ANTU-FIRMA: $esperado" "$OUT/serie-firma.log" || { echo "::error::Faltó «$esperado» (ver serie-firma.log)"; exit 1; }
 done
 comprobar_eclipse "$OUT/serie-firma.log"
+fi
 echo "== 6. Cifrado LUKS2 y conservación de particiones en un segundo disco virtual"
 # Las cinco pruebas del primer disco ya terminaron. No retener dos instalaciones
 # de 64 GiB mientras se prueba LUKS (sus bloques cifrados dejan de ser dispersos).
