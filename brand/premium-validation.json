@@ -1,0 +1,332 @@
+{
+  "date": "2026-11-04",
+  "baseline": "8383c3929232ef5f438b73bd1012c57f184ac492",
+  "status": "Local checks passed; new image/ISO and storage QEMU result pending",
+  "regressions": {
+    "diagnostics": 20,
+    "visual": 7,
+    "layouts": 24,
+    "migration": 6,
+    "integration": 8,
+    "zenit": 12,
+    "premium": 11,
+    "release": 2,
+    "total": 90
+  },
+  "flatpak_real": "ProtonPlus and dependencies installed in an isolated temporary user installation; official Flathub GPG key; application not executed",
+  "approved_raster_art_changed": false,
+  "sources": [
+    {
+      "path": ".github/workflows/build.yml",
+      "bytes": 18175,
+      "sha256": "df516f048b4f2629d02549a8541eb291d556d6d98d654369cd2ce76de160d5a0"
+    },
+    {
+      "path": ".github/workflows/iso.yml",
+      "bytes": 9494,
+      "sha256": "1c801eb50c6843810983ee28c6ac05b39584736939d4ec7bdf982ccf802b4bb1"
+    },
+    {
+      "path": "Containerfile",
+      "bytes": 11362,
+      "sha256": "b6ea3f1297292045bcbcd09c6a6272065b58339bee453a6042feee345a7e0d27"
+    },
+    {
+      "path": "Containerfile.live",
+      "bytes": 1966,
+      "sha256": "dc8757e63b3be0185161ee496b87f42d05441139dcdcb75414c1a13dd5fcf550"
+    },
+    {
+      "path": "DESIGN.md",
+      "bytes": 5515,
+      "sha256": "0c4472a39ff0d8a36c69ec49371ba9bb0ea3b232d15dae42045a9630aa5b5c65"
+    },
+    {
+      "path": "README.md",
+      "bytes": 20627,
+      "sha256": "03098b51e7f90ea0c2364c77d3a35637b9c2c717bb3e1981c6257dccb1cfa95e"
+    },
+    {
+      "path": "ci/iso-test.sh",
+      "bytes": 14411,
+      "sha256": "f5c8d36881feeca68428ab61e2233547f8e7d291b6561a3e941ac3b8ec7c6a6c"
+    },
+    {
+      "path": "ci/premium-test.py",
+      "bytes": 7168,
+      "sha256": "b0d7ac9e4dacc0ce9d40c8d3ab32ab21b81d2ea84e553623dbb46fcc438d1aad"
+    },
+    {
+      "path": "ci/release-test.py",
+      "bytes": 2797,
+      "sha256": "56e258ef3d8525f5ac5e2b5778277a65e57a2a0b7aaf90fa3ae0fc9ccd551e74"
+    },
+    {
+      "path": "ci/screenshots.sh",
+      "bytes": 5037,
+      "sha256": "c6fb3af27814950f44779755adb7f800e75dab32213773e6e1e4a053fcab8400"
+    },
+    {
+      "path": "ci/zenit-test.py",
+      "bytes": 5467,
+      "sha256": "860a6aae4c99e26cc17f46d0f2d870af094f2a50de3e58f17ad0c1e75ba8d5cc"
+    },
+    {
+      "path": "docs/.nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/PLAN-PREMIUM-2026-11-04.md",
+      "bytes": 1745,
+      "sha256": "91560734ff0e15c9441105201e747c118303772448dab330523a549123f60401"
+    },
+    {
+      "path": "docs/ROBUSTEZ-2026-11-04.md",
+      "bytes": 6630,
+      "sha256": "24866fb324a992d4e641590f3b801e19953dc885c2f5d28c1f82533513bfd932"
+    },
+    {
+      "path": "docs/descargas.js",
+      "bytes": 2258,
+      "sha256": "8645412b8e93e87aabf6ec8d660b120a823e570f5c18afe0679c9d730e2cabba"
+    },
+    {
+      "path": "docs/index.html",
+      "bytes": 6907,
+      "sha256": "cbedaf7288a25abb1b389484c082a88c3b9cfbe7de656cddc1024ac8ac345c3d"
+    },
+    {
+      "path": "files/live/usr/lib/antu/instalador-helper",
+      "bytes": 120,
+      "sha256": "99fdbd2552cc3c473f568191cc1850306049245a780f5d101dbfc4724022fde4"
+    },
+    {
+      "path": "files/live/usr/lib/antu/instalador/Instalador.qml",
+      "bytes": 23396,
+      "sha256": "2615f00d74d0f4dcd063fd3eb3d17ea1549389626911314fcb5313c8eb3349e6"
+    },
+    {
+      "path": "files/live/usr/lib/antu/instalador/almacenamiento.py",
+      "bytes": 11820,
+      "sha256": "5258a22e87e15524a19322549b609a0ad46608dfead342d3f0feb84d22bd117a"
+    },
+    {
+      "path": "files/live/usr/lib/antu/instalador/instalador.py",
+      "bytes": 8596,
+      "sha256": "0f50d4d109fe4f2249dd31a6150766e43222de3020656263765087a343c51bf2"
+    },
+    {
+      "path": "files/live/usr/lib/antu/instalador/instalar-entero.sh",
+      "bytes": 3889,
+      "sha256": "aa46d6f38250fe1ee02c3ccd7b995c89a474cbbc38c61df9bb453e464e78eb78"
+    },
+    {
+      "path": "files/live/usr/lib/antu/live/prueba-almacenamiento",
+      "bytes": 2066,
+      "sha256": "bc54c6f8f87987325acb4e9828ab759ec2d684ac6aea45f8a7cdf625ae44bd1c"
+    },
+    {
+      "path": "files/live/usr/lib/systemd/system/antu-prueba-almacenamiento.service",
+      "bytes": 370,
+      "sha256": "166da4a190c3ea26374be7c5ca5546c5b2dd9fb208fb7d179c7e2269657d4192"
+    },
+    {
+      "path": "files/scripts/verificar-escritorio.py",
+      "bytes": 7957,
+      "sha256": "7993770c9788098ad160ea5ad982b92b0a7dc306e8a89fd3f9d22d6f6ce573e1"
+    },
+    {
+      "path": "files/system/etc/xdg/autostart/antu-centro.desktop",
+      "bytes": 169,
+      "sha256": "4caf3ac6e9ed8c23a0339bd486a3eb251c494c7481eb683dc9a875cfdb7db5a5"
+    },
+    {
+      "path": "files/system/usr/lib/antu/centro/catalogo.py",
+      "bytes": 1207,
+      "sha256": "6842018e24b7f644254ceb37f93926beb22a2d02b2eb118589d2d43075f1fe25"
+    },
+    {
+      "path": "files/system/usr/lib/antu/centro/centro.py",
+      "bytes": 22473,
+      "sha256": "b1a8fc568ca9bc6098a7ba66f35462ea42ce0c40204dbba80b692e1a261977fe"
+    },
+    {
+      "path": "files/system/usr/lib/antu/centro/rendimiento.py",
+      "bytes": 2663,
+      "sha256": "38c37b2db33e2af809e1b79d6c407be7551f1225155e4b97d24a0f95587b2028"
+    },
+    {
+      "path": "files/system/usr/lib/antu/centro/respaldo.py",
+      "bytes": 4615,
+      "sha256": "0b20d7900f628bddeba4cad905a25a1b64da10eddf9805ed3d0be5e09c81e4d9"
+    },
+    {
+      "path": "files/system/usr/lib/antu/inicio/Inicio.qml",
+      "bytes": 21722,
+      "sha256": "8f5f00ae26acbc1a329a82efa6818c52f2f7d6ff69775bf8779417525fe25293"
+    },
+    {
+      "path": "files/system/usr/lib/antu/preparar-helper",
+      "bytes": 6476,
+      "sha256": "1e7e0adba9b8169dfed58bf0fbb7db7a42e4fd98a43c729fe3ba74c87c4de5c9"
+    },
+    {
+      "path": "files/system/usr/lib/antu/zenit/Zenit.qml",
+      "bytes": 43439,
+      "sha256": "56ae6ce988bf8a7f816b80d140e22b3bd19bff5217e6fe5eb916e1de1ac7e4f9"
+    },
+    {
+      "path": "files/system/usr/lib/antu/zenit/app.py",
+      "bytes": 10093,
+      "sha256": "ec785ed860ebe9abe980164a65b734add3562e6aeb66b359e2223a02a821f764"
+    },
+    {
+      "path": "files/system/usr/lib/antu/zenit/zenit.py",
+      "bytes": 38365,
+      "sha256": "1b2a26c9378dbcb6c35fb12ee5ecef80b9a91252a420e3ea6c21266a67a1ffb5"
+    },
+    {
+      "path": "files/system/usr/lib/systemd/system/antu-apps.service",
+      "bytes": 821,
+      "sha256": "565861063095f9667542d565bf6a4db55b59d13b27389938354f880f41471ea8"
+    },
+    {
+      "path": "files/system/usr/share/applications/antu-centro.desktop",
+      "bytes": 290,
+      "sha256": "6f9e1a2e4e8c648ea58962a8ba3c5574f75fbe50f940e999b699606ed1fe9f3a"
+    },
+    {
+      "path": "files/system/usr/share/doc/antu/recuperacion.html",
+      "bytes": 2253,
+      "sha256": "9955485892bf8f3d80eea61f41a088b90713df82de225e65aaccd1c2bb7d73dc"
+    },
+    {
+      "path": "files/system/usr/share/polkit-1/rules.d/50-antu-preparar.rules",
+      "bytes": 302,
+      "sha256": "928a0de39e19954ac15aba5284770f03c31edaf84f37ec397a6390fe6cbea7b3"
+    },
+    {
+      "path": "scripts/descargar-antu.py",
+      "bytes": 5389,
+      "sha256": "2aef90b92838d45ea32c1e7ea01527d595bdae3e2ca852149bcf0bbc63a6f04e"
+    },
+    {
+      "path": "scripts/preparar-release.py",
+      "bytes": 3015,
+      "sha256": "0e0ce11278012a4b12a3e98495289820d9d66a4a95e26579ba9b681c43c6398c"
+    }
+  ],
+  "previews": [
+    {
+      "path": "brand/previews/premium/centro-0-AntuObsidiana-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "0131d27e2902b7144d5a7a7c8c0fa3137ff6df9ecf8dad8d21140fdcce8d206d"
+    },
+    {
+      "path": "brand/previews/premium/centro-0-AntuSalar-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "6aea12662902b5bf4746c151bd00580fcbbfbab22ae5a4a5c379e9bed3170edf"
+    },
+    {
+      "path": "brand/previews/premium/centro-1-AntuObsidiana-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "961f5a10370dd3ac1bb2b897040d1feba294cc24c2786d4ce3b942873f1a9c6b"
+    },
+    {
+      "path": "brand/previews/premium/centro-1-AntuSalar-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "cbc190b14261a440c51aacb1fb4119a6ca80777dae752ebeb0e9d6d461ecd971"
+    },
+    {
+      "path": "brand/previews/premium/centro-2-AntuObsidiana-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "b2eb4a82e60854775e0813d76bfd7c49607568e75fde083e2e412c553f835c13"
+    },
+    {
+      "path": "brand/previews/premium/centro-2-AntuSalar-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "06b72f8086059381ba87ac526e85b43e3da3474446d7c79290ee02d64da70734"
+    },
+    {
+      "path": "brand/previews/premium/centro-3-AntuObsidiana-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "947bbd287420c57b5f16658dd7f52345c5bc761ba99f6575534744bd9f1449b4"
+    },
+    {
+      "path": "brand/previews/premium/centro-3-AntuSalar-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "690d272a96f0f96b2fe82ddcf9ec807763d68991b301e2e572af3c05cb32d1a7"
+    },
+    {
+      "path": "brand/previews/premium/descargas-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "16249b635d51b394cce820659504b4ffb4699a735f80367a55c8bb40a2e0fb3c"
+    },
+    {
+      "path": "brand/previews/premium/instalador-AntuObsidiana-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "cb472241ed7247815dc13ada399d5fa2831d47196f6b97e4f07aa2ec435936f0"
+    },
+    {
+      "path": "brand/previews/premium/instalador-AntuSalar-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "b81d813dadd19e502f944a9d351f10c949acc31f7e2e7565be32dba6e9b414d9"
+    },
+    {
+      "path": "brand/previews/premium/zenit-AntuObsidiana-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "ba371a2b016f788bf3fb1cf1b73f898109febffe6579968c3c4ee14a8646dc64"
+    },
+    {
+      "path": "brand/previews/premium/zenit-AntuSalar-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "adc5dd4211e58465a18558e3dcee4038f4fe5ddf82a9cd6a8ebcd2f3ef3ed002"
+    }
+  ],
+  "not_verified": [
+    "Physical NVIDIA/game performance",
+    "Physical sleep/audio/Bluetooth/lighting/battery",
+    "Windows/BitLocker boot on real hardware"
+  ],
+  "historical_reports": "Reports dated 2026-11-03 describe baseline 8383c39; their source hashes are historical, not current source assertions."
+}

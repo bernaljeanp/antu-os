@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
-      contents: read
+      contents: write  # entrega duradera de la ISO verificada, en una versión de prueba
       packages: write  # para promover al canal estable la versión que pasó la prueba
       issues: write  # para avisar cuando una versión espera aprobación
     steps:
@@ -75,6 +75,7 @@ jobs:
           sudo podman run --rm -v "$PWD/capturas:/out" -v "$PWD/ci:/ci:ro" localhost/antu-live bash /ci/screenshots.sh
 
       - name: Probar en QEMU
+        id: prueba_iso
         run: sudo bash ci/iso-test.sh iso-build
 
       # La versión que pasó la prueba completa (USB, instalación y arranque del disco) pasa al canal estable, el que
@@ -125,6 +126,42 @@ jobs:
           done
           echo "Canal estable: $image@$digest"
 
+      - name: Publicar descarga duradera y firmada
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTU_FIRMA_PEM: ${{ secrets.ANTU_FIRMA_PEM }}
+        run: |
+          set -euo pipefail
+          # Las llaves solo viven en el runner. El manifiesto se verifica con la pública ya distribuida.
+          umask 077
+          key="$RUNNER_TEMP/antu-release.pem"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$ANTU_FIRMA_PEM" > "$key"
+          sudo rm -rf iso-build/iso iso-build/esp
+          sudo install -d -m 0755 -o "$(id -u)" -g "$(id -g)" iso-build/release
+          python3 scripts/preparar-release.py --iso iso-build/antu-live.iso --output iso-build/release \
+            --revision "$(git rev-parse HEAD)" --digest "$(cat iso-build/digest)" --key "$key"
+          tag="antu-preview-$(date -u +%Y%m%d)-$GITHUB_RUN_ID"
+          cat > "$RUNNER_TEMP/release.md" <<NOTES
+          Versión de prueba de Antu OS. Revisión $(git rev-parse HEAD).
+
+          Pasó arranque Live, instalación y pruebas automatizadas en QEMU. La validación completa en equipos físicos sigue pendiente.
+
+          La ISO se divide por el límite de tamaño de cada recurso de GitHub. Descarga descargar-antu.py y ejecuta, con Python 3 y OpenSSL:
+
+          python descargar-antu.py --tag $tag --output antu-live.iso
+
+          El descargador comprueba la firma del manifiesto y el SHA-256 de cada parte y de la ISO completa. Conserva las partes para reintentar una descarga interrumpida. No modifica discos ni USB.
+
+          Para grabar, usa USBoot o un grabador de imágenes. Elige cuidadosamente el destino: grabar un USB borra su contenido.
+
+          Código GPL-3.0-or-later; arte CC-BY-SA-4.0. Manifiestos del escritorio incluidos como recursos. Los resultados de VM están en esta ejecución de Actions.
+          NOTES
+          gh release create "$tag" --target "$(git rev-parse HEAD)" --title "Antu OS · prueba $(date -u +%Y-%m-%d)" \
+            --notes-file "$RUNNER_TEMP/release.md" --prerelease --draft \
+            iso-build/release/* iso-build/escritorio-sistema.json iso-build/escritorio-live.json
+          gh release edit "$tag" --draft=false
+
       - name: Subir capturas y registros
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -140,6 +177,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Subir ISO
+        if: always() && steps.prueba_iso.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: antu-live-iso

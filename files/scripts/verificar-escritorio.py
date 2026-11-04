@@ -93,6 +93,11 @@ def verificar(root, live=False, runtime=False):
                              ("actualizaciones", "Actualizaciones"), ("aviso", "VentanaAviso")):
         text(f"usr/lib/antu/{directory}/{name}.qml")
     text("etc/xdg/autostart/antu-estilo.desktop")
+    for name in ("centro.py", "catalogo.py", "respaldo.py", "rendimiento.py"):
+        compile(text("usr/lib/antu/centro/" + name), name, "exec")
+    compile(text("usr/lib/antu/preparar-helper"), "preparar-helper", "exec")
+    text("usr/share/applications/antu-centro.desktop")
+    text("usr/share/doc/antu/recuperacion.html")
     text("usr/share/plymouth/themes/antu/antu.script")
     asset("usr/share/plymouth/themes/antu/titulo-estatico-2x.png")
     asset("usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg")
@@ -107,12 +112,18 @@ def verificar(root, live=False, runtime=False):
             text(f"usr/lib/antu/{directory}/{name}.qml")
         for name in ("bienvenida/bienvenida.py", "informe/registro.py"):
             compile(text("usr/lib/antu/" + name), name, "exec")
+        compile(text("usr/lib/antu/instalador/almacenamiento.py"), "almacenamiento.py", "exec")
+        text("usr/lib/antu/instalador/instalar-entero.sh")
         require("bienvenida/bienvenida.py" in text("etc/xdg/autostart/antu-instalador.desktop"), "El USB no abre la bienvenida")
         text("usr/share/applications/antu-bienvenida.desktop")
         text("usr/lib/systemd/system/antu-registro-live.service")
     qt_style = "not_checked_in_staging"
     if runtime:
         from PyQt6.QtWidgets import QStyleFactory
+        import gi
+        gi.require_version("Flatpak", "1.0")
+        from gi.repository import Flatpak
+        require(hasattr(Flatpak.TransactionProgress, "get_bytes_transferred"), "Falta la API de progreso de Flatpak")
         require("kvantum" in (key.lower() for key in QStyleFactory.keys()), "El motor Qt Kvantum no carga en la imagen")
         qt_style = "kvantum_available"
     fingerprint = hashlib.sha256(json.dumps(files, sort_keys=True, separators=(",", ":")).encode()).hexdigest()

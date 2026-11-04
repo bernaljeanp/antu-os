@@ -14,9 +14,11 @@ fanN_boost), dell-wmi-sysman (atributos de la BIOS para la carga) y hidraw para 
   zenit autoprueba              comprueba la lógica con un sysfs de mentira
 """
 import fcntl
+import copy
 import glob
 import grp
 import json
+import math
 import os
 import pwd
 import re
@@ -166,6 +168,84 @@ def sensores():
     return temps, fans
 
 
+def capacidades():
+    perfil, opciones = rutas_perfil()
+    return {"perfil": bool(perfil and leer(opciones).split()), "luces": bool(controlador_luces()),
+            "carga": bool(topes_de_bateria() or os.path.exists(ruta(f"{SYSMAN}/PrimaryBattChargeCfg/current_value"))),
+            "carga_adaptativa": os.path.exists(ruta(f"{SYSMAN}/PrimaryBattChargeCfg/current_value")),
+            "ventiladores_manual": False}
+
+
+def bateria():
+    result = []
+    for directory in sorted(glob.glob(ruta("/sys/class/power_supply/BAT*"))):
+        def number(key):
+            value = leer(directory + "/" + key)
+            return int(value) if value.isdigit() else None
+        full, design = number("energy_full"), number("energy_full_design")
+        if full is None or not design:
+            full, design = number("charge_full"), number("charge_full_design")
+        result.append({"nombre": os.path.basename(directory), "porcentaje": number("capacity"),
+                       "estado": leer(directory + "/status"), "ciclos": number("cycle_count"),
+                       "salud_porcentaje": round(full / design * 100, 1) if full is not None and design else None})
+    return result
+
+
+def limites_termicos():
+    limits = {}
+    for directory in sorted(glob.glob(ruta("/sys/class/hwmon/hwmon*"))):
+        name = leer(directory + "/name")
+        if name not in SENSOR_CPU and name != "alienware_wmi":
+            continue
+        for entry in glob.glob(directory + "/temp*_crit"):
+            label = leer(entry.replace("_crit", "_label"))
+            if name in SENSOR_CPU and not label.startswith(SENSOR_CPU[name]):
+                continue
+            value = leer(entry)
+            if value.isdigit() and 0 < int(value) <= 150000:
+                key = "CPU" if name in SENSOR_CPU else label
+                limits[key] = min(limits.get(key, 150), int(value) / 1000)
+    return limits
+
+
+def datos_nvidia(jugando):
+    """Solo durante un juego y con una GPU ya activa; no consulta una GPU en reposo."""
+    active = any(leer(path + "/vendor") == "0x10de" and leer(path + "/class").startswith("0x03")
+                 and leer(path + "/power/runtime_status") == "active"
+                 for path in glob.glob(ruta("/sys/bus/pci/devices/*")))
+    if not jugando or not active:
+        return {"estado": "sin consulta: sin juego o gráfica en reposo", "dispositivos": []}
+    try:
+        result = subprocess.run(["nvidia-smi", "--format=csv,noheader,nounits",
+                                 "--query-gpu=temperature.gpu,utilization.gpu,power.draw,memory.used,clocks.gr"],
+                                capture_output=True, text=True, timeout=1, check=True)
+        devices = []
+        for line in result.stdout.splitlines()[:8]:
+            fields = line.split(",")
+            if len(fields) != 5:
+                continue
+            values = {}
+            for key, field in zip(("temperatura", "uso", "vatios", "memoria_mib", "reloj_mhz"), fields):
+                try:
+                    value = float(field.strip())
+                    values[key] = value if math.isfinite(value) and value >= 0 else None
+                except ValueError:
+                    values[key] = None
+            devices.append(values)
+        return {"estado": "consulta durante el juego", "dispositivos": devices}
+    except (OSError, subprocess.SubprocessError):
+        return {"estado": "el controlador no entregó una lectura", "dispositivos": []}
+
+
+def contadores_termicos():
+    result = {}
+    for path in glob.glob(ruta("/sys/devices/system/cpu/cpu*/thermal_throttle/*_throttle_count")):
+        value = leer(path)
+        if value.isdigit():
+            result[path] = int(value)
+    return result
+
+
 # ---------- Batería: atributos de la BIOS de Dell (los mismos que usa Zenit en Windows) o el límite estándar del núcleo ----------
 
 SYSMAN = "/sys/class/firmware-attributes/dell-wmi-sysman/attributes"
@@ -191,6 +271,8 @@ def poner_carga(limite):
             raise RuntimeError("Este equipo no permite fijar el límite de carga desde Linux.")
         for tope in topes_de_bateria():  # sin modo adaptativo: sin límite
             escribir(tope, limite or 100)
+            if leer(tope) != str(limite or 100):
+                raise RuntimeError("El controlador no confirmó el límite de carga.")
         return
     if limite is None:
         escribir(attr("PrimaryBattChargeCfg"), "Adaptive")
@@ -204,6 +286,8 @@ def poner_carga(limite):
         escribir(attr("CustomChargeStart"), start)
         escribir(attr("CustomChargeStop"), stop)
     escribir(attr("PrimaryBattChargeCfg"), "Custom")
+    if leer(attr("CustomChargeStop")) != str(stop) or leer(attr("PrimaryBattChargeCfg")) != "Custom":
+        raise RuntimeError("La BIOS no confirmó el límite de carga.")
 
 
 def estado_carga():
@@ -333,8 +417,18 @@ class Zenit:
         self.estado = {"modo": "auto", "juegos": {}, "luces": {"color": "FFFFFF", "brillo": 100}}
         try:
             with open(ruta(ESTADO)) as f:
-                self.estado.update(json.load(f))
-        except (OSError, ValueError):
+                saved = json.load(f)
+                if isinstance(saved, dict):
+                    if saved.get("modo") in {"auto", *PERFILES}:
+                        self.estado["modo"] = saved["modo"]
+                    self.estado["juegos"] = {k: v for k, v in (saved.get("juegos") or {}).items()
+                                             if isinstance(k, str) and len(k) <= 64 and v in PERFILES}
+                    lights = saved.get("luces") or {}
+                    if re.fullmatch(r"[0-9A-Fa-f]{6}|AURORA", str(lights.get("color", ""))) and type(lights.get("brillo")) is int and 0 <= lights["brillo"] <= 100:
+                        self.estado["luces"] = lights
+                    if saved.get("carga") in ("60", "80", "100", "adaptativa"):
+                        self.estado["carga"] = saved["carga"]
+        except (OSError, ValueError, AttributeError, TypeError):
             pass
         self.boost = self.sigilo = False
         self.juego = None
@@ -342,11 +436,24 @@ class Zenit:
         self.con_gamemode = {}  # juego -> pid que se le pidió a GameMode
         self.procesos = procesos or self.leer_procesos
         self.luces_puestas = False
+        self.ultimo_error = ""
+        self.ultima_muestra = None
+        self.nvidia = {"estado": "sin consulta", "dispositivos": []}
+        self.thermal_previous = contadores_termicos()
+        self.limitacion_termica = None
 
     def guardar(self):
         os.makedirs(os.path.dirname(ruta(ESTADO)), exist_ok=True)
-        with open(ruta(ESTADO), "w") as f:
-            json.dump(self.estado, f, ensure_ascii=False, indent=1)
+        fd, temporary = tempfile.mkstemp(prefix=".estado-", dir=os.path.dirname(ruta(ESTADO)))
+        try:
+            with os.fdopen(fd, "w") as f:
+                json.dump(self.estado, f, ensure_ascii=False, indent=1)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporary, ruta(ESTADO))
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
 
     def leer_procesos(self):
         vivos = {}
@@ -385,11 +492,23 @@ class Zenit:
         elegido = elegir(self.deseado(), leer(opciones).split())
         if elegido and leer(perfil) != elegido:
             escribir(perfil, elegido)
+            if leer(perfil) != elegido:
+                raise RuntimeError("El firmware no confirmó el perfil solicitado. Se conserva el estado anterior.")
 
     def tic(self):
         juegos = self.procesos()
         self.juego = juegos[0] if juegos else None
-        self.aplicar()
+        try:
+            self.aplicar()
+            self.ultimo_error = ""
+        except (OSError, RuntimeError) as error:
+            self.ultimo_error = "No se pudo aplicar el perfil: " + str(error)
+        self.ultima_muestra = time.time()
+        self.nvidia = datos_nvidia(bool(self.juego))
+        counters = contadores_termicos()
+        common = counters.keys() & self.thermal_previous.keys()
+        self.limitacion_termica = any(counters[key] > self.thermal_previous[key] for key in common) if common else None
+        self.thermal_previous = counters
         if en_cargador():  # con batería, un juego no debe subir el consumo más de lo que ya pide el perfil
             for pid in pendientes_gamemode(self.vistos, self.con_gamemode):
                 pedir_gamemode(pid)
@@ -398,7 +517,8 @@ class Zenit:
             try:
                 poner_luces(self.estado["luces"]["color"], self.estado["luces"]["brillo"])
             except (OSError, RuntimeError, ValueError):
-                pass
+                self.ultimo_error = "El controlador de luces no confirmó el cambio."
+                self.luces_puestas = False
 
     def tecla(self, codigo):
         orden = {KEY_F17: "boost", KEY_F20: "sigilo", KEY_F18: "luces"}.get(codigo)
@@ -408,32 +528,59 @@ class Zenit:
                 aviso(titulo, detalle)
 
     def orden(self, args):
+        before = copy.deepcopy(self.estado)
+        flags = self.boost, self.sigilo
+        try:
+            return self._orden(args)
+        except (OSError, RuntimeError, ValueError, TypeError) as error:
+            self.estado = before
+            self.boost, self.sigilo = flags
+            self.ultimo_error = str(error)
+            return {"ok": False, "error": str(error)}
+
+    def _orden(self, args):
         """Una orden de `zenit` o de una tecla. Devuelve un diccionario para el cliente."""
         if not isinstance(args, list) or len(args) > 3 or not all(isinstance(a, str) and len(a) <= 64 for a in args):
             return {"ok": False, "error": "Orden no válida."}
         o = args[0] if args else "estado"
         if o == "estado":
             temps, fans = sensores()
+            gpu_temperatures = [d["temperatura"] for d in self.nvidia["dispositivos"] if d.get("temperatura") is not None]
+            if gpu_temperatures:
+                temps["GPU"] = round(max(gpu_temperatures))
             _, opciones = rutas_perfil()
             carga_modo, carga_tope = estado_carga()
             return {"ok": True, "perfil": self.actual(), "modo": self.estado["modo"], "cargador": en_cargador(),
                     "perfiles": leer(opciones).split() if opciones else [], "carga_modo": carga_modo,
                     "carga_tope": carga_tope, "juegos": self.estado["juegos"],
                     "juego": self.juego, "boost": self.boost, "sigilo": self.sigilo, "temperaturas": temps,
-                    "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga()}
+                    "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga(),
+                    "capacidades": capacidades(), "baterias": bateria(), "limites_termicos": limites_termicos(),
+                    "nvidia": self.nvidia, "limitacion_termica_observada": self.limitacion_termica,
+                    "ultimo_error": self.ultimo_error, "ultima_muestra": self.ultima_muestra,
+                    "perfil_solicitado": self.deseado(),
+                    "motivo": "Boost temporal" if self.boost else "Sigilo temporal" if self.sigilo else
+                              "Perfil fijo" if self.estado["modo"] != "auto" else
+                              "Juego detectado: " + self.juego if self.juego else
+                              "Automático con cargador" if en_cargador() else "Automático con batería"}
         if o == "perfil" and len(args) == 2 and (args[1] == "auto" or args[1] in PERFILES):
+            _, options = rutas_perfil()
+            if args[1] != "auto" and args[1] not in (leer(options).split() if options else []):
+                raise RuntimeError("El equipo no ofrece ese perfil térmico.")
+            self.boost = self.sigilo = False
             self.estado["modo"] = args[1]
-            self.guardar()
         elif o == "juego" and len(args) == 3 and (args[2] == "auto" or args[2] in PERFILES):
             if args[2] == "auto":
                 self.estado["juegos"].pop(args[1].lower(), None)
             else:
                 self.estado["juegos"][args[1].lower()] = args[2]
-            self.guardar()
         elif o == "boost":
+            _, options = rutas_perfil()
+            if not options or not elegir("performance", leer(options).split()):
+                raise RuntimeError("El equipo no ofrece un perfil de rendimiento.")
             self.boost, self.sigilo = not self.boost, False
             self.aplicar()
-            return {"ok": True, "aviso": ("Performance Boost", "Activado: ventiladores y frecuencias al máximo"
+            return {"ok": True, "aviso": ("Performance Boost", "Perfil de rendimiento solicitado al firmware"
                                           if self.boost else "Desactivado")}
         elif o == "sigilo":
             self.sigilo, self.boost = not self.sigilo, False
@@ -459,14 +606,17 @@ class Zenit:
             brillo = max(0, min(100, int(args[2]))) if len(args) == 3 else self.estado["luces"]["brillo"]
             poner_luces(color, brillo)
             self.estado["luces"] = {"color": color, "brillo": brillo}
-            self.guardar()
         elif o == "carga" and len(args) == 2 and args[1] in ("60", "80", "100", "adaptativa"):
+            if args[1] == "adaptativa" and not capacidades()["carga_adaptativa"]:
+                raise RuntimeError("Este controlador ofrece límites fijos, no carga adaptativa.")
             poner_carga(None if args[1] == "adaptativa" else int(args[1]))
             self.estado["carga"] = args[1]
-            self.guardar()
         else:
             return {"ok": False, "error": "Orden desconocida. Escribe «zenit ayuda»."}
-        self.aplicar()
+        if o in ("perfil", "juego"):
+            self.aplicar()
+        self.guardar()
+        self.ultimo_error = ""
         return {"ok": True}
 
 
@@ -493,7 +643,10 @@ def demonio():
     siguiente = 0
     while True:
         if time.monotonic() >= siguiente:
-            zenit.tic()
+            try:
+                zenit.tic()
+            except (OSError, RuntimeError, ValueError) as error:
+                zenit.ultimo_error = "No se pudo actualizar el estado: " + str(error)
             siguiente = time.monotonic() + 3
         listos, _, _ = select.select([servidor, *teclas], [], [], max(0, siguiente - time.monotonic()))
         for fd in listos:
@@ -502,7 +655,15 @@ def demonio():
                 with conexion:
                     conexion.settimeout(2)
                     try:
-                        args = json.loads(conexion.recv(4096).split(b"\n")[0])  # una sola lectura, acotada
+                        data = b""
+                        while b"\n" not in data and len(data) < 4096:
+                            chunk = conexion.recv(min(1024, 4096 - len(data)))
+                            if not chunk:
+                                break
+                            data += chunk
+                        if b"\n" not in data:
+                            raise ValueError("Orden incompleta o demasiado larga.")
+                        args = json.loads(data.split(b"\n")[0])
                         respuesta = zenit.orden(args)
                     except (OSError, RuntimeError, ValueError, TypeError, KeyError, AttributeError) as e:
                         respuesta = {"ok": False, "error": str(e)}
@@ -529,6 +690,7 @@ def demonio():
 def cliente(args):
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.settimeout(5)
             s.connect(SOCKET)
             s.sendall((json.dumps(args) + "\n").encode())
             respuesta = json.loads(s.makefile().readline())

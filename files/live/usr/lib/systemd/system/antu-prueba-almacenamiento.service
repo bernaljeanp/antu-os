@@ -1,0 +1,14 @@
+[Unit]
+Description=Prueba de cifrado y particiones en un NVMe virtual reservado
+ConditionKernelCommandLine=antu.prueba-almacenamiento
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/lib/antu/live/prueba-almacenamiento
+StandardOutput=journal+console
+StandardError=journal+console
+TimeoutStartSec=2400
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+"""Preparación privilegiada: catálogo fijo, transacciones Flatpak y progreso real."""
+import fcntl
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+
+sys.path.insert(0, "/usr/lib/antu/centro")
+from catalogo import APPS, seleccionar
+
+STATE = Path("/var/lib/antu/preparacion.json")
+PAUSED = Path("/var/lib/antu/apps-pausadas")
+
+
+def save(value):
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=".preparacion-", dir=STATE.parent)
+    try:
+        with os.fdopen(fd, "w") as handle:
+            json.dump(value, handle, ensure_ascii=False)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(name, 0o644)
+        os.replace(name, STATE)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+def install(ids, installation=None):
+    import gi
+    gi.require_version("Flatpak", "1.0")
+    from gi.repository import Flatpak, Gio, GLib
+    if installation is None:
+        subprocess.run(["flatpak", "remote-add", "--system", "--if-not-exists", "flathub",
+                        "/etc/flatpak/remotes.d/flathub.flatpakrepo"], check=True)
+        installation = Flatpak.Installation.new_system(None)
+    installation.set_no_interaction(True)
+    state = {"updated_at": time.time(), "apps": {}}
+    try:
+        saved = json.loads(STATE.read_text())["apps"]
+        if isinstance(saved, dict):
+            state["apps"] = {key: value for key, value in saved.items() if key in APPS and isinstance(value, dict)}
+    except (OSError, ValueError, KeyError):
+        pass
+    failures = 0
+    for app in ids:
+        if PAUSED.exists():
+            break
+        cancel = Gio.Cancellable()
+        done = threading.Event()
+        def monitor_pause(event=done, cancellation=cancel):
+            while not event.wait(.5):
+                if PAUSED.exists():
+                    cancellation.cancel()
+                    return
+        threading.Thread(target=monitor_pause, daemon=True).start()
+        current = {"status": "resolviendo", "percent": None, "download_bytes": None, "transferred_bytes": 0}
+        state["apps"][app] = current
+        def publish():
+            state["updated_at"] = time.time()
+            save(state)
+            print(json.dumps({"app": app, **current}), flush=True)
+        publish()
+        try:
+            transaction = Flatpak.Transaction.new_for_installation(installation, cancel)
+            transaction.set_no_interaction(True)
+            try:
+                installed = installation.get_installed_ref(Flatpak.RefKind.APP, app, None, "stable", None)
+            except GLib.Error:
+                installed = None
+            if installed:
+                transaction.add_update(installed.format_ref(), None, None)
+            else:
+                transaction.add_install("flathub", f"app/{app}/{Flatpak.get_default_arch()}/stable", None)
+            def ready(tx):
+                current["download_bytes"] = sum(op.get_download_size() for op in tx.get_operations())
+                publish()
+                return True
+            def operation(_tx, op, progress):
+                current["component"] = op.get_ref()
+                progress.set_update_frequency(500)
+                def changed(value):
+                    if PAUSED.exists():
+                        cancel.cancel()
+                    current.update(status=value.get_status() or "descargando", percent=None if value.get_is_estimating() else value.get_progress(),
+                                   transferred_bytes=value.get_bytes_transferred())
+                    publish()
+                progress.connect("changed", changed)
+                changed(progress)
+            transaction.connect("ready", ready)
+            transaction.connect("new-operation", operation)
+            transaction.connect("choose-remote-for-ref", lambda _t, _ref, _runtime, remotes: remotes.index("flathub") if "flathub" in remotes else -1)
+            transaction.connect("add-new-remote", lambda *_: False)
+            transaction.run(cancel)
+            installation.drop_caches(None)
+            installation.get_installed_ref(Flatpak.RefKind.APP, app, None, "stable", None)
+            current.update(status="instalada", percent=100, error=None)
+        except GLib.Error as error:
+            failures += 1
+            current.update(status="pausada" if PAUSED.exists() else "error", error=str(error))
+        finally:
+            done.set()
+        publish()
+    return failures
+
+
+def main():
+    if os.geteuid() != 0:
+        raise ValueError("Se requieren permisos de administrador.")
+    action, *ids = sys.argv[1:]
+    if action == "pausar" and not ids:
+        PAUSED.parent.mkdir(parents=True, exist_ok=True)
+        PAUSED.touch()
+        return
+    if action == "predeterminadas" and not ids:
+        if PAUSED.exists():
+            return
+        ids = [key for key, value in APPS.items() if value[2]]
+        # El navegador automático espera una red sin límite. Una selección manual es una acción explícita.
+        while True:
+            meter = subprocess.run(["busctl", "get-property", "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager",
+                                    "org.freedesktop.NetworkManager", "Metered"], capture_output=True, text=True)
+            if meter.stdout.strip() not in ("u 1", "u 3"):
+                break
+            save({"updated_at": time.time(), "apps": {ids[0]: {"status": "Esperando una red sin límite de datos"}}})
+            time.sleep(30)
+            if PAUSED.exists() or Path("/var/lib/antu/apps-v2").exists():
+                return
+    elif action == "instalar":
+        seleccionar(ids)
+        PAUSED.unlink(missing_ok=True)
+    else:
+        raise ValueError("Acción no válida.")
+    ids = seleccionar(ids)
+    with open("/run/antu-preparar.lock", "w") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise ValueError("Ya hay una descarga en curso. Puedes ver su progreso en Centro de Antu.")
+        os.umask(0o022)
+        if install(ids):
+            raise SystemExit(1)
+        Path("/var/lib/antu/apps-v2").touch()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (ValueError, OSError, subprocess.CalledProcessError, ImportError) as error:
+        print(str(error), file=sys.stderr)
+        raise SystemExit(1)

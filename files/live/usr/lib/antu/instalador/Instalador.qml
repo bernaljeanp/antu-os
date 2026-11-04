@@ -28,6 +28,13 @@ ApplicationWindow {
     property int stage: 0
     property string lastLine: ""
     property string error: ""
+    property bool planning: false
+    property string planSummary: ""
+    readonly property string mode: keepPartitions.checked ? "conservar" : "borrar"
+    function prepare() {
+        planning = true
+        backend.prepare(disk.path, disk.huella || "", mode)
+    }
 
     function refresh() {
         disks = backend.disks()
@@ -37,7 +44,9 @@ ApplicationWindow {
         stage = 0
         lastLine = ""
         screen = 2
-        backend.install(disk.path, disk.huella || "")
+        backend.install(disk.path, disk.huella || "", encrypted.checked, phrase.text)
+        phrase.clear()
+        phraseAgain.clear()
     }
 
     // Cerrar a mitad de la copia dejaría el disco a medias.
@@ -50,6 +59,11 @@ ApplicationWindow {
         function onFinished(ok, message) {
             root.error = message
             root.screen = ok ? 3 : 4
+        }
+        function onPlanned(ok, message) {
+            root.planning = false
+            if (ok) { root.planSummary = message; root.screen = 1 }
+            else { root.error = message; root.screen = 4 }
         }
     }
 
@@ -81,6 +95,7 @@ ApplicationWindow {
     }
 
     component Body: Text {
+        textFormat: Text.PlainText
         Layout.fillWidth: true
         wrapMode: Text.WordWrap
         color: root.ink2
@@ -108,7 +123,7 @@ ApplicationWindow {
         enabled: usable
         Accessible.name: modelData.name + ", " + modelData.detail + ". " + (usable ? modelData.contents : modelData.reason)
         onClicked: root.selected = index
-        onDoubleClicked: root.screen = 1
+        onDoubleClicked: root.prepare()
         background: Rectangle {
             radius: 18 * root.u
             color: row.hovered ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, row.usable ? 0.07 : 0.04)
@@ -133,6 +148,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                     text: row.modelData.name
+                    textFormat: Text.PlainText
                     color: row.usable ? root.ink : root.ink2
                     font.family: "Inter"
                     font.pixelSize: Antu.pixels(27, root.u)
@@ -140,6 +156,7 @@ ApplicationWindow {
                 }
                 Text {
                     text: row.modelData.detail
+                    textFormat: Text.PlainText
                     color: root.ink2
                     font.family: "Inter"
                     font.pixelSize: Antu.pixels(21, root.u)
@@ -149,6 +166,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     elide: Text.ElideRight
                     text: row.usable ? row.modelData.contents : row.modelData.reason
+                    textFormat: Text.PlainText
                     color: row.usable && row.modelData.windows ? root.negative : root.ink2
                     font.family: "Inter"
                     font.pixelSize: Antu.pixels(21, root.u)
@@ -190,11 +208,28 @@ ApplicationWindow {
                     spacing: 18 * root.u
                     Heading {
                         title: "Instalar Antu"
-                        subtitle: "Elige el disco donde vivirá Antu. Ocupará el disco entero."
+                        subtitle: "Elige el disco y cómo quieres reservar espacio para Antu."
                     }
                     Repeater {
                         model: root.disks
                         delegate: DiskRow {}
+                    }
+                    RadioButton {
+                        id: keepPartitions
+                        text: "Conservar particiones y usar espacio sin asignar"
+                        checked: true
+                        palette.windowText: root.ink
+                    }
+                    RadioButton {
+                        text: "Borrar el disco entero"
+                        palette.windowText: root.ink
+                    }
+                    Body { text: "Para conservar Windows, libera al menos 43 GB desde Windows antes de continuar. Antu no reduce particiones ni modifica BitLocker. Guarda su clave de recuperación; un cambio de arranque puede hacer que Windows la solicite." }
+                    CheckBox {
+                        id: encrypted
+                        text: "Cifrar el sistema y mis archivos con LUKS2"
+                        checked: true
+                        palette.windowText: root.ink
                     }
                     Glass {
                         visible: root.disks.length === 0
@@ -218,9 +253,9 @@ ApplicationWindow {
                         Item { Layout.fillWidth: true }
                         LavaButton {
                             u: root.u
-                            text: "Continuar"
-                            enabled: root.disk !== null && root.disk.reason === ""
-                            onClicked: root.screen = 1
+                            text: root.planning ? "Comprobando…" : "Continuar"
+                            enabled: !root.planning && root.disk !== null && root.disk.reason === ""
+                            onClicked: root.prepare()
                         }
                     }
                 }
@@ -229,7 +264,7 @@ ApplicationWindow {
                 ColumnLayout {
                     spacing: 18 * root.u
                     Heading {
-                        title: "Se borrará todo en este disco"
+                        title: root.mode === "conservar" ? "Instalar en el espacio sin asignar" : "Se borrará todo en este disco"
                         subtitle: root.disk ? root.disk.name + " · " + root.disk.detail : ""
                     }
                     Glass {
@@ -242,7 +277,7 @@ ApplicationWindow {
                             anchors.margins: 30 * root.u
                             spacing: 10 * root.u
                             Text {
-                                text: root.disk && root.disk.parts.length > 0 ? "Se borrará:" : "El disco está vacío."
+                                text: root.mode === "conservar" ? "Se conservarán estas particiones:" : root.disk && root.disk.parts.length > 0 ? "Se borrará:" : "El disco está vacío."
                                 color: root.ink
                                 font.family: "Inter"
                                 font.pixelSize: Antu.pixels(23, root.u)
@@ -253,6 +288,7 @@ ApplicationWindow {
                                 delegate: Text {
                                     required property string modelData
                                     text: modelData
+                                    textFormat: Text.PlainText
                                     color: root.ink2
                                     font.family: "Inter"
                                     font.pixelSize: Antu.pixels(22, root.u)
@@ -262,9 +298,39 @@ ApplicationWindow {
                         }
                     }
                     Body {
-                        text: root.disk && root.disk.windows
+                        text: root.mode === "conservar" ? root.planSummary + ". Se crearán una partición de arranque de Antu y otra para sus datos. Windows seguirá disponible desde el menú de arranque UEFI del equipo."
+                              : root.disk && root.disk.windows
                               ? "Windows y todos sus archivos desaparecerán de este disco. Si hay algo que quieras conservar, cópialo antes a otro disco o a la nube."
                               : "Si hay algo que quieras conservar, cópialo antes a otro disco o a la nube."
+                    }
+                    Body {
+                        text: encrypted.checked ? "Tus datos estarán cifrados; el arranque EFI queda sin cifrar. Necesitarás esta frase al encender. Si la pierdes, no podremos recuperar tus archivos."
+                                                : "El sistema y tus archivos se instalarán sin cifrado."
+                    }
+                    GlassField {
+                        id: phrase
+                        u: root.u
+                        Layout.fillWidth: true
+                        visible: encrypted.checked
+                        placeholderText: "Frase de cifrado: 12 letras, números o espacios como mínimo"
+                        echoMode: TextInput.Password
+                        maximumLength: 128
+                        Accessible.name: "Frase de cifrado"
+                    }
+                    GlassField {
+                        id: phraseAgain
+                        u: root.u
+                        Layout.fillWidth: true
+                        visible: encrypted.checked
+                        placeholderText: "Repite la frase de cifrado"
+                        echoMode: TextInput.Password
+                        maximumLength: 128
+                        Accessible.name: "Repetir frase de cifrado"
+                    }
+                    CheckBox {
+                        id: understood
+                        text: root.mode === "conservar" ? "He revisado el plan y guardado mis datos importantes" : "Entiendo que se borrará el disco seleccionado"
+                        palette.windowText: root.ink
                     }
                     RowLayout {
                         Layout.topMargin: 16 * root.u
@@ -279,7 +345,8 @@ ApplicationWindow {
                         LavaButton {
                             u: root.u
                             destructive: true
-                            text: "Borrar e instalar"
+                            text: root.mode === "conservar" ? "Instalar Antu" : "Borrar e instalar"
+                            enabled: understood.checked && (!encrypted.checked || (/^[A-Za-z0-9 ]{12,128}$/.test(phrase.text) && phrase.text === phraseAgain.text))
                             onClicked: root.install()
                         }
                     }

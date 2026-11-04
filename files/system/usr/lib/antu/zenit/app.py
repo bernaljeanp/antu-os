@@ -13,6 +13,7 @@ import pathlib
 import re
 import socket
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from PyQt6.QtCore import QObject, QTimer, QUrl, pyqtProperty, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIcon
@@ -34,15 +35,21 @@ DEMO = {
     "luces": {"color": "FF5A1F", "brillo": 100}, "carga": "hasta 80 %", "carga_modo": "Custom", "carga_tope": 80,
     "perfiles": ["quiet", "balanced", "balanced-performance", "performance"],
     "juegos": {"cyberpunk 2077": "performance"},
+    "capacidades": {"perfil": True, "luces": True, "carga": True, "carga_adaptativa": True},
+    "limites_termicos": {}, "baterias": [], "motivo": "Automático con cargador · datos de demostración",
 }
 
 
 def pedir(args):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
-        s.settimeout(60)
+        s.settimeout(3)
         s.connect(SOCKET)
         s.sendall((json.dumps(args) + "\n").encode())
-        return json.loads(s.makefile().readline())
+        with s.makefile() as stream:
+            response = json.loads(stream.readline(1024 * 1024))
+        if not isinstance(response, dict) or type(response.get("ok")) is not bool:
+            raise ValueError("Respuesta no válida de Zenit")
+        return response
 
 
 def juegos_de_steam():
@@ -65,11 +72,16 @@ def juegos_de_steam():
 class Backend(QObject):
     cambio = pyqtSignal()
     aviso = pyqtSignal(str)
+    resultado = pyqtSignal(object, object)
 
     def __init__(self, demo):
         super().__init__()
         self.demo = demo
         self._estado = dict(DEMO) if demo else {}
+        self._connected = demo
+        self._busy = False
+        self._pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="zenit-io")
+        self.resultado.connect(self._recibir)
         self.reloj = QTimer(self, interval=2000)
         self.reloj.timeout.connect(self.refrescar)
         self.reloj.start()
@@ -81,7 +93,11 @@ class Backend(QObject):
 
     @pyqtProperty(bool, notify=cambio)
     def conectado(self):
-        return bool(self._estado)
+        return self._connected
+
+    @pyqtProperty(bool, notify=cambio)
+    def ocupado(self):
+        return self._busy
 
     @pyqtProperty("QVariant", constant=True)
     def nombresPerfil(self):
@@ -99,11 +115,37 @@ class Backend(QObject):
             self._estado["temperaturas"] = {"CPU": round(61 + 3 * math.sin(self._tic / 3)), "GPU": 54}
             self.cambio.emit()
             return
-        try:
-            self._estado = pedir(["estado"])
-        except (OSError, ValueError):
-            self._estado = {}
+        if not self._busy:
+            self._enviar(["estado"])
+
+    def _enviar(self, args):
+        if self._busy:
+            self.aviso.emit("Espera a que termine el cambio anterior.")
+            return False
+        self._busy = True
         self.cambio.emit()
+        def run():
+            try:
+                value = pedir(args)
+            except PermissionError:
+                value = {"ok": False, "error": "Esta cuenta no tiene permiso para controlar el equipo."}
+            except (OSError, ValueError):
+                value = {"ok": False, "error": "Zenit no responde. Los últimos datos pueden estar desactualizados."}
+            self.resultado.emit(args, value)
+        self._pool.submit(run)
+        return True
+
+    def _recibir(self, args, value):
+        self._busy = False
+        if args == ["estado"]:
+            self._connected = bool(value.get("ok"))
+            if self._connected:
+                self._estado = value
+        elif not value.get("ok"):
+            self.aviso.emit(value.get("error", "El equipo no confirmó el cambio."))
+        self.cambio.emit()
+        if args != ["estado"]:
+            self.refrescar()
 
     def orden(self, args, demo_cambio=None):
         if self.demo:
@@ -111,18 +153,7 @@ class Backend(QObject):
                 demo_cambio()
             self.cambio.emit()
             return True
-        try:
-            r = pedir(args)
-        except PermissionError:
-            self.aviso.emit("Zenit solo atiende a las cuentas administradoras de este equipo.")
-            return False
-        except (OSError, ValueError):
-            self.aviso.emit("El servicio Zenit no responde. Reinicia el equipo si sigue así.")
-            return False
-        if not r.get("ok"):
-            self.aviso.emit(r.get("error", "Zenit no pudo hacerlo."))
-        self.refrescar()
-        return bool(r.get("ok"))
+        return self._enviar(args)
 
     @pyqtSlot(str)
     def perfil(self, nombre):
@@ -170,6 +201,7 @@ def main():
         sys.exit(0)
     QLocalServer.removeServer(nombre_unico)
     unica = QLocalServer()
+    unica.setSocketOptions(QLocalServer.SocketOption.UserAccessOption)
     unica.listen(nombre_unico)
     app.setApplicationName("Zenit")
     app.setDesktopFileName("zenit")
@@ -191,14 +223,21 @@ def main():
         ventana.raise_()
         ventana.requestActivate()
 
-    unica.newConnection.connect(lambda: (unica.nextPendingConnection(), mostrar()))
+    def activar():
+        connection = unica.nextPendingConnection()
+        if connection:
+            connection.disconnectFromServer()
+            connection.deleteLater()
+        mostrar()
+    unica.newConnection.connect(activar)
     icono = QSystemTrayIcon(QIcon(ICONO))
     menu = QMenu()
     menu.addAction("Abrir Zenit", mostrar)
     menu.addSeparator()
+    acciones = {}
     for clave, nombre in [("auto", "Automático"), ("quiet", "Silencioso"), ("balanced", "Equilibrado"),
                           ("balanced-performance", "Equilibrado+"), ("performance", "Rendimiento")]:
-        menu.addAction(nombre, lambda clave=clave: backend.perfil(clave))
+        acciones[clave] = menu.addAction(nombre, lambda clave=clave: backend.perfil(clave))
     menu.addSeparator()
     menu.addAction("Salir", app.quit)
     icono.setContextMenu(menu)
@@ -206,7 +245,9 @@ def main():
 
     def resumen():
         e = backend.estado
-        if not e:
+        for key, action in acciones.items():
+            action.setEnabled(backend.conectado and not backend.ocupado and (key == "auto" or key in e.get("perfiles", [])))
+        if not backend.conectado:
             icono.setToolTip("Zenit · el servicio no responde")
             return
         temps = " · ".join(f"{k} {v} °C" for k, v in e.get("temperaturas", {}).items())

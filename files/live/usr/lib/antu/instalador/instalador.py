@@ -45,8 +45,13 @@ def size_label(size):
 
 def describe(dev):
     parts = dev.get("children") or []
-    windows = any(p.get("fstype") in ("ntfs", "BitLocker") for p in parts)
-    mounted = any(m for d in (dev, *parts) for m in (d.get("mountpoints") or []))
+    def descendants(node):
+        yield node
+        for child in node.get("children") or []:
+            yield from descendants(child)
+    all_nodes = list(descendants(dev))
+    windows = any(str(p.get("fstype", "")).lower() in ("ntfs", "bitlocker") for p in all_nodes)
+    mounted = any(m for d in all_nodes for m in (d.get("mountpoints") or []))
     if mounted:
         reason = "Está en uso: es el USB de Antu o tiene algo abierto."
     elif dev["size"] < MIN_SIZE:
@@ -82,6 +87,7 @@ class Backend(QObject):
     stage = pyqtSignal(int)
     line = pyqtSignal(str)
     finished = pyqtSignal(bool, str)
+    planned = pyqtSignal(bool, str)
 
     def __init__(self, demo):
         super().__init__()
@@ -100,8 +106,31 @@ class Backend(QObject):
         except (OSError, subprocess.CalledProcessError, ValueError, KeyError):
             return []
 
-    @pyqtSlot(str, str)
-    def install(self, path, huella):
+    @pyqtSlot(str, str, str)
+    def prepare(self, path, huella, mode):
+        if self.demo:
+            self.plan = {"id": "demo", "mode": mode}
+            self.planned.emit(True, "Espacio sin asignar: 128 GB" if mode == "conservar" else "Se borrará el disco entero.")
+            return
+        self.planner = QProcess(self)
+        self.planner.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
+        def done(code, _status):
+            output = bytes(self.planner.readAllStandardOutput()).decode(errors="replace")
+            try:
+                if code != 0:
+                    raise ValueError(output.strip())
+                self.plan = json.loads(output)
+                free = self.plan.get("free")
+                self.planned.emit(True, "Espacio sin asignar: " + size_label(free["bytes"]) if free else "Se borrará el disco entero.")
+            except (ValueError, KeyError) as error:
+                self.planned.emit(False, str(error))
+        self.planner.finished.connect(done)
+        self.planner.errorOccurred.connect(lambda error: self.planned.emit(False, "No se pudo iniciar la comprobación del disco.")
+                                          if error == QProcess.ProcessError.FailedToStart else None)
+        self.planner.start("pkexec", [HELPER, "plan", path, huella, mode])
+
+    @pyqtSlot(str, str, bool, str)
+    def install(self, path, huella, encrypted, password):
         self.tail = []
         self.stage_index = 0
         if self.demo:
@@ -111,7 +140,12 @@ class Backend(QObject):
         self.proc.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
         self.proc.readyReadStandardOutput.connect(self._read)
         self.proc.finished.connect(self._done)
-        self.proc.start("pkexec", [HELPER, "instalar", path, huella])
+        self.proc.errorOccurred.connect(lambda error: self.finished.emit(False, "No se pudo iniciar el instalador.")
+                                       if error == QProcess.ProcessError.FailedToStart else None)
+        self.proc.start("pkexec", [HELPER, "instalar", path, huella, self.plan["mode"],
+                                  "luks2" if encrypted else "plain", self.plan["id"]])
+        self.proc.write((json.dumps({"passphrase": password}) + "\n").encode())
+        self.proc.closeWriteChannel()
 
     @pyqtSlot()
     def reboot(self):

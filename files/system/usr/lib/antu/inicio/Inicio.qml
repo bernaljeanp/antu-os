@@ -442,7 +442,7 @@ ApplicationWindow {
                     color: root.ink2
                     font.family: "Inter"
                     font.pixelSize: Antu.pixels(21, root.u)
-                    text: "Brave, Steam, tus apps de juegos y la oficina de ArtCraft se instalan solas en cuanto haya internet."
+                    text: "Steam ya está instalado. Brave se prepara cuando haya internet; en Centro de Antu eliges las demás apps. La oficina de ArtCraft se descarga si la seleccionaste."
                 }
             }
 

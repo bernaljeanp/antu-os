@@ -26,11 +26,15 @@ ApplicationWindow {
     readonly property bool conectado: backend.conectado
     readonly property var temps: e.temperaturas || ({})
     readonly property var fans: e.ventiladores || ({})
-    readonly property int cpu: temps.CPU !== undefined ? temps.CPU : (Object.keys(temps).length ? temps[Object.keys(temps)[0]] : 0)
+    readonly property int cpu: temps.CPU !== undefined ? temps.CPU : 0
     readonly property int gpu: temps.GPU !== undefined ? temps.GPU : 0
     readonly property bool auto: e.modo === "auto"
     readonly property var perfiles: e.perfiles || []
+    readonly property var capacidades: e.capacidades || ({})
+    readonly property bool ocupado: backend.ocupado
+    property real ultimaMuestra: -1
     property var historia: backend.historiaInicial
+    property var historiaTiempos: historia.map((_, i) => Date.now() / 1000 - (historia.length - 1 - i) * 2)
     property string avisoTexto: ""
 
     function nombrePerfil(id) { return backend.nombresPerfil[id] || id || "sin perfil" }
@@ -43,8 +47,16 @@ ApplicationWindow {
         target: backend
         function onCambio() {
             if (!root.conectado) return
-            const h = root.historia.slice(-59)
+            if (root.e.ultima_muestra !== undefined && root.ultimaMuestra === root.e.ultima_muestra) return
+            root.ultimaMuestra = root.e.ultima_muestra || -1
+            if (root.cpu <= 0) return
+            const now = Date.now() / 1000
+            const first = root.historiaTiempos.findIndex(t => t >= now - 120)
+            const h = first >= 0 ? root.historia.slice(first) : []
+            const times = first >= 0 ? root.historiaTiempos.slice(first) : []
             h.push(root.cpu)
+            times.push(now)
+            root.historiaTiempos = times
             root.historia = h
         }
         function onAviso(texto) {
@@ -211,6 +223,11 @@ ApplicationWindow {
         property bool tenue: false  // activa por el modo automático, no elegida a mano
         Layout.fillWidth: true
         Layout.minimumWidth: 0
+        implicitWidth: 190 * root.u
+        topPadding: 18 * root.u
+        bottomPadding: 14 * root.u
+        leftPadding: 12 * root.u
+        rightPadding: 12 * root.u
         implicitHeight: Math.max(96 * root.u, opcionContenido.implicitHeight + 16 * root.u)
         Accessible.name: titulo + (activa ? ", activo" : "")
         background: Item {
@@ -267,13 +284,12 @@ ApplicationWindow {
                 border.color: "#FFFFFF"
             }
         }
-        contentItem: Column {
+        contentItem: ColumnLayout {
             id: opcionContenido
             spacing: 4 * root.u
-            topPadding: 18 * root.u
             Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width - 24 * root.u
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
                 text: opcion.titulo
@@ -283,8 +299,8 @@ ApplicationWindow {
                 font.weight: Font.DemiBold
             }
             Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width - 24 * root.u
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
                 text: opcion.detalle
@@ -355,6 +371,19 @@ ApplicationWindow {
             }
 
             // 1. Temperaturas y diagnóstico en palabras simples.
+            Nota {
+                Layout.fillWidth: true
+                visible: !root.conectado || !!root.e.ultimo_error
+                text: !root.conectado ? "Sin conexión con Zenit. Los datos conservados pueden estar desactualizados; los controles esperan al servicio."
+                                      : root.e.ultimo_error || ""
+                color: Antu.negative
+            }
+            Nota {
+                Layout.fillWidth: true
+                visible: root.conectado
+                text: (root.e.motivo || "") + (root.e.perfil_solicitado && root.e.perfil_solicitado !== root.e.perfil
+                      ? ". El firmware ofrece " + root.nombrePerfil(root.e.perfil) + " como alternativa." : "")
+            }
             Panel {
                 GridLayout {
                     columns: root.compacta ? 2 : 4
@@ -391,12 +420,14 @@ ApplicationWindow {
                                                "Los ajustes no se pueden cambiar por ahora. Reinicia el equipo; si sigue así, avísanos."]
                           : root.perfiles.length === 0 ? ["Este equipo no tiene control térmico compatible",
                                                "Zenit muestra lo que puede leer. Los perfiles funcionan en portátiles Alienware y en otros con perfil de energía en Linux."]
-                          : root.e.boost ? ["Performance Boost activo", "Ventiladores y frecuencias al máximo. Pulsa F6 para volver."]
+                          : root.e.limitacion_termica_observada === true ? ["Limitación térmica observada", "Los contadores del procesador aumentaron durante el último intervalo. Revisa ventilación y condiciones de la prueba."]
+                          : root.e.boost ? ["Performance Boost activo", "Perfil de rendimiento solicitado al firmware. Pulsa F6 para volver."]
                           : root.e.sigilo ? ["Modo Sigilo", "Luces tenues y perfil Silencioso. Pulsa F7 para volver."]
                           : root.e.juego ? ["Jugando", root.e.juego + " corre en " + root.nombrePerfil(root.e.perfil) + ". Al cerrarlo vuelve tu perfil de siempre."]
                           : root.cpu >= 90 ? ["El procesador está muy caliente",
                                               "Revisa que las rejillas no estén tapadas, o elige un perfil con más ventilación."]
-                          : ["Todo en orden", root.nombrePerfil(root.e.perfil) + (root.e.cargador ? " con el cargador." : " con batería.")
+                          : root.cpu <= 0 ? ["Sin lectura del procesador", "El equipo no está entregando una temperatura válida. Esto no confirma su estado térmico."]
+                          : ["Perfil aplicado", root.nombrePerfil(root.e.perfil) + (root.e.cargador ? " con el cargador." : " con batería.")
                                               + (root.auto ? " Zenit lo cambia solo al abrir un juego." : "")]
                         Text {
                             Layout.fillWidth: true
@@ -428,22 +459,23 @@ ApplicationWindow {
                 titulo: "Perfil térmico"
                 GridLayout {
                     columns: root.compacta ? 1 : 4
+                    uniformCellWidths: true
                     Layout.fillWidth: true
                     Layout.minimumWidth: 0
                     columnSpacing: 12 * root.u
                     rowSpacing: 12 * root.u
                     Repeater {
                         model: [
-                            { id: "quiet", detalle: "Ventiladores bajos" },
+                            { id: "quiet", detalle: "Prioriza silencio" },
                             { id: "balanced", detalle: "Uso diario" },
-                            { id: "balanced-performance", detalle: "Más potencia, poco ruido" },
-                            { id: "performance", detalle: "Máximo, ventiladores arriba" }
+                            { id: "balanced-performance", detalle: "Prioriza respuesta" },
+                            { id: "performance", detalle: "Prioriza rendimiento" }
                         ].filter(p => root.perfiles.length === 0 || root.perfiles.indexOf(p.id) >= 0)
                         delegate: Opcion {
                             required property var modelData
                             titulo: root.nombrePerfil(modelData.id)
                             detalle: modelData.detalle
-                            enabled: root.perfiles.length > 0
+                            enabled: root.conectado && !root.ocupado && root.perfiles.length > 0
                             activa: root.e.perfil === modelData.id
                             tenue: root.auto
                             onClicked: backend.perfil(modelData.id)
@@ -456,7 +488,7 @@ ApplicationWindow {
                     spacing: 18 * root.u
                     Switch {
                         checked: root.auto
-                        enabled: root.perfiles.length > 0
+                        enabled: root.conectado && !root.ocupado && root.perfiles.length > 0
                         text: "Automático"
                         font.family: "Inter"
                         font.pixelSize: Antu.pixels(23, root.u)
@@ -504,8 +536,8 @@ ApplicationWindow {
                             c.beginPath(); c.moveTo(0, y(100)); c.lineTo(width, y(100)); c.stroke()
                             c.setLineDash([])
                             if (datos.length < 2) return
-                            const paso = width / 59
-                            const x0 = width - (datos.length - 1) * paso
+                            const now = Date.now() / 1000
+                            const x = i => (root.historiaTiempos[i] - now + 120) / 120 * width
                             const g = c.createLinearGradient(0, height, 0, 0)
                             g.addColorStop(0, "#FFB27A")
                             g.addColorStop(0.55, root.lava)
@@ -514,12 +546,15 @@ ApplicationWindow {
                             c.lineWidth = 3
                             c.lineJoin = "round"
                             c.beginPath()
-                            datos.forEach((t, i) => i ? c.lineTo(x0 + i * paso, y(t)) : c.moveTo(x0, y(t)))
+                            datos.forEach((t, i) => i && root.historiaTiempos[i] - root.historiaTiempos[i - 1] < 10
+                                ? c.lineTo(x(i), y(t)) : c.moveTo(x(i), y(t)))
                             c.stroke()
                         }
                     }
                     Nota {
-                        text: "La línea punteada marca los 100 °C, donde el procesador empieza a frenarse solo para no calentarse más."
+                        text: root.e.limites_termicos && root.e.limites_termicos.CPU
+                              ? "Límite crítico informado por el sensor: " + root.e.limites_termicos.CPU + " °C. La protección térmica la controla el firmware."
+                              : "La referencia de 100 °C no indica el límite de este procesador. El firmware conserva su protección térmica."
                         color: root.ink3
                         font.pixelSize: Antu.pixels(19, root.u)
                     }
@@ -528,6 +563,7 @@ ApplicationWindow {
                     Layout.horizontalStretchFactor: 1
                     Layout.alignment: Qt.AlignTop
                     titulo: "Refrigeración"
+                    Nota { text: "El firmware controla los ventiladores según el perfil. Zenit muestra las velocidades que el equipo informa." }
                     Repeater {
                         model: Object.keys(root.fans)
                         delegate: RowLayout {
@@ -586,6 +622,7 @@ ApplicationWindow {
                     id: panelLuces
                     Layout.horizontalStretchFactor: 3
                     titulo: "Luces del teclado"
+                    Nota { visible: !root.capacidades.luces; text: "No se detectó un controlador de luces compatible. La vista del teclado es ilustrativa." }
                     readonly property string tono: (root.e.luces || {}).color || "FFFFFF"
                     readonly property int brillo: (root.e.luces || {}).brillo !== undefined ? root.e.luces.brillo : 100
                     // Vista previa: un teclado que se ilumina con el color y el brillo elegidos.
@@ -652,6 +689,7 @@ ApplicationWindow {
                             delegate: AbstractButton {
                                 id: muestra
                                 required property string modelData
+                                enabled: root.conectado && !root.ocupado && !!root.capacidades.luces
                                 readonly property bool elegido: panelLuces.tono === modelData
                                 width: 52 * root.u
                                 height: 52 * root.u
@@ -685,6 +723,7 @@ ApplicationWindow {
                         }
                         Slider {
                             id: brillo
+                            enabled: root.conectado && !root.ocupado && !!root.capacidades.luces
                             Layout.fillWidth: true
                             Layout.minimumWidth: 0
                             from: 0
@@ -730,7 +769,8 @@ ApplicationWindow {
                             implicitHeight: Math.max(84 * root.u, contentItem.implicitHeight + 16 * root.u)
                             titulo: modelData.titulo
                             detalle: modelData.detalle
-                            enabled: panelBateria.disponible
+                            enabled: root.conectado && !root.ocupado && panelBateria.disponible
+                                     && (modelData.id !== "adaptativa" || !!root.capacidades.carga_adaptativa)
                             activa: enabled && panelBateria.actual === modelData.id
                             onClicked: backend.carga(modelData.id)
                         }
@@ -741,6 +781,15 @@ ApplicationWindow {
                               : "Este equipo no permite fijar el límite de carga desde Linux."
                         color: root.ink3
                         font.pixelSize: Antu.pixels(19, root.u)
+                    }
+                    Repeater {
+                        model: root.e.baterias || []
+                        delegate: Nota {
+                            required property var modelData
+                            text: modelData.nombre + ": " + (modelData.porcentaje === null ? "sin lectura" : modelData.porcentaje + " %")
+                                  + (modelData.salud_porcentaje === null ? "" : " · capacidad respecto al diseño: " + modelData.salud_porcentaje + " %")
+                                  + (modelData.ciclos === null ? "" : " · " + modelData.ciclos + " ciclos")
+                        }
                     }
                 }
             }

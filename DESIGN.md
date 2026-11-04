@@ -68,3 +68,12 @@ al pasar el cursor. La atención y el progreso usan estados nativos; el tema no 
 el orden por categorías de Plasma y deja portapapeles/multimedia en su desplegable. El reloj tiene 12 px de separación.
 La migración de sesiones Antu retira solo el pin de Zenit; no reconstruye paneles ni sustituye accesos personales.
 Comprobaciones y límites en `docs/BARRA-DE-TAREAS-2026-11-03.md`.
+
+## Preparación y protección de datos — 2026-11-04
+
+Centro de Antu usa Qt Widgets con los estilos Kvantum y paletas existentes: pestañas nativas para aplicaciones,
+copias, pruebas del equipo y comparación de registros. Las operaciones largas viven fuera del hilo de interfaz;
+los estados de descarga y verificación vienen del motor real. Las restauraciones terminan en una carpeta nueva.
+Zenit conserva sus materiales y confirma perfiles/carga; las funciones ausentes se desactivan. La instalación
+muestra un plan revisable, distingue conservar/borrar y separa la frase LUKS2 de la cuenta de usuario.
+La página de descargas mantiene grafito/lava, Inter y el símbolo aprobado; no usa arte de sustitución.

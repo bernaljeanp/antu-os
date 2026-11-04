@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""Prueba destructiva EXCLUSIVA de un NVMe virtual con serie ANTU-PREMIUM-VM."""
+import hashlib
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+sys.path.insert(0, "/usr/lib/antu/instalador")
+import almacenamiento as storage
+
+
+def main():
+    device = "/dev/nvme0n1"
+    if storage.query(["lsblk", "-dno", "SERIAL", device]) != "ANTU-PREMIUM-VM":
+        raise ValueError("Prueba prohibida: el destino no es el disco virtual reservado de CI.")
+    layout = "label: gpt\nstart=2048,size=131072,type=" + storage.ESP + "\nsize=524288,type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"
+    storage.run(["sfdisk", "--wipe", "always", device], input=layout, text=True)
+    storage.run(["udevadm", "settle"])
+    old = storage.partitions(device)
+    storage.run(["mkfs.vfat", "-F", "32", old[0]["node"]])
+    storage.run(["mkntfs", "-F", "-Q", old[1]["node"]])
+    def sha(path):
+        with open(path, "rb") as source:
+            return hashlib.file_digest(source, "sha256").hexdigest()
+    before = {p["node"]: sha(p["node"]) for p in old}
+    fingerprint = " ".join(storage.query(["lsblk", "-bdno", "SERIAL,SIZE", device]).split())
+    selected = storage.plan(device, fingerprint, "conservar")
+    os.environ["ANTU_KARGS"] = "console=ttyS0,115200 systemd.show_status=1 systemd.log_target=console plymouth.enable=0 rd.plymouth=0"
+    with storage.inhibit():
+        storage.install(device, fingerprint, "conservar", "luks2", selected["id"], "antutestingpassphrase2026")
+    after = {p["node"]: sha(p["node"]) for p in old}
+    if before != after:
+        raise RuntimeError("Cambió el contenido de una partición conservada.")
+    encrypted = [p for p in storage.partitions(device) if p.get("name", "").startswith("AntuRoot-")][0]["node"]
+    storage.run(["cryptsetup", "isLuks", encrypted])
+    print("ANTU-STORAGE: particiones preservadas y LUKS2 instalado OK", flush=True)
+
+
+try:
+    main()
+except Exception as error:
+    print("ANTU-STORAGE: FALLO " + str(error), flush=True)
+finally:
+    subprocess.run(["systemctl", "poweroff"])

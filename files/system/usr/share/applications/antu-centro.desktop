@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Centro de Antu
+Comment=Prepara aplicaciones, protege tus archivos y prueba tu equipo
+Exec=/usr/bin/python3 /usr/lib/antu/centro/centro.py
+Icon=antu
+Categories=System;Settings;
+Keywords=descargas;backup;respaldo;recuperacion;rendimiento;compatibilidad;

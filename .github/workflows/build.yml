@@ -45,10 +45,15 @@ jobs:
 
       - name: Regresiones del informe y del equipo
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq restic
           python3 ci/diagnostico-test.py
+          python3 ci/zenit-test.py
           python3 ci/visual-test.py
           node ci/panel-test.cjs
           python3 ci/integracion-test.py
+          python3 ci/premium-test.py
+          python3 ci/release-test.py
 
       # Instala podman reciente, bcvk y libvirt (las mismas herramientas que usa bootcrew).
       - uses: bootc-dev/actions/bootc-ubuntu-setup@de95828443214c605662555316955bd1425b448d # main, 2026-10-18

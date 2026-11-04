@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Preparar Antu
+Exec=/usr/bin/python3 /usr/lib/antu/centro/centro.py --primera-vez
+Icon=antu
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

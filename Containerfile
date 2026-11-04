@@ -57,7 +57,7 @@ RUN pacman -S --noconfirm nvidia-open nvidia-utils \
       plasma-pa kscreen bluez bluedevil kwallet-pam kinfocenter kde-gtk-config breeze-gtk flatpak-kcm plasma-disks \
       plasma-thunderbolt ffmpegthumbs sof-firmware wireless-regdb ntfs-3g exfatprogs \
       pipewire pipewire-pulse pipewire-alsa wireplumber rtkit noto-fonts openssh \
-      discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 firewalld plasma-firewall git podman distrobox && \
+      discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 python-gobject restic cryptsetup firewalld plasma-firewall git podman distrobox && \
     pacman -S --clean --noconfirm
 
 # Discover usa Flatpak. Sus complementos de PackageKit se distribuyen incluso sin su biblioteca opcional: quitarlos
@@ -119,7 +119,7 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts \
 # Initramfs con los módulos de bootc, regenerado después de instalar kernel y NVIDIA.
 RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-module.conf && \
-    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc plymouth "\nadd_drivers+=" usb_storage uas sd_mod "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
+    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" bootc plymouth crypt "\nadd_drivers+=" usb_storage uas sd_mod dm_crypt "\n' > /usr/lib/dracut/dracut.conf.d/30-antu-bootc-build.conf && \
     kver="$(ls /usr/lib/modules)" && dracut --force "/usr/lib/modules/${kver}/initramfs.img" "${kver}"
 
 # Solo para la prueba de arranque en CI: SSH para revisar la VM, con su puerto abierto en el firewall (si no, la prueba

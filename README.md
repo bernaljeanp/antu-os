@@ -55,7 +55,7 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   Alienware Command Center. Es el mismo Zenit Engine de Windows sobre las interfaces del kernel; falta probarlo en
   hardware real.
 - **Más juegos:** Heroic (Epic, GOG, Amazon), Lutris y Bottles (otras tiendas y programas de Windows), ProtonPlus
-  (versiones extra de Proton), Discord y Sober (Roblox, no oficial). Se instalan solas en el primer arranque.
+  (versiones extra de Proton), Discord y Sober (Roblox, no oficial). Se eligen en **Centro de Antu**, con progreso y reintento por aplicación.
 - **Navegador:** Brave, desde Flathub. Se instala solo en el primer arranque con internet y se actualiza aparte
   del sistema.
 - **Oficina:** WordCraft (documentos), DeckCraft (presentaciones), GridCraft (hojas de cálculo) y PdfCraft (PDF),
@@ -63,7 +63,7 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   arranque con internet. Están en desarrollo o alfa, y su repositorio aún no firma los paquetes (vista previa):
   por eso van aisladas como Flatpak y no dentro del sistema base.
 - **Básicos:** VLC, Mission Center (administrador de tareas), OBS Studio y EasyEffects (sonido: reemplaza el
-  ajuste Dolby de Windows, que no existe en Linux), desde Flathub en el primer arranque. En la imagen: Ark (abre
+  ajuste Dolby de Windows, que no existe en Linux), a elección desde Centro de Antu. En la imagen: Ark (abre
   RAR, 7z y ZIP), Gwenview, Spectacle, Kate, KCalc y USBoot.
 - **IA local opcional:** «Instalar IA local» en el menú instala Alpaca con Ollama; no viene
   preinstalada porque ocupa varios GB.
@@ -72,23 +72,22 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   Dentro de la caja se instala lo que cada proyecto necesite sin tocar el sistema base.
 - **Apps:** Discover instala aplicaciones desde Flathub sin tocar el sistema base. Sin relleno: Antu no trae
   LibreOffice.
-- **Primer arranque:** las apps de Flathub y ArtCraft se descargan solas (varios GB) en cuanto hay internet.
+- **Primer arranque:** Brave se prepara cuando hay internet. Centro de Antu permite seleccionar las demás apps de Flathub, consultar su progreso real y pausar las descargas. La oficina de ArtCraft solo se prepara si se eligió. Las descargas pueden ocupar varios GB; las herramientas incluidas funcionan sin conexión.
+- **Datos y recuperación:** Centro de Antu crea respaldos cifrados con Restic, verifica sus datos y restaura en una carpeta nueva. Incluye un recorrido manual del hardware y comparación de CSV de MangoHud/PresentMon, sin atribuir pruebas de VM a una gráfica real.
 
 ## Instalar desde un USB
 
-1. Descarga la ISO: en este repositorio, *Actions → iso →* la última ejecución verde *→* artefacto `antu-live-iso`
-   (unos 7 GB). Trae `antu-live.iso.sha256` para comprobar la descarga.
+1. Consulta la [página de descargas](https://bernaljeanp.github.io/antu-os/) o las [versiones públicas](https://github.com/bernaljeanp/antu-os/releases). Las nuevas entregas incluyen un manifiesto firmado, partes de la ISO y `descargar-antu.py`, que las verifica y reúne (Python 3 y OpenSSL). Mientras se publica la primera, *Actions → iso →* última ejecución verde *→* `antu-live-iso` conserva la ISO completa y su SHA-256 durante siete días.
 2. Grábala en un USB de 16 GB o más con [USBoot](https://github.com/bernaljeanp/usboot), o con cualquier grabador en
    modo imagen (DD). El USB se borra entero.
 3. **Arranque seguro (Secure Boot):** puedes dejarlo activo. La primera vez que enciendas con el USB, registra la llave de Antu
    siguiendo [la guía con fotos](files/live/usr/share/antu/guia-arranque-seguro.png). Se hace una sola vez.
 4. Arranca desde el USB (en Alienware y Dell, con F12). Antu arranca en vivo, sin tocar el disco, y abre
    **Antu en vivo**, con **Probar Antu** e **Instalar Antu…**. Si la pantalla se queda negra, elige en el menú de arranque *modo seguro: sin NVIDIA*.
-5. Elige el disco, confirma el borrado y espera entre 5 y 20 minutos. No hace falta internet: la imagen viaja en el USB.
+5. Elige el disco y el modo: borrar todo o conservar las particiones y usar espacio GPT sin asignar. Puedes cifrar el sistema y los datos con LUKS2. Revisa el plan y conserva la frase de cifrado; el arranque EFI permanece sin cifrar. No hace falta internet: la imagen viaja en el USB.
 6. Reinicia y quita el USB. Inicio te pide idioma, zona horaria y tu cuenta (ver [Primer arranque](#primer-arranque)).
 
-El instalador ocupa el disco entero. Para conservar Windows, instala Antu en otro disco: la instalación junto a Windows
-en el mismo disco aún no existe.
+Para conservar Windows en el mismo disco, libera antes al menos 43 GB **desde Windows**. Antu usa únicamente espacio sin asignar: no reduce ni formatea sus particiones y crea una ESP propia. Windows sigue disponible desde el menú UEFI del fabricante. Guarda previamente la clave de recuperación de BitLocker. También puedes instalar en otro disco. La conservación se prueba con particiones FAT/NTFS y hashes en QEMU; no equivale a haber arrancado una instalación real de Windows después.
 
 Para probar sin instalar, pulsa **Probar Antu**. El USB registra temperaturas, uso de la gráfica y estado del equipo
 desde el inicio; sigue aunque cierres **Informe del equipo**. Toma una muestra cada cinco segundos, hasta cuatro horas,
@@ -229,7 +228,7 @@ Si `bootc` no cumple en Arch, el plan B es systemd-sysupdate (el modelo de KDE L
   de NVIDIA o una versión nueva del núcleo no llegan solas: esperan a que alguien las apruebe tras probarlas en un equipo.
 - Cada equipo solo acepta versiones de Antu firmadas con su llave, y Antu arranca con Secure Boot activo tras registrar su
   llave una sola vez. Todo esto se probó en máquinas virtuales con las llaves de Microsoft; falta confirmarlo en equipos reales.
-- El instalador usa el disco entero; instalar junto a Windows en el mismo disco aún no está disponible.
+- La convivencia usa espacio GPT sin asignar; no hay reducción automática de particiones ni prueba completa de Windows/BitLocker en hardware real. La frase LUKS2 se limita a letras A–Z, números y espacios para evitar diferencias de teclado durante el desbloqueo inicial.
 - `bootc upgrade` en un sistema instalado necesita que el paquete `ghcr.io/bernaljeanp/antu-nvidia` sea público.
 - La interfaz «macOS gamer» (vidrio de obsidiana, acento de lava, Inter) ya tiene arranque animado «Encendido», inicio de
   sesión, Inicio, instalador, íconos y tres fondos (Antu, Paranal y Salar); falta revisarla en hardware real. Cada

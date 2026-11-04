@@ -232,4 +232,49 @@ for esperado in "internet OK" "actualizar OK" "sin firma RECHAZADA"; do
     grep -qa "ANTU-FIRMA: $esperado" "$OUT/serie-firma.log" || { echo "::error::Faltó «$esperado» (ver serie-firma.log)"; exit 1; }
 done
 comprobar_eclipse "$OUT/serie-firma.log"
+echo "== 6. Cifrado LUKS2 y conservación de particiones en un segundo disco virtual"
+qemu-img create -f qcow2 "$OUT/premium.qcow2" 64G > /dev/null
+QEMU_STORAGE=()
+for argument in "${QEMU[@]}"; do
+    case "$argument" in
+        "file=$OUT/disco.qcow2,if=none,id=disco,format=qcow2") argument="file=$OUT/premium.qcow2,if=none,id=disco,format=qcow2" ;;
+        "nvme,serial=ANTU0001,drive=disco") argument="nvme,serial=ANTU-PREMIUM-VM,drive=disco" ;;
+    esac
+    QEMU_STORAGE+=("$argument")
+done
+cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.overlay=1 console=ttyS0,115200 systemd.unit=multi-user.target antu.prueba-almacenamiento"
+timeout 2400 "${QEMU_STORAGE[@]}" -no-reboot -cdrom "$B/antu-live.iso" \
+    -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
+    -serial file:"$OUT/serie-almacenamiento.log" || true
+grep -qa "ANTU-STORAGE: particiones preservadas y LUKS2 instalado OK" "$OUT/serie-almacenamiento.log" || {
+    tail -n 100 "$OUT/serie-almacenamiento.log"
+    echo "::error::Cifrado o conservación de particiones falló. No se entrega la ISO."
+    exit 1
+}
+# Consola bidireccional: la clave es una constante de prueba y nunca pertenece a un usuario.
+mkfifo "$OUT/cifrado.in" "$OUT/cifrado.out"
+cat "$OUT/cifrado.out" > "$OUT/serie-cifrado.log" &
+reader=$!
+"${QEMU_STORAGE[@]}" -serial "pipe:$OUT/cifrado" &
+exec 9> "$OUT/cifrado.in"
+for _ in $(seq 120); do
+    if grep -qaiE 'passphrase|password|contraseña|unlock.*disk' "$OUT/serie-cifrado.log"; then break; fi
+    sleep 1
+done
+printf 'antutestingpassphrase2026\n' >&9
+if ! wait_for "$OUT/serie-cifrado.log" "Startup finished in" 600; then
+    shot cifrado-fallo
+    echo quit | socat - unix:"$OUT/monitor.sock" > /dev/null 2>&1 || true
+    exec 9>&-
+    kill "$reader" 2>/dev/null || true
+    wait || true
+    echo "::error::El disco cifrado no arrancó después de desbloquearlo."
+    exit 1
+fi
+sleep 15
+shot cifrado-instalado
+echo quit | socat - unix:"$OUT/monitor.sock" > /dev/null
+exec 9>&-
+kill "$reader" 2>/dev/null || true
+wait || true
 echo "ANTU: pruebas de la ISO OK"
