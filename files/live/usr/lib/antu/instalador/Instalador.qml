@@ -167,7 +167,7 @@ ApplicationWindow {
                     elide: Text.ElideRight
                     text: row.usable ? row.modelData.contents : row.modelData.reason
                     textFormat: Text.PlainText
-                    color: row.usable && row.modelData.windows ? root.negative : root.ink2
+                    color: row.usable && row.modelData.windows && root.mode === "borrar" ? root.negative : root.ink2
                     font.family: "Inter"
                     font.pixelSize: Antu.pixels(21, root.u)
                 }

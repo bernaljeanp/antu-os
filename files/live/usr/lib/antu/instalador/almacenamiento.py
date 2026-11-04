@@ -59,7 +59,7 @@ def disk(device, fingerprint):
         raise ValueError("Disco no válido.")
     if not Path(device).is_block_device():
         raise ValueError("El destino no es un dispositivo de bloques.")
-    info = json.loads(query(["lsblk", "-Jb", "-o", "PATH,SIZE,SERIAL,TYPE,RO,MOUNTPOINTS", device]))["blockdevices"]
+    info = json.loads(query(["lsblk", "--tree", "-Jb", "-o", "PATH,SIZE,SERIAL,TYPE,RO,MOUNTPOINTS", device]))["blockdevices"]
     if len(info) != 1 or info[0]["type"] != "disk" or info[0].get("ro"):
         raise ValueError("El destino no es un disco completo escribible.")
     item = info[0]

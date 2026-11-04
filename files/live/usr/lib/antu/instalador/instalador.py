@@ -25,7 +25,7 @@ STAGE_WORDS = [(), ("fetch", "pull", "layer", "import", "deploy", "object"), ("b
 
 DEMO_DISKS = [
     {"path": "/dev/nvme0n1", "name": "Samsung SSD 990 PRO 1TB", "detail": "NVMe · 1 TB", "kind": "disco",
-     "windows": True, "contents": "Tiene Windows: se borrará junto con todos sus archivos.",
+     "windows": True, "contents": "Tiene particiones de Windows.",
      "parts": ["VFAT · 105 MB", "Windows · NTFS · 999 GB", "Recuperación · NTFS · 1 GB"], "reason": ""},
     {"path": "/dev/sda", "name": "SanDisk Extreme Pro", "detail": "USB · 256 GB", "kind": "usb",
      "windows": False, "contents": "Vacío.", "parts": [], "reason": ""},
@@ -66,8 +66,8 @@ def describe(dev):
         "detail": " · ".join(x for x in (TRANSPORTS.get(dev.get("tran") or "", ""), size_label(dev["size"])) if x),
         "kind": "usb" if dev.get("tran") == "usb" else "disco",
         "windows": windows,
-        "contents": ("Tiene Windows: se borrará junto con todos sus archivos." if windows
-                     else "Tiene datos que se borrarán." if parts else "Vacío."),
+        "contents": ("Tiene particiones de Windows." if windows
+                     else "Tiene particiones con datos." if parts else "Vacío."),
         "parts": [" · ".join(x for x in (p.get("label"), (p.get("fstype") or "").upper(), size_label(p["size"])) if x)
                   for p in parts],
         "reason": reason,
@@ -76,7 +76,7 @@ def describe(dev):
 
 def disks():
     """Discos completos donde se puede instalar; primero los internos, al final los que no sirven."""
-    out = subprocess.run(["lsblk", "-J", "-b", "-o", "PATH,SIZE,MODEL,SERIAL,TRAN,TYPE,RO,FSTYPE,LABEL,MOUNTPOINTS"],
+    out = subprocess.run(["lsblk", "--tree", "-J", "-b", "-o", "PATH,SIZE,MODEL,SERIAL,TRAN,TYPE,RO,FSTYPE,LABEL,MOUNTPOINTS"],
                          capture_output=True, text=True, check=True).stdout
     found = [describe(d) for d in json.loads(out)["blockdevices"]
              if d["type"] == "disk" and not d["ro"] and d["size"] and not d["path"].startswith("/dev/zram")]
