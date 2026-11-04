@@ -16,10 +16,15 @@ FROM base AS bootc
 ARG BOOTC_VERSION
 ARG BOOTC_COMMIT
 RUN pacman -Syu --noconfirm make git rust ostree glibc pkgconf
-RUN git clone --depth 1 --branch "${BOOTC_VERSION}" https://github.com/bootc-dev/bootc.git /src && \
+RUN --mount=type=bind,source=files/scripts,target=/antu-scripts \
+    git clone --depth 1 --branch "${BOOTC_VERSION}" https://github.com/bootc-dev/bootc.git /src && \
     test "$(git -C /src rev-parse HEAD)" = "${BOOTC_COMMIT}" && \
+    git -C /src apply --check /antu-scripts/bootc-esp-mounted.patch && \
+    git -C /src apply /antu-scripts/bootc-esp-mounted.patch && \
     make -C /src bin install-all DESTDIR=/output DISABLE_DOCS=1 \
-      CARGO_OPTIONS='--no-default-features --features "install-to-disk pre-6.15"'
+      CARGO_OPTIONS='--no-default-features --features "install-to-disk pre-6.15"' && \
+    install -Dm644 /src/LICENSE-APACHE /output/usr/share/licenses/bootc/LICENSE-APACHE && \
+    install -Dm644 /src/LICENSE-MIT /output/usr/share/licenses/bootc/LICENSE-MIT
 
 FROM base
 

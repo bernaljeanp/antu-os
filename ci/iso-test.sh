@@ -258,7 +258,7 @@ reader=$!
 "${QEMU_STORAGE[@]}" -serial "pipe:$OUT/cifrado" &
 exec 9> "$OUT/cifrado.in"
 for _ in $(seq 120); do
-    if grep -qaiE 'passphrase|password|contraseña|unlock.*disk' "$OUT/serie-cifrado.log"; then break; fi
+    if grep -qaiE 'enter (passphrase|password)|passphrase for|frase.*disco|contraseña.*disco' "$OUT/serie-cifrado.log"; then break; fi
     sleep 1
 done
 printf 'antutestingpassphrase2026\n' >&9

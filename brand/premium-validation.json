@@ -28,8 +28,8 @@
     },
     {
       "path": "Containerfile",
-      "bytes": 11362,
-      "sha256": "b6ea3f1297292045bcbcd09c6a6272065b58339bee453a6042feee345a7e0d27"
+      "bytes": 11744,
+      "sha256": "3e4df03e97016d37a9246d0a2439c7e636b554ff22df13840b934ef4eba41688"
     },
     {
       "path": "Containerfile.live",
@@ -48,8 +48,8 @@
     },
     {
       "path": "ci/iso-test.sh",
-      "bytes": 14411,
-      "sha256": "f5c8d36881feeca68428ab61e2233547f8e7d291b6561a3e941ac3b8ec7c6a6c"
+      "bytes": 14441,
+      "sha256": "f444d6b57b4dd228dddb64096258e3d1edb2123debf0e756ebc31931ed833a71"
     },
     {
       "path": "ci/premium-test.py",
@@ -83,8 +83,8 @@
     },
     {
       "path": "docs/ROBUSTEZ-2026-11-04.md",
-      "bytes": 6630,
-      "sha256": "24866fb324a992d4e641590f3b801e19953dc885c2f5d28c1f82533513bfd932"
+      "bytes": 7122,
+      "sha256": "defecd06995d14aef97325bce52c8f86a36ccc66bd29320534318c7b895e0023"
     },
     {
       "path": "docs/descargas.js",
@@ -130,6 +130,11 @@
       "path": "files/live/usr/lib/systemd/system/antu-prueba-almacenamiento.service",
       "bytes": 370,
       "sha256": "166da4a190c3ea26374be7c5ca5546c5b2dd9fb208fb7d179c7e2269657d4192"
+    },
+    {
+      "path": "files/scripts/bootc-esp-mounted.patch",
+      "bytes": 3594,
+      "sha256": "7fc1e319709483a2d3461c1fd7dab38be381431d47b90767c8907fc8d96b57b1"
     },
     {
       "path": "files/scripts/verificar-escritorio.py",
@@ -192,6 +197,11 @@
       "sha256": "565861063095f9667542d565bf6a4db55b59d13b27389938354f880f41471ea8"
     },
     {
+      "path": "files/system/usr/share/antu/bootc-patches.json",
+      "bytes": 237,
+      "sha256": "b1740f8a79a6828f048db462afea80b6f7f17c8073fe563c0f8b355aa6dac056"
+    },
+    {
       "path": "files/system/usr/share/applications/antu-centro.desktop",
       "bytes": 290,
       "sha256": "6f9e1a2e4e8c648ea58962a8ba3c5574f75fbe50f940e999b699606ed1fe9f3a"
@@ -215,6 +225,21 @@
       "path": "scripts/preparar-release.py",
       "bytes": 3015,
       "sha256": "0e0ce11278012a4b12a3e98495289820d9d66a4a95e26579ba9b681c43c6398c"
+    },
+    {
+      "path": "third_party/bootc-ESP-NOTICE.md",
+      "bytes": 1109,
+      "sha256": "b60d39071de2b6b69fe9b59e5d1805e2614cccfde6d94289adf1b4daa6b3b45e"
+    },
+    {
+      "path": "third_party/bootc-LICENSE-APACHE",
+      "bytes": 11358,
+      "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+    },
+    {
+      "path": "third_party/bootc-LICENSE-MIT",
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
     }
   ],
   "previews": [

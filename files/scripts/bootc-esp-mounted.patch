@@ -1,0 +1,92 @@
+--- a/crates/lib/src/bootc_composefs/boot.rs
++++ b/crates/lib/src/bootc_composefs/boot.rs
+@@ -435,6 +435,20 @@
+     )
+ }
+ 
++/// Honor an ESP explicitly mounted by the installer before scanning the disk.
++/// This keeps a pre-existing Windows ESP out of an alongside installation.
++fn install_esp_device(root_setup: &RootSetup) -> Result<String> {
++    if root_setup.physical_root.is_mountpoint("boot/efi")? == Some(true) {
++        let path = root_setup.physical_root_path.join("boot/efi");
++        let mounted = bootc_mount::inspect_filesystem(&path)?;
++        if mounted.fstype != "vfat" {
++            bail!("The explicitly mounted ESP must be a FAT filesystem");
++        }
++        return Ok(mounted.source.to_string());
++    }
++    Ok(root_setup.device_info.find_first_colocated_esp()?.path())
++}
++
+ /// Mount flags shared by all ESP mounts: non-executable, no setuid.
+ const ESP_MOUNT_FLAGS: MountFlags =
+     MountFlags::from_bits_retain(MountFlags::NOEXEC.bits() | MountFlags::NOSUID.bits());
+@@ -866,10 +880,10 @@
+             //
+             // NOTE: Not using [`find_booted_from_esp`] as we aren't booted
+             // into a bootc system
+-            let esp_part = root_setup.device_info.find_first_colocated_esp()?;
++            let esp_device = install_esp_device(root_setup)?;
+ 
+             (
+-                esp_part.path(),
++                esp_device,
+                 cmdline_options,
+                 postfetch.detected_bootloader.clone(),
+             )
+@@ -1957,7 +1971,7 @@
+             //
+             // NOTE: Not using [`find_booted_from_esp`] as we aren't booted
+             // into a bootc system
+-            let esp_part = root_setup.device_info.find_first_colocated_esp()?;
++            let esp_device = install_esp_device(root_setup)?;
+ 
+             let mut addons: Vec<UkiAddonsList> = vec![];
+ 
+@@ -1982,7 +1996,7 @@
+             }
+ 
+             (
+-                esp_part.path(),
++                esp_device,
+                 postfetch.detected_bootloader.clone(),
+                 allow_missing_fsverity,
+                 addons,
+@@ -2261,17 +2275,9 @@
+     #[context("Preparing image root for bootloader installation")]
+     pub(crate) fn new(
+         composefs_mnt_fd: std::os::fd::OwnedFd,
+-        device: &bootc_blockdev::Device,
++        root_setup: &RootSetup,
+     ) -> Result<Self> {
+-        let roots = device.find_all_roots()?;
+-        let mut esp_part = None;
+-        for root in &roots {
+-            if let Some(esp) = root.find_partition_of_esp_optional()? {
+-                esp_part = Some(esp);
+-                break;
+-            }
+-        }
+-        let esp_part = esp_part.ok_or_else(|| anyhow!("ESP partition not found"))?;
++        let esp_device = install_esp_device(root_setup)?;
+ 
+         // Attach the detached composefs fsmount fd to a real tmpdir path so
+         // that mount(2) and bootctl --root can work with it.
+@@ -2297,7 +2303,7 @@
+         .context("Mounting tmpfs into composefs root")?;
+ 
+         Ok(Self {
+-            esp_device: esp_part.path().into(),
++            esp_device: esp_device.into(),
+             esp_mounted: Cell::new(false),
+             _tmp: tmp,
+             composefs,
+@@ -2709,7 +2715,7 @@
+     if bootloader == Bootloader::None {
+         return Ok(());
+     }
+-    let mounted_root = MountedImageRoot::new(composefs_mnt_fd, &root_setup.device_info)?;
++    let mounted_root = MountedImageRoot::new(composefs_mnt_fd, root_setup)?;
+ 
+     if bootloader == Bootloader::Ukiboot {
+         return mounted_root.with_esp(|esp| install_ukiboot(mounted_root.dir(), fs, repo, esp));
