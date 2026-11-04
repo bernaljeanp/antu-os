@@ -171,7 +171,7 @@ def install(device, fingerprint, mode, encryption, plan_id, password):
                 opened = True
                 rootfs = "/dev/mapper/" + mapper
                 extra = ["--karg=rd.luks.uuid=" + query(["cryptsetup", "luksUUID", root])]
-            run(["mkfs.ext4", "-F", "-L", "root", rootfs])
+            run(["mkfs.ext4", "-F", "-O", "verity", "-L", "root", rootfs])
             run(["mkfs.vfat", "-F", "32", "-n", "ANTU_EFI", esp])
             run(["mount", rootfs, directory])
             mounted.append(directory)

@@ -71,6 +71,17 @@ class Instalacion(unittest.TestCase):
             self.assertGreater(free["start"], table["partitions"][0]["start"])
             self.assertGreater(free["bytes"], storage.MINIMUM)
 
+    @unittest.skipUnless(shutil.which("mkfs.ext4") and shutil.which("dumpe2fs"), "requiere e2fsprogs")
+    def test_raiz_ext4_admite_verity_sin_desactivar_integridad(self):
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "raiz-temporal.img"
+            with image.open("wb") as f:
+                f.truncate(256 * 1024**2)
+            subprocess.run(["mkfs.ext4", "-F", "-O", "verity", str(image)], check=True, capture_output=True)
+            info = subprocess.check_output(["dumpe2fs", "-h", str(image)], stderr=subprocess.DEVNULL, text=True)
+            features = next(line for line in info.splitlines() if line.startswith("Filesystem features:"))
+            self.assertIn("verity", features.split())
+
 
 class CatalogoYMedicion(unittest.TestCase):
     def test_catalogo_no_admite_argumentos_ni_otros_remotos(self):

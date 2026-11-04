@@ -38,12 +38,13 @@ jobs:
       contents: read
     outputs:
       ejecutar: ${{ steps.entrada.outputs.ejecutar }}
+      fuente: ${{ steps.entrada.outputs.fuente }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
           fetch-depth: 2
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.sha }}
       - name: Esperar la imagen cuando también cambia la base
         id: entrada
         run: |
@@ -71,7 +72,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.preparar.outputs.fuente }}
 
       - name: Liberar espacio en disco
         run: |
