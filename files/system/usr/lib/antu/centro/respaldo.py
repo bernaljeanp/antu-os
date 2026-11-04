@@ -66,8 +66,18 @@ class Restic:
             if proc.returncode:
                 errors.seek(0)
                 error = errors.read().decode(errors="replace")
-                raise RuntimeError("Operación cancelada. Revisa las copias disponibles; no se declara una nueva copia verificada."
-                                   if self.cancelled.is_set() else error.strip()[-1800:] or "El respaldo no terminó; no se declara completo.")
+                messages = {
+                    3: "No se pudieron leer todos los archivos. La copia no se declara completa; revisa los permisos del origen.",
+                    10: "No se encontró el repositorio. Conecta el disco correcto y vuelve a buscar las copias.",
+                    11: "Otra operación está usando este respaldo. Espera a que termine y vuelve a intentarlo.",
+                    12: "La frase de cifrado no coincide con este respaldo. Revísala sin crear otro repositorio.",
+                    130: "Operación cancelada. Revisa las copias disponibles; no se declara una nueva copia verificada.",
+                }
+                message = messages[130] if self.cancelled.is_set() else messages.get(proc.returncode,
+                    "El respaldo no terminó. Comprueba la conexión, el espacio y los permisos del disco; no se declara completo.")
+                failure = RuntimeError(message)
+                failure.diagnostic = error.strip()[-1800:]
+                raise failure
             try:
                 return json.loads(output)
             except ValueError:

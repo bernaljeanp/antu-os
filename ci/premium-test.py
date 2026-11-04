@@ -113,7 +113,7 @@ class Copias(unittest.TestCase):
             self.assertEqual((original_path / "partida.sav").read_bytes(), bytes(range(256)))
             self.assertFalse((original_path / ".cache/temporal").exists())
             self.assertEqual((home / "documento.txt").read_text(), "actual que no debe perderse")
-            with self.assertRaises(RuntimeError):
+            with self.assertRaisesRegex(RuntimeError, "frase de cifrado"):
                 Restic(restic.repository, "frase incorrecta de prueba").snapshots()
             with self.assertRaises(ValueError):
                 restic.restore("../fuera", base)

@@ -221,6 +221,8 @@ class Centro(QMainWindow):
         def run():
             try:
                 self.signals.done.emit(function(), None)
+            except OSError:
+                self.signals.done.emit(None, "No se pudo leer o guardar el archivo. Comprueba el destino, el espacio y sus permisos.")
             except Exception as error:
                 self.signals.done.emit(None, str(error))
         self.pool.submit(run)
@@ -284,6 +286,8 @@ class Centro(QMainWindow):
             self.task(lambda: restic.restore(snapshot, parent), lambda path: self.status.setText("Restauración verificada en " + str(path)))
         except ValueError as error:
             self.status.setText(str(error))
+        except OSError:
+            self.status.setText("No se pudo crear la carpeta de restauración. Elige otro destino con espacio y permiso de escritura.")
 
     def hardware(self):
         box = self.tab("Probar mi equipo")
@@ -315,8 +319,11 @@ class Centro(QMainWindow):
             report["revision"] = Path("/usr/share/antu/revision").read_text().strip()
         except OSError:
             report["revision"] = "desconocida"
-        Path(target).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        self.status.setText("Informe guardado localmente.")
+        try:
+            Path(target).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            self.status.setText("Informe guardado localmente.")
+        except OSError:
+            self.status.setText("No se pudo guardar el informe. Elige otra carpeta con permiso de escritura.")
 
     def performance(self):
         box = self.tab("Rendimiento")
@@ -366,8 +373,8 @@ class Centro(QMainWindow):
             try:
                 Path(path).write_text(json.dumps(self.comparison, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
                 self.status.setText("Comparación guardada con los hashes de los registros originales.")
-            except OSError as error:
-                self.status.setText("No se pudo guardar: " + str(error))
+            except OSError:
+                self.status.setText("No se pudo guardar la comparación. Elige otra carpeta con permiso de escritura.")
 
     def closeEvent(self, event):
         if self.busy:
