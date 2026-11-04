@@ -77,7 +77,7 @@ class Instalacion(unittest.TestCase):
             image = Path(directory) / "raiz-temporal.img"
             with image.open("wb") as f:
                 f.truncate(256 * 1024**2)
-            subprocess.run(["mkfs.ext4", "-F", "-O", "verity", str(image)], check=True, capture_output=True)
+            storage.format_root(str(image))
             info = subprocess.check_output(["dumpe2fs", "-h", str(image)], stderr=subprocess.DEVNULL, text=True)
             features = next(line for line in info.splitlines() if line.startswith("Filesystem features:"))
             self.assertIn("verity", features.split())

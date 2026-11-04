@@ -119,6 +119,10 @@ def partitions(device):
     return json.loads(query(["sfdisk", "--json", device]))["partitiontable"]["partitions"]
 
 
+def format_root(device):
+    run(["mkfs.ext4", "-F", "-O", "verity", "-L", "root", device])
+
+
 def install(device, fingerprint, mode, encryption, plan_id, password):
     if encryption not in ("plain", "luks2"):
         raise ValueError("Tipo de cifrado no válido.")
@@ -171,7 +175,7 @@ def install(device, fingerprint, mode, encryption, plan_id, password):
                 opened = True
                 rootfs = "/dev/mapper/" + mapper
                 extra = ["--karg=rd.luks.uuid=" + query(["cryptsetup", "luksUUID", root])]
-            run(["mkfs.ext4", "-F", "-O", "verity", "-L", "root", rootfs])
+            format_root(rootfs)
             run(["mkfs.vfat", "-F", "32", "-n", "ANTU_EFI", esp])
             run(["mount", rootfs, directory])
             mounted.append(directory)
