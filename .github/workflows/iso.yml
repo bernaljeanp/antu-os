@@ -42,12 +42,13 @@ jobs:
       contents: read
     outputs:
       ejecutar: ${{ steps.entrada.outputs.ejecutar }}
+      fuente: ${{ steps.entrada.outputs.fuente }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
           fetch-depth: 2
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.sha }}
       - name: Esperar la imagen cuando también cambia la base
         id: entrada
         run: |
@@ -75,7 +76,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ needs.preparar.outputs.fuente }}
 
       - name: Liberar espacio en disco
         run: |
@@ -109,7 +110,7 @@ jobs:
       - name: Liberar las copias usadas solo para construir
         run: |
           # La ISO ya está sellada. Guardar las versiones antes de retirar el contenedor.
-          sudo podman run --rm localhost/antu-live pacman -Q nvidia-utils linux > iso-build/versiones.txt
+          sudo podman run --rm localhost/antu-live pacman -Q nvidia-utils linux > "$RUNNER_TEMP/antu-versiones.txt"
           sudo rm -rf iso-build/iso iso-build/esp
           sudo rm -f iso-build/efiboot.img iso-build/datos.img
           sudo podman system prune --all --force > /dev/null
@@ -143,7 +144,7 @@ jobs:
 
           # Freno: la VM no tiene gráfica real. Las correcciones pasan solas, pero una rama nueva de NVIDIA o una versión nueva
           # del núcleo esperan a que alguien las apruebe tras probarlas en un equipo. Lo aprobado queda como etiqueta.
-          versiones="$(cat iso-build/versiones.txt)"
+          versiones="$(cat "$RUNNER_TEMP/antu-versiones.txt")"
           rama="$(awk '$1 == "nvidia-utils" {split($2, v, "."); print v[1]}' <<< "$versiones")"
           nucleo="$(awk '$1 == "linux" {split($2, v, "."); print v[1] "." v[2]}' <<< "$versiones")"
           [ -n "$rama" ] && [ -n "$nucleo" ]

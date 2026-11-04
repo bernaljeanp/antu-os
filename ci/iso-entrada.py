@@ -29,6 +29,7 @@ def main():
         return
     event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
     execute = True
+    source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     if os.environ["GITHUB_EVENT_NAME"] == "push":
         before, after = event["before"], event["after"]
         if not all(re.fullmatch(r"[a-f0-9]{40}", sha) and sha != "0" * 40 for sha in (before, after)):
@@ -41,8 +42,19 @@ def main():
         if base:
             print("La ISO espera la compilación de la imagen nueva; workflow_run la probará cuando termine.")
             print("Cambios de base:", ", ".join(base))
+    elif os.environ["GITHUB_EVENT_NAME"] == "workflow_run":
+        built = event["workflow_run"]["head_sha"]
+        if not re.fullmatch(r"[a-f0-9]{40}", built):
+            raise ValueError("La compilación no identifica una revisión válida.")
+        if subprocess.run(["git", "cat-file", "-e", built], capture_output=True).returncode:
+            subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", built], check=True)
+        changed = subprocess.check_output(["git", "diff", "--name-only", "-z", built, source]).decode().split("\0")
+        if necesita_base([path for path in changed if path], workflow):
+            source = built
+        print("Fuente de Live:", source, "· imagen de:", built)
     with open(os.environ["GITHUB_OUTPUT"], "a") as output:
         output.write("ejecutar=" + str(execute).lower() + "\n")
+        output.write("fuente=" + source + "\n")
 
 
 if __name__ == "__main__":
