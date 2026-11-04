@@ -57,16 +57,7 @@ jobs:
         run: |
           python ci/descarga-test.py
           python ci/descarga-icono.py
-          python -m PyInstaller --noconfirm --clean --onefile --windowed --name Antu-Descargas \
-            --icon build-descarga/antu.ico \
-            --distpath entrega-descarga --workpath build-descarga \
-            --specpath build-descarga --add-data "scripts/descargar-antu.py:." \
-            --add-data "brand/antu-icon-256.png:." \
-            --add-data "files/system/usr/share/fonts/antu/Inter-Variable.ttf:." \
-            --add-data "files/system/usr/share/fonts/antu/Inter-OFL.txt:licencias" \
-            --add-data "LICENSE:licencias" \
-            --copy-metadata PyQt6 --copy-metadata cryptography \
-            scripts/descargar-antu-gui.py
+          python ci/descarga-compilar.py
           if [ "$RUNNER_OS" = Linux ] && [ -n "$ANTU_VERSION" ]; then
             sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
           fi

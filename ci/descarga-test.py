@@ -72,7 +72,7 @@ class Descarga(unittest.TestCase):
         target = self.out / "antu.iso"; progress = []
         with patch.object(gui.engine.subprocess, "run", side_effect=AssertionError("No se permiten programas externos")):
             result = gui.download(self.tag, target, lambda *p: progress.append(p), threading.Event())
-        self.assertEqual(result, target)
+        self.assertEqual(result, target.resolve())
         self.assertEqual(target.read_bytes(), self.original)
         self.assertTrue(any("Reuniendo" in p[0] for p in progress))
         with self.assertRaises(FileExistsError):
