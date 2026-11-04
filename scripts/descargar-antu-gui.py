@@ -14,7 +14,7 @@ import urllib.request
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
-from PyQt6.QtCore import QObject, Qt, QTimer, QUrl, QTranslator, QLibraryInfo, pyqtSignal
+from PyQt6.QtCore import QObject, Qt, QTimer, QUrl, QTranslator, QLibraryInfo, QSize, pyqtSignal
 from PyQt6.QtGui import QDesktopServices, QFont, QFontDatabase, QIcon
 from PyQt6.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel, QMainWindow,
                             QProgressBar, QPushButton, QVBoxLayout, QWidget)
@@ -138,12 +138,16 @@ class Window(QMainWindow):
         """)
         body = QWidget(); layout = QVBoxLayout(body)
         layout.setContentsMargins(36, 32, 36, 32); layout.setSpacing(18)
-        symbol = ROOT / "antu-icon-256.png"
+        symbol = ROOT / "antu.ico"
+        if not symbol.exists():
+            symbol = ROOT / "antu-icon-256.png"
         if not symbol.exists():
             symbol = ROOT.parent / "brand/antu-icon-256.png"
         if symbol.exists():
             self.setWindowIcon(QIcon(str(symbol)))
-            mark = QLabel(); mark.setPixmap(QIcon(str(symbol)).pixmap(72, 72)); layout.addWidget(mark)
+            mark = QLabel()
+            mark.setPixmap(QIcon(str(symbol)).pixmap(QSize(72, 72), self.devicePixelRatioF()))
+            layout.addWidget(mark)
         title = QLabel("Tu USB de Antu empieza aquí"); title.setObjectName("title"); title.setWordWrap(True); layout.addWidget(title)
         explanation = QLabel("Descarga la ISO y comprueba que sea la original. Después podrás grabarla con USBoot.")
         explanation.setWordWrap(True); explanation.setObjectName("secondary"); layout.addWidget(explanation)

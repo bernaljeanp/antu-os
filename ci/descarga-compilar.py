@@ -10,6 +10,7 @@ args = [sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onefil
         "--distpath", str(repo / "entrega-descarga"), "--workpath", str(repo / "build-descarga"),
         "--specpath", str(repo / "build-descarga")]
 for source, destination in [("scripts/descargar-antu.py", "."), ("brand/antu-icon-256.png", "."),
+                            ("build-descarga/antu.ico", "."),
                             ("files/system/usr/share/fonts/antu/Inter-Variable.ttf", "."),
                             ("files/system/usr/share/fonts/antu/Inter-OFL.txt", "licencias"), ("LICENSE", "licencias")]:
     args += ["--add-data", str(repo / source) + ":" + destination]
