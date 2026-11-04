@@ -9,6 +9,7 @@ import sys
 
 sys.path.insert(0, "/usr/lib/antu/instalador")
 import almacenamiento as storage
+import instalador as frontend
 
 
 def main():
@@ -33,6 +34,11 @@ def main():
         os.fsync(target.fileno())
     if storage.query(["blkid", "-p", "-s", "TYPE", "-o", "value", old[1]["node"]]) != "ntfs":
         raise RuntimeError("La copia de la muestra NTFS no se reconoce.")
+    storage.run(["udevadm", "trigger", "--action=change", *["/sys/class/block/" + Path(p["node"]).name for p in old]])
+    storage.run(["udevadm", "settle"])
+    shown = next(d for d in frontend.disks() if d["path"] == device)
+    if not shown["windows"] or len(shown["parts"]) != 2 or shown["reason"]:
+        raise RuntimeError("La interfaz no reconoce el disco GPT, sus particiones NTFS o su disponibilidad.")
     def sha(path):
         with open(path, "rb") as source:
             return hashlib.file_digest(source, "sha256").hexdigest()
