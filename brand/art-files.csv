@@ -1,5 +1,5 @@
 status,path,bytes,sha256
-A,brand/ART-DIRECTION.md,5220,cce03c36c1a58427cf1d6314c22089d6b1c60e6ab25024028b188472b712d0d6
+A,brand/ART-DIRECTION.md,5800,f9a304b6826669837e4aa39ce0f7d7ea717987a83176d892fc906c5a80f93973
 M,brand/antu-icon-256.png,49944,887abf2e432e07a77b4e65aad1e75fecc2420c0868b53fc34dac232721c0804f
 M,brand/antu-icon.svg,805864,7b99ed14a10175f7479c0f721244fab78806210ab8115e885ffa69104d379c58
 A,brand/antu-logo-4k.png,86235,89ce46e0b203fa6186f873cd9e0e4992164e6553dd153d3cf78ed8f9de53403f
@@ -114,13 +114,13 @@ A,brand/sources/wallpapers/Paranal-dark.png,2573826,c68466752d8d8b2f3e6c8fce166b
 A,brand/sources/wallpapers/Paranal-light.png,2034787,6b5cd391b4c2b24582bba21182623e63877c3fd02b06d113f9c3d1c43b5913cf
 A,brand/sources/wallpapers/Salar-dark.png,2436155,425bac253be7937c81b2d8a44095788eb441b32fee43f9e7eaaf43b00ed4a4e5
 A,brand/sources/wallpapers/Salar-light.png,2529312,39ef98730bd8c9b7bb8328f0c6ddc47757d172071f67fa6328f36228355dd08c
-M,files/live/etc/xdg/autostart/antu-instalador.desktop,157,c9df1320a02148c31e3ea1c71e4e73549e49375c5e9e8c7757603723d211c08c
-M,files/live/usr/lib/antu/instalador/Instalador.qml,19452,3734070957a0fa7ed01070ff2c8b456d1b2210fbd3ffb46d92a8c932642762e6
+M,files/live/etc/xdg/autostart/antu-instalador.desktop,162,545e595310b8c0394341cdb8981345f75b66a53515c7fbbb56024fed3f9ae5cd
+M,files/live/usr/lib/antu/instalador/Instalador.qml,19412,d242631448e095a6b071e67c4fc1d0d5ecb37a84c6f1872438747a6ed450cd7a
 M,files/live/usr/share/applications/antu-instalador.desktop,189,6c734f3e33b8b6c8e5629ab8cfad937a716501bd9aa16f21466984d051290540
-M,files/system/usr/lib/antu/inicio/Inicio.qml,17645,63a17707ca5f03592830e9c630cf44d6773f22e2f734f466e142ad6eab411da2
+M,files/system/usr/lib/antu/inicio/Inicio.qml,21660,b86d7cf570d5c42d126d170671ba788a5dc6e462172ba75715256e978c41eb9e
 A,files/system/usr/share/antu/antu-symbol-light.svg,205,30bb1944476f55f6c30f5c40b54ec68d4a40b5539ae193fbff1692d70192b547
 M,files/system/usr/share/antu/antu-symbol.svg,205,b0e0c77bd53f59d3132282cf5709c4f0ecfa7730da07a490ff039c78096062ac
-M,files/system/usr/share/applications/antu-ia.desktop,211,dee97ac87258bbd15510d37ad2eb7ef116de37668689b0aa2a7bc79735d927ba
+M,files/system/usr/share/applications/antu-ia.desktop,193,27152ffdca06e13536b54ff945fc2f29f34143d5f75138bc649f2598380685cf
 A,files/system/usr/share/icons/hicolor/1024x1024/apps/antu-eclipse.png,596493,fa280fc3737da786337934f5dcaabeb07d20c4654218e853030f74d90303ba14
 A,files/system/usr/share/icons/hicolor/1024x1024/apps/antu-ia.png,628162,973a0a075f833cdf344ce0e71775b3fb6990edda13588f9cd0366d04f023855a
 A,files/system/usr/share/icons/hicolor/1024x1024/apps/antu-inicio.png,618382,aa14d8af2d2e3ec556884819c6f54df841ac8c28f988643bc86e02fd54ecbb51
@@ -161,10 +161,10 @@ A,files/system/usr/share/icons/hicolor/64x64/apps/antu-ia.png,5592,f7dc5384182b6
 A,files/system/usr/share/icons/hicolor/64x64/apps/antu-inicio.png,5424,c56ed5626e149c93cc063f066d413e38f15c006cac74c2d82813ef3a348246a8
 A,files/system/usr/share/icons/hicolor/64x64/apps/antu-instalador.png,4419,7b36d78028a543c015edd90fbd44ca33b7be3ab01247900c95e3a87bcc95c5bb
 A,files/system/usr/share/icons/hicolor/64x64/apps/antu.png,5222,4fe5db54c3f0343d0746560614b3a513fb87f3d8b28b294746eb50a61556b568
-M,files/system/usr/share/plasma/look-and-feel/org.antuos.desktop/contents/layouts/org.kde.plasma.desktop-layout.js,1190,1afcc580d3452d0f50ac05e20fd883d7d77807494d3b11b07895e9ed9a0cc701
-M,files/system/usr/share/plasma/look-and-feel/org.antuos.mac/contents/layouts/org.kde.plasma.desktop-layout.js,1370,562df3dda5974b0394507e694ecf87aee0dfef96050a2213d94394108247c161
+M,files/system/usr/share/plasma/look-and-feel/org.antuos.desktop/contents/layouts/org.kde.plasma.desktop-layout.js,3351,f7f5996657444fd906c7a5cf6a0432a0293fe21d86bf5e7de5c61a02f9f8fa76
+M,files/system/usr/share/plasma/look-and-feel/org.antuos.mac/contents/layouts/org.kde.plasma.desktop-layout.js,3543,d158376dac95cbaac074e5dfdb17a972f7f555e0c3bf9b6f926b08d84591c8c7
 M,files/system/usr/share/plymouth/themes/antu/symbol.png,8553,c06859a546413251ff2d9c1ff5ed8237d9fc1fd61d8273106122f20d117f0c1d
-M,files/system/usr/share/sddm/themes/antu/Main.qml,16011,6a98e0e16013ba05e40d98c318c06c70ddff85b32c12315fa3628cd0df439a70
+M,files/system/usr/share/sddm/themes/antu/Main.qml,16894,7c54eca400fb0ec53029e7c5aa748fd5e9cb404a7cd2681a27872b5d9d99a19b
 A,files/system/usr/share/wallpapers/Antu/contents/images/2560x1600.jpg,846910,f7afd77a2a54da5c07f1a0d9f32fe9804b4ba9bc79c89582e0bba568cc3cf291
 A,files/system/usr/share/wallpapers/Antu/contents/images/3840x2160.jpg,1530832,394aa4653aaddf81482c4af9f104ce86a42ec69f6002d37b4380959e9ecdca44
 D,files/system/usr/share/wallpapers/Antu/contents/images/3840x2160.png,,
@@ -186,6 +186,6 @@ A,files/system/usr/share/wallpapers/Salar/contents/images_dark/3840x2160.jpg,139
 A,files/system/usr/share/wallpapers/Salar/contents/screenshot.png,664300,ab0e3279eb12410c4519ac7ff96861d2b22158594666e4e6e29fbfc1f053016f
 A,files/system/usr/share/wallpapers/Salar/metadata.json,289,9696433248efcade07df9481fdb33ab4bbdb38e8bc885219faf80134d3a4d557
 M,files/system/usr/share/wayland-sessions/antu-eclipse.desktop,198,4eb55e8cb896a7eb94afc625f93089191ef3772c5561f70901dc81507992e9db
-M,scripts/make_brand.py,7512,9cbaf6364f87b1f9f8cdd507c655f598d860140f16ea601be848636b82d1528c
+M,scripts/make_brand.py,10067,b78d70b48983d31d0670eab0b1ccd44fb063776d03521e9166d9b3c64473b4ff
 M,scripts/make_wallpapers.py,7301,1f48db8d138ec683270b78969903cc2442977bfff7ca6fc7e359067bfbb93def
-A,scripts/render_art.py,12051,7b7348bf63475cba5cb8e522ffe346229f8e7a94e07030d50e381943ed78e34b
+A,scripts/render_art.py,16262,58a4f0039b03f16fbb7cec77822334c86cd55756e5202db7318a10104f1a7987

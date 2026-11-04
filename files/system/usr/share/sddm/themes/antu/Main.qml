@@ -68,7 +68,7 @@ Rectangle {
         function onLoginFailed() {
             password.text = ""
             root.failed = true
-            shake.restart()
+            // El error se explica en texto; no se sacude todo el formulario.
             password.forceActiveFocus()
         }
     }
@@ -135,7 +135,7 @@ Rectangle {
             text: root.capitalized(Qt.locale("es_CL").toString(root.now, "dddd d 'de' MMMM"))
             color: root.ink2
             font.family: root.face
-            font.pixelSize: 34 * root.u
+            font.pixelSize: Math.max(14, 34 * root.u)
             font.weight: Font.DemiBold
         }
         Text {
@@ -143,7 +143,7 @@ Rectangle {
             text: Qt.formatTime(root.now, "H:mm")
             color: root.ink
             font.family: root.face
-            font.pixelSize: 200 * root.u
+            font.pixelSize: Math.max(14, 200 * root.u)
             font.weight: Font.Bold
             font.features: ({ "tnum": 1 })
             font.variableAxes: ({ "opsz": 32 })
@@ -165,7 +165,7 @@ Rectangle {
             currentIndex: sessionModel.lastIndex
             implicitHeight: 48 * root.u
             font.family: root.face
-            font.pixelSize: 20 * root.u
+            font.pixelSize: Math.max(14, 20 * root.u)
             palette.buttonText: root.ink
             palette.text: root.ink
             palette.window: root.menu
@@ -191,7 +191,7 @@ Rectangle {
             onActivated: keyboard.currentLayout = currentIndex
             implicitHeight: 48 * root.u
             font.family: root.face
-            font.pixelSize: 20 * root.u
+            font.pixelSize: Math.max(14, 20 * root.u)
             palette.buttonText: root.ink
             palette.text: root.ink
             palette.window: root.menu
@@ -222,7 +222,7 @@ Rectangle {
             implicitHeight: implicitWidth
             radius: width / 2
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#FF7A45" }
+                GradientStop { position: 0.0; color: "#C44317" }
                 GradientStop { position: 1.0; color: root.lavaDeep }
             }
             Text {
@@ -230,7 +230,7 @@ Rectangle {
                 text: root.currentUser ? root.currentUser.uReal.charAt(0).toUpperCase() : ""
                 color: "#FFFFFF"
                 font.family: root.face
-                font.pixelSize: 60 * root.u
+                font.pixelSize: Math.max(14, 60 * root.u)
                 font.weight: Font.DemiBold
             }
         }
@@ -241,7 +241,7 @@ Rectangle {
             text: root.currentUser ? root.currentUser.uReal : ""
             color: root.ink
             font.family: root.face
-            font.pixelSize: 36 * root.u
+            font.pixelSize: Math.max(14, 36 * root.u)
             font.weight: Font.DemiBold
         }
 
@@ -257,7 +257,7 @@ Rectangle {
             selectionColor: root.lavaDeep
             selectedTextColor: "#FFFFFF"
             font.family: root.face
-            font.pixelSize: 24 * root.u
+            font.pixelSize: Math.max(14, 24 * root.u)
             leftPadding: 26 * root.u
             verticalAlignment: TextInput.AlignVCenter
             Accessible.name: "Usuario"
@@ -281,12 +281,11 @@ Rectangle {
             selectionColor: root.lavaDeep
             selectedTextColor: "#FFFFFF"
             font.family: root.face
-            font.pixelSize: 24 * root.u
+            font.pixelSize: Math.max(14, 24 * root.u)
             leftPadding: 26 * root.u
             rightPadding: 72 * root.u
             verticalAlignment: TextInput.AlignVCenter
             Accessible.name: "Contraseña"
-            transform: Translate { id: shakeOffset }
             onAccepted: root.login()
             onTextEdited: root.failed = false
             Keys.onEscapePressed: text = ""
@@ -316,9 +315,9 @@ Rectangle {
                         anchors.margins: 1
                         radius: width / 2
                         gradient: Gradient {
-                            GradientStop { position: 0; color: enter.down ? "#E2480F" : "#F97A3C" }
-                            GradientStop { position: 0.55; color: enter.down ? "#B93A0A" : "#E2480F" }
-                            GradientStop { position: 1; color: "#B93A0A" }
+                            GradientStop { position: 0; color: enter.down ? "#B3340D" : "#C44317" }
+                            GradientStop { position: 0.55; color: "#B3340D" }
+                            GradientStop { position: 1; color: "#922909" }
                         }
                     }
                 }
@@ -340,7 +339,7 @@ Rectangle {
                               : (keyboard.capsLock ? "Bloq Mayús activado" : "")
             color: root.failed ? root.negative : root.ink2
             font.family: root.face
-            font.pixelSize: 22 * root.u
+            font.pixelSize: Math.max(14, 22 * root.u)
         }
 
         // Con varias cuentas, una fila de avatares para cambiar de usuario.
@@ -376,7 +375,7 @@ Rectangle {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         font.family: root.face
-                        font.pixelSize: 26 * root.u
+                        font.pixelSize: Math.max(14, 26 * root.u)
                         font.weight: Font.DemiBold
                     }
                 }
@@ -429,7 +428,7 @@ Rectangle {
                         text: powerButton.modelData.label
                         color: root.ink
                         font.family: root.face
-                        font.pixelSize: 21 * root.u
+                        font.pixelSize: Math.max(14, 21 * root.u)
                         font.weight: Font.Medium
                     }
                 }
@@ -437,14 +436,6 @@ Rectangle {
         }
     }
 
-    SequentialAnimation {
-        id: shake
-        NumberAnimation { target: shakeOffset; property: "x"; to: -18 * root.u; duration: 50; easing.type: Easing.OutQuad }
-        NumberAnimation { target: shakeOffset; property: "x"; to: 16 * root.u; duration: 70 }
-        NumberAnimation { target: shakeOffset; property: "x"; to: -10 * root.u; duration: 60 }
-        NumberAnimation { target: shakeOffset; property: "x"; to: 6 * root.u; duration: 50 }
-        NumberAnimation { target: shakeOffset; property: "x"; to: 0; duration: 60; easing.type: Easing.OutExpo }
-    }
 
     Component.onCompleted: (users.count > 0 ? password : usernameField).forceActiveFocus()
 }

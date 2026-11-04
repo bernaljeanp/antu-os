@@ -7,8 +7,7 @@
 linux-desktop
 
 Native Linux desktop operating system, not a website. Surfaces are KDE Plasma 6 (Qt/QML themes, Plasma
-look-and-feel, KWin decoration), SDDM (QML), Plymouth (boot splash), the systemd console, and future
-first-party apps. This value is outside the schema's web/ios/android/adaptive set on purpose.
+look-and-feel, KWin decoration), SDDM (QML), Plymouth (boot splash), the systemd console, and first-party Qt/QML apps (Inicio, Biblioteca, Observatorio, Zenit, updates and live diagnostics). This value is outside the schema's web/ios/android/adaptive set on purpose.
 
 ## Users
 
@@ -20,8 +19,7 @@ Roblox) are real but secondary jobs. Reference machine: Alienware 16X Aurora (Co
 ## Product Purpose
 
 Antu OS is a Chilean gaming Linux distribution: an atomic Arch Linux system for gaming laptops with NVIDIA GPUs.
-It exists because SteamOS does not support NVIDIA (Valve says not before 2027 at the earliest) while most gaming
-laptops ship NVIDIA. Success: a Windows gamer installs it, plays, and never has to open a terminal to fix it.
+Its target is a Windows gamer using an NVIDIA laptop who wants a coherent Linux experience. Success: a Windows gamer installs it, plays, and never has to open a terminal to fix it.
 
 ## Positioning
 
@@ -34,13 +32,13 @@ charge limit) that other distributions lack.
 - Installed from a USB created with USBoot (the user's own tool) or, during the prototype, with
   `scripts/install-to-disk.sh` onto an external disk.
 - Updates arrive as whole images; the boot menu offers the previous version.
-- First boot currently asks for the first user on the systemd console (systemd-homed), before SDDM.
+- The live USB opens a graphical welcome with Try and Install. Installed first boot creates the account through Inicio (systemd-homed), before SDDM.
 - Users play through Steam/Proton; anti-cheat games and Roblox have known limits on Linux.
 
 ## Capabilities and Constraints
 
 - Base: Arch Linux, bootc (composefs), nvidia-open, KDE Plasma 6.8, SDDM, PipeWire, NetworkManager.
-- Prototype stage (Hito 0): no Steam, no graphical installer, no Secure Boot or image signing yet.
+- Prototype with Steam, graphical installer, image signing and a Secure Boot chain in source/CI. VM evidence exists; physical validation is partial and a new image must include each source change.
 - Theming must work through KDE/Qt mechanisms and survive atomic updates (shipped in `/usr`, defaults in `/etc/xdg`).
 - Performance matters: the system competes with Windows on gaming laptops; visual effects must not cost frames.
 - License: code GPL-3.0-or-later, art (wallpapers, logos, icons) CC-BY-SA-4.0. Undecided: final release date.
@@ -71,10 +69,14 @@ charge limit) that other distributions lack.
 1. NVIDIA laptops first: every decision is judged on the reference gaming laptop.
 2. Never make the user fix the system: atomic updates, rollback, and clear explanations over terminal work.
 3. Spanish first, neutral Latin American Spanish with a clear, close tone; English as second language.
-4. Frames over flourish: nothing visual may cost gaming performance.
+4. Frames over flourish: measure effects on real hardware before accepting a performance claim.
 5. Honest about limits: say what does not work (anti-cheat, Roblox) instead of hiding it.
 
 ## Accessibility & Inclusion
 
 - Readable at 2560×1600 with fractional scaling; text contrast at least WCAG AA.
 - Full keyboard operation of system surfaces (login, first boot, game mode) for controller- and keyboard-driven use.
+
+## Visual decision, 2026-11-03
+
+User-approved: matte graphite, glass confined to headers/brand surfaces, lava accents; original obsidian/silver 3D icons. AntuObsidiana and AntuSalar palettes. See DESIGN.md and docs/REFINAMIENTO-VISUAL-2026-11-03.md for implementation, measured contrast and remaining physical checks.

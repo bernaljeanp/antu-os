@@ -13,13 +13,14 @@ ApplicationWindow {
     minimumHeight: 640
     visible: true
     title: "Biblioteca"
-    color: "#0B0B0E"
+    color: Antu.base
 
-    readonly property real u: Math.min(width / 1760, height / 1216)
-    readonly property color ink: "#F5F5F7"
-    readonly property color ink2: "#C7C7CC"
-    readonly property color ink3: "#A1A1A6"
-    readonly property color lava: "#FF5A1F"
+    readonly property real u: 0.72
+    readonly property color ink: Antu.ink
+    readonly property color ink2: Antu.secondary
+    readonly property color ink3: Antu.muted
+    readonly property color lava: Antu.lava
+    readonly property bool compacta: width < 1180 || Antu.textFactor > 1.4
 
     property string cual: "tus"  // la pestaña: tus, populares
     property string vacio: ""
@@ -28,11 +29,9 @@ ApplicationWindow {
     readonly property var juego: elegido >= 0 && elegido < modelo.count ? modelo.get(elegido) : null
 
     function colorDe(nivel) {
-        return nivel === "perfecto" || nivel === "bien" ? "#57D98B"
-             : nivel === "ajustes" ? "#F5C451"
-             : nivel === "problemas" ? "#FF9A5C"
-             : nivel === "no" ? "#FF7069"
-             : "#A1A1A6"
+        return nivel === "perfecto" || nivel === "bien" ? Antu.positive
+             : nivel === "ajustes" || nivel === "problemas" ? Antu.warning
+             : nivel === "no" ? Antu.negative : Antu.muted
     }
 
     function pedirLista() {
@@ -51,8 +50,10 @@ ApplicationWindow {
         target: backend
         function onLista(json, vacio) {
             modelo.clear()
-            for (const j of JSON.parse(json))
+            for (const j of JSON.parse(json)) {
+                j.consulta = backend.demo ? "Datos de demostración" : ""
                 modelo.append(j)
+            }
             root.vacio = vacio
             root.cargando = false
             if (backend.demo)
@@ -73,19 +74,16 @@ ApplicationWindow {
         sequence: "Escape"
         onActivated: root.elegido = -1
     }
+    Shortcut { sequence: "Alt+Left"; onActivated: root.elegido = -1 }
+    Shortcut {
+        sequence: "Ctrl+F"
+        onActivated: {
+            root.elegido = -1
+            Qt.callLater(function() { busqueda.forceActiveFocus() })
+        }
+    }
 
-    Image {
-        anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
-        sourceSize.width: 1920
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: 0.66
-    }
+    AntuBackdrop { anchors.fill: parent; photographic: false }
 
     // Pestaña: texto simple, con una línea de lava bajo la activa.
     component Pestana: AbstractButton {
@@ -105,7 +103,7 @@ ApplicationWindow {
             text: pestana.text
             color: pestana.activa ? root.ink : (pestana.hovered ? root.ink2 : root.ink3)
             font.family: "Inter"
-            font.pixelSize: 25 * root.u
+            font.pixelSize: Antu.pixels(25, root.u)
             font.weight: pestana.activa ? Font.DemiBold : Font.Medium
         }
         background: Rectangle {
@@ -138,12 +136,13 @@ ApplicationWindow {
             elide: Text.ElideRight
             color: root.colorDe(sello.nivel)
             font.family: "Inter"
-            font.pixelSize: sello.tamano * root.u
+            font.pixelSize: Antu.pixels(sello.tamano, root.u)
             font.weight: Font.DemiBold
         }
     }
 
     ColumnLayout {
+        visible: !(root.compacta && panel.visible)
         anchors.fill: parent
         anchors.margins: 44 * root.u
         anchors.rightMargin: (panel.visible ? panel.width : 0) + 44 * root.u
@@ -152,7 +151,7 @@ ApplicationWindow {
         RowLayout {
             spacing: 18 * root.u
             Image {
-                source: "file:///usr/share/antu/antu-symbol.svg"
+                source: Antu.symbolSource
                 sourceSize.width: 54 * root.u
                 sourceSize.height: 54 * root.u
             }
@@ -160,7 +159,7 @@ ApplicationWindow {
                 text: "Biblioteca"
                 color: root.ink
                 font.family: "Inter"
-                font.pixelSize: 44 * root.u
+                font.pixelSize: Antu.pixels(44, root.u)
                 font.weight: Font.Bold
                 font.variableAxes: ({ "opsz": 32 })
             }
@@ -204,7 +203,7 @@ ApplicationWindow {
             boundsBehavior: Flickable.StopAtBounds
             readonly property int columnas: Math.max(2, Math.floor(width / (392 * root.u)))
             cellWidth: width / columnas
-            cellHeight: cellWidth * 215 / 460 + 104 * root.u
+            cellHeight: cellWidth * 215 / 460 + Math.max(104 * root.u, 48 * Antu.textFactor)
             ScrollBar.vertical: ScrollBar { }
 
             delegate: AbstractButton {
@@ -240,7 +239,7 @@ ApplicationWindow {
                             elide: Text.ElideRight
                             color: root.ink
                             font.family: "Inter"
-                            font.pixelSize: 23 * root.u
+                            font.pixelSize: Antu.pixels(23, root.u)
                             font.weight: Font.DemiBold
                         }
                         Sello {
@@ -262,7 +261,7 @@ ApplicationWindow {
                 horizontalAlignment: Text.AlignHCenter
                 color: root.ink2
                 font.family: "Inter"
-                font.pixelSize: 25 * root.u
+                font.pixelSize: Antu.pixels(25, root.u)
             }
         }
 
@@ -272,7 +271,7 @@ ApplicationWindow {
             text: "Datos de Steam, ProtonDB y AreWeAntiCheatYet: tus búsquedas van a Steam, y solo el número del juego a ProtonDB. Antu no guarda nada."
             color: root.ink3
             font.family: "Inter"
-            font.pixelSize: 18 * root.u
+            font.pixelSize: Antu.pixels(18, root.u)
         }
     }
 
@@ -283,14 +282,22 @@ ApplicationWindow {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        width: 620 * root.u
-        color: "#17171C"
+        width: root.compacta ? parent.width : 620 * root.u
+        color: Antu.window
         border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.14)
+        border.color: Antu.softEdge
 
-        ColumnLayout {
+        FocusScroll {
             anchors.fill: parent
             anchors.margins: 36 * root.u
+            clip: true
+            contentWidth: width
+            contentHeight: detalle.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar { }
+        ColumnLayout {
+            id: detalle
+            width: parent.width
             spacing: 20 * root.u
             RowLayout {
                 Text {
@@ -300,7 +307,7 @@ ApplicationWindow {
                     wrapMode: Text.WordWrap
                     color: root.ink
                     font.family: "Inter"
-                    font.pixelSize: 34 * root.u
+                    font.pixelSize: Antu.pixels(34, root.u)
                     font.weight: Font.Bold
                 }
                 LavaButton {
@@ -336,19 +343,27 @@ ApplicationWindow {
                     wrapMode: Text.WordWrap
                     color: root.ink2
                     font.family: "Inter"
-                    font.pixelSize: 23 * root.u
+                    font.pixelSize: Antu.pixels(23, root.u)
                     lineHeight: 1.12
                 }
             }
-            Item { Layout.fillHeight: true }
             Text {
                 Layout.fillWidth: true
                 visible: !!root.juego && root.juego.appid > 0
-                text: "Cada equipo es distinto: los informes vienen de personas con todo tipo de gráficas."
+                text: "Referencia de otros equipos con Linux. Este juego aún debe comprobarse en tu equipo con Antu."
                 wrapMode: Text.WordWrap
                 color: root.ink3
                 font.family: "Inter"
-                font.pixelSize: 19 * root.u
+                font.pixelSize: Antu.pixels(19, root.u)
+            }
+            Text {
+                Layout.fillWidth: true
+                text: root.juego && root.juego.consulta ? root.juego.consulta : ""
+                visible: text.length > 0
+                wrapMode: Text.WordWrap
+                color: root.ink3
+                font.family: "Inter"
+                font.pixelSize: Antu.pixels(18, root.u)
             }
             Flow {
                 Layout.fillWidth: true
@@ -367,6 +382,7 @@ ApplicationWindow {
                     onClicked: Qt.openUrlExternally("https://www.protondb.com/app/" + root.juego.appid)
                 }
             }
+        }
         }
     }
 }

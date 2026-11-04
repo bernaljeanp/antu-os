@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Instalar Antu
-Exec=/usr/lib/antu/instalador/instalador.py
-Icon=antu-instalador
+Name=Antu en vivo
+Exec=/usr/bin/python3 /usr/lib/antu/bienvenida/bienvenida.py
+Icon=antu
 OnlyShowIn=KDE;
 X-KDE-autostart-phase=2

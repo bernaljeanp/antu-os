@@ -1,0 +1,16 @@
+[Unit]
+Description=Comprueba y recupera una vez el Bluetooth MT7925 si no termina de arrancar
+After=bluetooth.service
+Wants=bluetooth.service
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/python3 /usr/lib/antu/bluetooth-mt7925.py
+TimeoutStopSec=5
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=full
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

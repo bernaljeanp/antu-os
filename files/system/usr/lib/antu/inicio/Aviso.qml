@@ -5,6 +5,9 @@ import QtQuick.Layouts
 
 Item {
     id: aviso
+    Accessible.role: Accessible.AlertMessage
+    Accessible.name: titulo
+    Accessible.description: texto
 
     property real u: 1
     property string titulo
@@ -20,7 +23,7 @@ Item {
         anchors.fill: parent
         radio: aviso.radio
         alcance: 28 * aviso.u
-        fuerza: 0.5
+        fuerza: Antu.dark ? 0.26 : 0.1
         bajada: 14 * aviso.u
     }
     Rectangle {  // el canto recibe la luz desde arriba
@@ -36,8 +39,8 @@ Item {
             anchors.margins: 1
             radius: aviso.radio - 1
             gradient: Gradient {
-                GradientStop { position: 0; color: "#2B2B32" }
-                GradientStop { position: 1; color: "#17171C" }
+                GradientStop { position: 0; color: Antu.raised }
+                GradientStop { position: 1; color: Antu.window }
             }
             Rectangle {
                 anchors.fill: parent
@@ -145,9 +148,9 @@ Item {
                 text: aviso.titulo
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
-                color: "#F5F5F7"
+                color: Antu.ink
                 font.family: "Inter"
-                font.pixelSize: 26 * aviso.u
+                font.pixelSize: Antu.pixels(26, aviso.u)
                 font.weight: Font.Bold
             }
             Text {
@@ -156,9 +159,9 @@ Item {
                 text: aviso.texto
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
-                color: "#C7C7CC"
+                color: Antu.secondary
                 font.family: "Inter"
-                font.pixelSize: 21 * aviso.u
+                font.pixelSize: Antu.pixels(21, aviso.u)
                 lineHeight: 1.1
             }
             Flow {

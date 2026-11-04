@@ -1,140 +1,22 @@
-# Antu OS, «Encendido»: una consola de lava corre a toda velocidad, una falla digital deja ver el símbolo y queda «ANTU OS»
-# con la barra de progreso. Al apagar se ve solo el símbolo. Piezas en scripts/make_plymouth.py, medidas para 1600 de alto.
-
-FONDO_R = 5 / 255;
-FONDO_G = 5 / 255;
-FONDO_B = 7 / 255;
-Window.SetBackgroundTopColor(FONDO_R, FONDO_G, FONDO_B);
-Window.SetBackgroundBottomColor(FONDO_R, FONDO_G, FONDO_B);
-
+# Antu OS: identidad tranquila y progreso comunicado por Plymouth.
+# Se reutiliza el arte aprobado. No hay consola ficticia, parpadeos ni espera artificial.
+Window.SetBackgroundTopColor(20 / 255, 20 / 255, 24 / 255);
+Window.SetBackgroundBottomColor(20 / 255, 20 / 255, 24 / 255);
 W = Window.GetWidth();
 H = Window.GetHeight();
 F = H / 1600;
-M = Math.Int(44 * F);       # margen del marco
 CX = W / 2;
-CY = H * 0.40;              # centro del símbolo
+CY = H * 0.40;
 ARRANQUE = (Plymouth.GetMode() == "boot");
-
-# Tiempos en segundos.
-FIN_REGISTRO = 2.7;         # la consola ya se apagó
-INICIO_FALLA = 2.2;
-FIN_FALLA = 2.75;
-INICIO_BARRA = 3.1;
-
-fun pieza(nombre) {
-    img = Image(nombre);
-    a = Math.Int(img.GetWidth() * global.F + 0.5);
-    b = Math.Int(img.GetHeight() * global.F + 0.5);
-    if (a < 1) a = 1;
-    if (b < 1) b = 1;
-    return img.Scale(a, b);
-}
-
-# Salida cúbica: arranca rápido y se posa suave.
-fun ease(x) {
-    if (x <= 0) return 0;
-    if (x >= 1) return 1;
-    return 1 - (1 - x) * (1 - x) * (1 - x);
-}
-
-# Símbolo, halo y título: lo que queda hasta el final. También es lo único que se ve al apagar.
-simbolo_img = Image("simbolo.png");
 Z = Math.Int(240 * F);
-simbolo = Sprite(simbolo_img.Scale(Z, Z));
+if (Z < 96) Z = 96;
+simbolo = Sprite(Image("simbolo.png").Scale(Z, Z));
 simbolo.SetPosition(Math.Int(CX - Z / 2), Math.Int(CY - Z / 2), 6);
-simbolo.SetOpacity(0);
-
-halo_img = Image("halo.png");
-HALO = Math.Int(720 * F);
-halo = Sprite(halo_img.Scale(HALO, HALO));
-halo.SetPosition(Math.Int(CX - HALO / 2), Math.Int(CY - HALO / 2 + 60 * F), 4);
-halo.SetOpacity(0);
-
-for (i = 1; i <= 7; i++) titulo_img[i] = pieza("titulo-" + i + ".png");
-titulo = Sprite();
-titulo.SetPosition(Math.Int(CX - titulo_img[7].GetWidth() / 2), Math.Int(CY + 150 * F), 6);
-letras = 0;
-
-# Lo que solo se ve al arrancar: al apagar no se cargan estas piezas.
+titulo_src = Image("titulo-estatico-2x.png");
+titulo_img = titulo_src.Scale(Math.Int(titulo_src.GetWidth() * F / 2), Math.Int(titulo_src.GetHeight() * F / 2));
+titulo = Sprite(titulo_img);
+titulo.SetPosition(Math.Int(CX - titulo_img.GetWidth() / 2), Math.Int(CY + 150 * F), 6);
 if (ARRANQUE) {
-    # Marco y rótulos.
-    esquina_img[1] = pieza("esquina-1.png");
-    LARGO = esquina_img[1].GetWidth();
-    esquina[1] = Sprite(esquina_img[1]);
-    esquina[1].SetPosition(M, M, 5);
-    esquina[2] = Sprite(pieza("esquina-2.png"));
-    esquina[2].SetPosition(W - M - LARGO, M, 5);
-    esquina[3] = Sprite(pieza("esquina-3.png"));
-    esquina[3].SetPosition(M, H - M - LARGO, 5);
-    esquina[4] = Sprite(pieza("esquina-4.png"));
-    esquina[4].SetPosition(W - M - LARGO, H - M - LARGO, 5);
-
-    arriba_img = pieza("rotulo-arriba.png");
-    rotulo_arriba = Sprite(arriba_img);
-    rotulo_arriba.SetPosition(Math.Int(M + 24 * F), Math.Int(M + 16 * F), 5);
-    abajo_img = pieza("rotulo-abajo.png");
-    rotulo_abajo = Sprite(abajo_img);
-    rotulo_abajo.SetPosition(Math.Int(M + 24 * F), Math.Int(H - M - 16 * F - abajo_img.GetHeight()), 5);
-
-    # Contador T+00.00, de izquierda a derecha.
-    for (i = 0; i < 10; i++) dig[i] = pieza("dig-" + i + ".png");
-    ANCHO_DIG = dig[0].GetWidth();
-    punto_img = pieza("dig-punto.png");
-    t_img = pieza("dig-t.png");
-    CONT_X = Math.Int(W - M - 24 * F - t_img.GetWidth() - 4 * ANCHO_DIG - punto_img.GetWidth());
-    CONT_Y = Math.Int(M + 16 * F);
-    cont_t = Sprite(t_img);
-    cont_t.SetPosition(CONT_X, CONT_Y, 5);
-    x = CONT_X + t_img.GetWidth();
-    for (i = 0; i < 4; i++) {
-        cont[i] = Sprite(dig[0]);
-        cont[i].SetPosition(x, CONT_Y, 5);
-        x = x + ANCHO_DIG;
-        if (i == 1) {
-            cont_punto = Sprite(punto_img);
-            cont_punto.SetPosition(x, CONT_Y, 5);
-            x = x + punto_img.GetWidth();
-        }
-    }
-
-    # Registro: una imagen larga que sube detrás de dos franjas del color del fondo.
-    LH = 26 * F;
-    LINEAS = 120;
-    TOPE = Math.Int(M + 70 * F);
-    PISO = Math.Int(H - M - 70 * F);
-    VISIBLES = Math.Int((PISO - TOPE) / LH);
-    if (VISIBLES > LINEAS - 20) VISIBLES = LINEAS - 20;
-    registro_img = pieza("registro.png");
-    ANCHO_REG = registro_img.GetWidth();
-    REG_X = Math.Int(M + 24 * F);
-    registro = Sprite(registro_img);
-    registro.SetPosition(REG_X, PISO, 1);
-    velo = Sprite(Image("velo.png").Scale(ANCHO_REG + 4, PISO - TOPE));
-    velo.SetPosition(REG_X - 2, TOPE, 2);
-    franja_src = Image("franja.png");
-    franja_arriba = Sprite(franja_src.Scale(ANCHO_REG + 4, TOPE));
-    franja_arriba.SetPosition(REG_X - 2, 0, 3);
-    franja_abajo = Sprite(franja_src.Scale(ANCHO_REG + 4, H - PISO));
-    franja_abajo.SetPosition(REG_X - 2, PISO, 3);
-    # Cursor en la línea que viene, justo bajo la última escrita.
-    cursor = Sprite(pieza("cursor.png"));
-    cursor.SetPosition(REG_X, Math.Int(PISO + 3 * F), 4);
-
-    # Paneles: se apagan solos si la pantalla es muy angosta para tenerlos al lado del registro.
-    CON_PANELES = (W > REG_X + ANCHO_REG + 400 * F);
-    if (CON_PANELES) {
-        for (i = 0; i < 4; i++) panel_img[i] = pieza("panel-" + i + ".png");
-        panel = Sprite(panel_img[0]);
-        panel.SetPosition(Math.Int(W - M - 24 * F - panel_img[0].GetWidth()), TOPE, 1);
-    }
-    panel_k = -1;
-
-    # Falla digital.
-    for (i = 0; i < 6; i++) falla_img[i] = pieza("falla-" + i + ".png");
-    falla = Sprite();
-    falla.SetPosition(Math.Int(CX - falla_img[0].GetWidth() / 2), Math.Int(CY - 150 * F), 6);
-
-    # Barra fina de progreso y la etapa bajo ella.
     bar_w = Math.Int(H * 0.22);
     bar_h = Math.Int(6 * F);
     if (bar_h < 3) bar_h = 3;
@@ -142,129 +24,22 @@ if (ARRANQUE) {
     bar_y = Math.Int(CY + 330 * F);
     track = Sprite(Image("track.png").Scale(bar_w, bar_h));
     track.SetPosition(bar_x, bar_y, 7);
-    track.SetOpacity(0);
     fill_src = Image("fill.png");
     fill = Sprite();
-    fill.SetPosition(bar_x, bar_y, 7);
-    fill.SetOpacity(0);  # el progreso llega desde el primer momento; la barra aparece después de la consola
-    for (i = 0; i < 3; i++) etapa_img[i] = pieza("etapa-" + i + ".png");
-    etapa = Sprite();
-    etapa_k = -1;
-    avance = 0;
-
-    # Línea de barrido, muy tenue.
-    barrido_alto = Math.Int(2 * F);
-    if (barrido_alto < 1) barrido_alto = 1;
-    barrido = Sprite(Image("barrido.png").Scale(W, barrido_alto));
-    barrido.SetZ(8);
+    fill.SetPosition(bar_x, bar_y, 8);
 }
-
 fun progress_callback(duration, progress) {
     if (global.ARRANQUE) {
-        global.avance = progress;
         w = Math.Int(global.bar_w * progress);
         if (w > global.bar_w) w = global.bar_w;
-        if (w > 0) global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
+        if (w < 1) global.fill.SetOpacity(0);
+        else {
+            global.fill.SetImage(global.fill_src.Scale(w, global.bar_h));
+            global.fill.SetOpacity(1);
+        }
     }
 }
 Plymouth.SetBootProgressFunction(progress_callback);
-
-fun fijar_contador(valor) {
-    c = Math.Int(valor * 100);
-    if (c > 9999) c = 9999;
-    d0 = Math.Int(c / 1000);
-    d1 = Math.Int(c / 100) - d0 * 10;
-    d2 = Math.Int(c / 10) - Math.Int(c / 100) * 10;
-    d3 = c - Math.Int(c / 10) * 10;
-    global.cont[0].SetImage(global.dig[d0]);
-    global.cont[1].SetImage(global.dig[d1]);
-    global.cont[2].SetImage(global.dig[d2]);
-    global.cont[3].SetImage(global.dig[d3]);
-}
-
-fun consola(t) {
-    # Rápido al principio y más calmado antes de apagarse, como un arranque de verdad.
-    if (t < 1.6) n = t * 120;
-    else n = 192 + (t - 1.6) * 45;
-    n = Math.Int(n) + 1;
-    # Cuando se acaba la imagen vuelve atrás: a esta velocidad no se nota.
-    if (n > global.LINEAS) {
-        tramo = global.LINEAS - global.VISIBLES;
-        resto = n - global.VISIBLES;
-        n = global.VISIBLES + resto - Math.Int(resto / tramo) * tramo;
-    }
-    global.registro.SetY(Math.Int(global.PISO - n * global.LH));
-
-    apagar = 1;
-    if (t > global.INICIO_FALLA) apagar = 1 - (t - global.INICIO_FALLA) / (global.FIN_REGISTRO - global.INICIO_FALLA);
-    if (apagar < 0) apagar = 0;
-    global.registro.SetOpacity(apagar);
-    global.cursor.SetOpacity(apagar * (Math.Int(t * 6) - Math.Int(t * 3) * 2));
-    if (global.CON_PANELES) {
-        global.panel.SetOpacity(apagar);
-        k = Math.Int(t * 9);
-        if (k != global.panel_k) {
-            global.panel_k = k;
-            global.panel.SetImage(global.panel_img[k - Math.Int(k / 4) * 4]);
-        }
-    }
-}
-
-fun simbolo_y_titulo(t) {
-    entrada = ease((t - 2.4) / 0.5);
-    global.halo.SetOpacity(0.32 * entrada * (0.85 + 0.15 * Math.Sin(t * 2.4)));
-    if (t >= global.FIN_FALLA) {
-        global.simbolo.SetOpacity(1);
-        l = Math.Int((t - global.FIN_FALLA) * 14) + 1;
-        if (l > 7) l = 7;
-        if (l != global.letras) {
-            global.letras = l;
-            global.titulo.SetImage(global.titulo_img[l]);
-        }
-    }
-}
-
-fun solo_al_arrancar(t) {
-    if (t < global.FIN_REGISTRO) consola(t);
-    if (t >= global.FIN_REGISTRO) {
-        global.registro.SetOpacity(0);
-        global.cursor.SetOpacity(0);
-        if (global.CON_PANELES) global.panel.SetOpacity(0);
-    }
-    if (t >= global.INICIO_FALLA && t < global.FIN_FALLA) {
-        k = Math.Int((t - global.INICIO_FALLA) / (global.FIN_FALLA - global.INICIO_FALLA) * 6);
-        if (k > 5) k = 5;
-        global.falla.SetImage(global.falla_img[k]);
-    }
-    if (t >= global.FIN_FALLA) global.falla.SetOpacity(0);
-
-    fijar_contador(t);
-    global.barrido.SetY(Math.Int(t * 230 * global.F - Math.Int(t * 230 / 1680) * 1680 * global.F));
-
-    if (t > global.INICIO_BARRA) {
-        barra = ease((t - global.INICIO_BARRA) / 0.4);
-        global.track.SetOpacity(barra);
-        global.fill.SetOpacity(barra);
-        k = Math.Int(global.avance * 3);
-        if (k > 2) k = 2;
-        if (k != global.etapa_k) {
-            global.etapa_k = k;
-            img = global.etapa_img[k];
-            global.etapa.SetImage(img);
-            global.etapa.SetPosition(Math.Int(global.CX - img.GetWidth() / 2), Math.Int(global.bar_y + 16 * global.F), 7);
-        }
-        global.etapa.SetOpacity(barra);
-    }
-}
-
-t = 0;
-if (!ARRANQUE) t = FIN_FALLA + 1;  # al apagar: directo al símbolo y al título
-fun refresh_callback() {
-    global.t = global.t + 0.02;  # Plymouth llama 50 veces por segundo
-    simbolo_y_titulo(global.t);
-    if (global.ARRANQUE) solo_al_arrancar(global.t);
-}
-Plymouth.SetRefreshFunction(refresh_callback);
 
 # Mensajes del sistema (por ejemplo, revisión de disco): una línea discreta bajo la barra.
 message = Sprite();

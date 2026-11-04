@@ -11,13 +11,14 @@ ApplicationWindow {
     visible: true
     visibility: Window.FullScreen
     title: "Antu Inicio"
-    color: "#0B0B0E"
+    color: Antu.base
 
-    readonly property real u: height / 1600
-    readonly property color ink: "#F5F5F7"
-    readonly property color ink2: "#C7C7CC"
-    readonly property color negative: "#FF7069"
+    readonly property real u: Math.max(0.72, Math.min(1, height / 1600))
+    readonly property color ink: Antu.ink
+    readonly property color ink2: Antu.secondary
+    readonly property color negative: Antu.negative
 
+    readonly property bool compacta: width < 1120 || Antu.textFactor > 1.4
     property int openSection: 0
     property bool userEdited: false
     property string desktopChoice: "zorin"
@@ -52,19 +53,9 @@ ApplicationWindow {
     }
 
     // Fondo: el de Antu oscurecido, nítido como en el inicio de sesión. Desenfocado se volvía negro con manchas rojas.
-    Image {
-        anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: 0.55
-    }
+    AntuBackdrop { anchors.fill: parent; photographic: true }
 
-    Flickable {
+    FocusScroll {
         id: page
         anchors.fill: parent
         contentHeight: content.implicitHeight + 240 * root.u
@@ -73,34 +64,44 @@ ApplicationWindow {
 
         ColumnLayout {
             id: content
-            width: 1040 * root.u
+            width: Math.min(1040 * root.u * Antu.textFactor, page.width - 64)
             anchors.horizontalCenter: parent.horizontalCenter
             y: 120 * root.u
             spacing: 22 * root.u
 
             RowLayout {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 spacing: 28 * root.u
                 Layout.bottomMargin: 26 * root.u
                 Image {
-                    source: "file:///usr/share/antu/antu-symbol.svg"
+                    source: Antu.symbolSource
                     sourceSize.width: 96 * root.u
                     sourceSize.height: 96 * root.u
                 }
                 ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     spacing: 6 * root.u
                     Text {
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        wrapMode: Text.WordWrap
                         text: "Te damos la bienvenida a Antu"
                         color: root.ink
                         font.family: "Inter"
-                        font.pixelSize: 54 * root.u
+                        font.pixelSize: Antu.pixels(54, root.u)
                         font.weight: Font.Bold
                         font.variableAxes: ({ "opsz": 32 })
                     }
                     Text {
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        wrapMode: Text.WordWrap
                         text: "Unos pocos pasos y estarás jugando."
                         color: root.ink2
                         font.family: "Inter"
-                        font.pixelSize: 26 * root.u
+                        font.pixelSize: Antu.pixels(26, root.u)
                     }
                 }
             }
@@ -113,12 +114,15 @@ ApplicationWindow {
                 open: root.openSection === 0
                 onHeaderClicked: root.openSection = 0
 
-                RowLayout {
-                    spacing: 18 * root.u
+                GridLayout {
+                    columns: root.compacta ? 1 : 2
+                    columnSpacing: 18 * root.u
+                    rowSpacing: 18 * root.u
                     GlassCombo {
                         id: language
                         u: root.u
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         textRole: "text"
                         valueRole: "value"
                         Accessible.name: "Idioma"
@@ -132,6 +136,7 @@ ApplicationWindow {
                         id: keyboard
                         u: root.u
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         textRole: "text"
                         valueRole: "value"
                         Accessible.name: "Distribución de teclado"
@@ -161,6 +166,7 @@ ApplicationWindow {
                     id: zone
                     u: root.u
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     Accessible.name: "Zona horaria"
                     model: backend.zones()
                     Component.onCompleted: currentIndex = Math.max(0, model.indexOf("America/Santiago"))
@@ -181,15 +187,17 @@ ApplicationWindow {
                 onHeaderClicked: root.openSection = 2
 
                 GridLayout {
-                    columns: 2
+                    columns: root.compacta ? 1 : 2
                     columnSpacing: 18 * root.u
                     rowSpacing: 18 * root.u
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
 
                     GlassField {
                         id: realName
                         u: root.u
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         placeholderText: "Tu nombre"
                         Accessible.name: "Tu nombre"
                         onTextEdited: if (!root.userEdited) userField.text = backend.suggestUser(text)
@@ -198,6 +206,7 @@ ApplicationWindow {
                         id: userField
                         u: root.u
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         placeholderText: "Nombre de usuario"
                         Accessible.name: "Nombre de usuario"
                         invalid: text.length > 0 && !root.userValid
@@ -207,6 +216,7 @@ ApplicationWindow {
                         id: password
                         u: root.u
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         placeholderText: "Contraseña"
                         Accessible.name: "Contraseña"
                         echoMode: TextInput.Password
@@ -216,6 +226,7 @@ ApplicationWindow {
                         id: confirm
                         u: root.u
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         placeholderText: "Repite la contraseña"
                         Accessible.name: "Repite la contraseña"
                         echoMode: TextInput.Password
@@ -226,9 +237,10 @@ ApplicationWindow {
                 }
                 Text {
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     wrapMode: Text.WordWrap
                     font.family: "Inter"
-                    font.pixelSize: 21 * root.u
+                    font.pixelSize: Antu.pixels(21, root.u)
                     color: userField.invalid || confirm.invalid || (password.text.length > 0 && password.text.length < 8)
                        ? root.negative : root.ink2
                     text: userField.invalid ? "El usuario empieza con una letra y solo usa minúsculas, números, - y _."
@@ -253,8 +265,10 @@ ApplicationWindow {
                 open: root.openSection === 3
                 onHeaderClicked: root.openSection = 3
 
-                RowLayout {
-                    spacing: 22 * root.u
+                GridLayout {
+                    columns: root.compacta ? 1 : 2
+                    columnSpacing: 22 * root.u
+                    rowSpacing: 22 * root.u
                     Repeater {
                         model: [
                             { id: "zorin", label: "Barra inferior centrada", note: "Como Zorin y Windows 11. Recomendada." },
@@ -265,7 +279,8 @@ ApplicationWindow {
                             required property var modelData
                             readonly property bool selected: root.desktopChoice === modelData.id
                             Layout.fillWidth: true
-                            implicitHeight: 360 * root.u
+                            Layout.minimumWidth: 0
+                            implicitHeight: Math.max(360 * root.u, contentItem.implicitHeight + 24 * root.u)
                             Accessible.name: modelData.label
                             onClicked: root.desktopChoice = modelData.id
                             background: Rectangle {
@@ -279,6 +294,7 @@ ApplicationWindow {
                                 // Miniatura del escritorio
                                 Rectangle {
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
                                     Layout.preferredHeight: 230 * root.u
                                     radius: 12 * root.u
                                     clip: true
@@ -317,17 +333,23 @@ ApplicationWindow {
                                     }
                                 }
                                 Text {
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    wrapMode: Text.WordWrap
                                     text: choice.modelData.label
                                     color: root.ink
                                     font.family: "Inter"
-                                    font.pixelSize: 24 * root.u
+                                    font.pixelSize: Antu.pixels(24, root.u)
                                     font.weight: Font.DemiBold
                                 }
                                 Text {
+                                    Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
+                                    wrapMode: Text.WordWrap
                                     text: choice.modelData.note
                                     color: root.ink2
                                     font.family: "Inter"
-                                    font.pixelSize: 20 * root.u
+                                    font.pixelSize: Antu.pixels(20, root.u)
                                 }
                             }
                         }
@@ -351,10 +373,20 @@ ApplicationWindow {
 
                 Switch {
                     id: oficina
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    contentItem: Text {
+                        text: oficina.text
+                        font: oficina.font
+                        color: root.ink
+                        wrapMode: Text.WordWrap
+                        leftPadding: oficina.indicator.width + oficina.spacing
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     checked: true
                     text: "Oficina: WordCraft, DeckCraft, GridCraft y PdfCraft (en desarrollo y aún sin firma digital)"
                     font.family: "Inter"
-                    font.pixelSize: 23 * root.u
+                    font.pixelSize: Antu.pixels(23, root.u)
                     palette.windowText: root.ink
                     palette.text: root.ink
                     palette.highlight: "#E2480F"
@@ -363,9 +395,19 @@ ApplicationWindow {
                 }
                 Switch {
                     id: ai
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    contentItem: Text {
+                        text: ai.text
+                        font: ai.font
+                        color: root.ink
+                        wrapMode: Text.WordWrap
+                        leftPadding: ai.indicator.width + ai.spacing
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     text: "Instalar IA local (Alpaca con Ollama, unos 4 GB)"
                     font.family: "Inter"
-                    font.pixelSize: 23 * root.u
+                    font.pixelSize: Antu.pixels(23, root.u)
                     palette.windowText: root.ink
                     palette.text: root.ink
                     palette.highlight: "#E2480F"
@@ -374,9 +416,19 @@ ApplicationWindow {
                 }
                 Switch {
                     id: dev
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    contentItem: Text {
+                        text: dev.text
+                        font: dev.font
+                        color: root.ink
+                        wrapMode: Text.WordWrap
+                        leftPadding: dev.indicator.width + dev.spacing
+                        verticalAlignment: Text.AlignVCenter
+                    }
                     text: "Voy a programar (VS Code, Git, Node, Python, Rust, Go, Claude Code y Codex)"
                     font.family: "Inter"
-                    font.pixelSize: 23 * root.u
+                    font.pixelSize: Antu.pixels(23, root.u)
                     palette.windowText: root.ink
                     palette.text: root.ink
                     palette.highlight: "#E2480F"
@@ -385,10 +437,11 @@ ApplicationWindow {
                 }
                 Text {
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     wrapMode: Text.WordWrap
                     color: root.ink2
                     font.family: "Inter"
-                    font.pixelSize: 21 * root.u
+                    font.pixelSize: Antu.pixels(21, root.u)
                     text: "Brave, Steam, tus apps de juegos y la oficina de ArtCraft se instalan solas en cuanto haya internet."
                 }
             }
@@ -404,17 +457,18 @@ ApplicationWindow {
                 }
                 BusyIndicator {
                     visible: root.working
-                    running: root.working
+                    running: root.working && Antu.motionFactor > 0
                     implicitWidth: 44 * root.u
                     implicitHeight: 44 * root.u
                     palette.dark: "#FF5A1F"
                 }
                 Text {
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     wrapMode: Text.WordWrap
                     color: root.failed ? root.negative : root.ink2
                     font.family: "Inter"
-                    font.pixelSize: 22 * root.u
+                    font.pixelSize: Antu.pixels(22, root.u)
                     text: root.status.length > 0 ? root.status
                         : root.accountValid ? "" : "Completa tu cuenta para empezar."
                 }

@@ -2,7 +2,7 @@
 enabled=true
 contrast=0.45
 intensity=0.9
-saturation=1.4
+saturation=1.0
 
 [BlurBehindEffect]
 enabled=true

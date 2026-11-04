@@ -13,12 +13,12 @@ ApplicationWindow {
     minimumHeight: 640
     visible: true
     title: "Instalar Antu"
-    color: "#0B0B0E"
+    color: Antu.base
 
-    readonly property real u: Math.min(width / 1760, height / 1150)
-    readonly property color ink: "#F5F5F7"
-    readonly property color ink2: "#C7C7CC"
-    readonly property color negative: "#FF7069"
+    readonly property real u: 0.72
+    readonly property color ink: Antu.ink
+    readonly property color ink2: Antu.secondary
+    readonly property color negative: Antu.negative
 
     // 0 elegir disco, 1 confirmar, 2 instalando, 3 listo, 4 error
     property int screen: 0
@@ -65,7 +65,7 @@ ApplicationWindow {
             wrapMode: Text.WordWrap
             color: root.ink
             font.family: "Inter"
-            font.pixelSize: 50 * root.u
+            font.pixelSize: Antu.pixels(50, root.u)
             font.weight: Font.Bold
             font.variableAxes: ({ "opsz": 32 })
         }
@@ -76,7 +76,7 @@ ApplicationWindow {
             wrapMode: Text.WordWrap
             color: root.ink2
             font.family: "Inter"
-            font.pixelSize: 25 * root.u
+            font.pixelSize: Antu.pixels(25, root.u)
         }
     }
 
@@ -85,7 +85,7 @@ ApplicationWindow {
         wrapMode: Text.WordWrap
         color: root.ink2
         font.family: "Inter"
-        font.pixelSize: 23 * root.u
+        font.pixelSize: Antu.pixels(23, root.u)
         lineHeight: 1.15
     }
 
@@ -114,7 +114,7 @@ ApplicationWindow {
             color: row.hovered ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, row.usable ? 0.07 : 0.04)
             border.width: row.chosen || row.visualFocus ? 3 * root.u : 1
             border.color: row.chosen || row.visualFocus ? "#FF5A1F" : Qt.rgba(1, 1, 1, 0.16)
-            Behavior on color { ColorAnimation { duration: 120 } }
+            Behavior on color { ColorAnimation { duration: Antu.duration(120) } }
         }
         contentItem: RowLayout {
             spacing: 26 * root.u
@@ -135,14 +135,14 @@ ApplicationWindow {
                     text: row.modelData.name
                     color: row.usable ? root.ink : root.ink2
                     font.family: "Inter"
-                    font.pixelSize: 27 * root.u
+                    font.pixelSize: Antu.pixels(27, root.u)
                     font.weight: Font.DemiBold
                 }
                 Text {
                     text: row.modelData.detail
                     color: root.ink2
                     font.family: "Inter"
-                    font.pixelSize: 21 * root.u
+                    font.pixelSize: Antu.pixels(21, root.u)
                     font.features: ({ "tnum": 1 })
                 }
                 Text {
@@ -151,27 +151,16 @@ ApplicationWindow {
                     text: row.usable ? row.modelData.contents : row.modelData.reason
                     color: row.usable && row.modelData.windows ? root.negative : root.ink2
                     font.family: "Inter"
-                    font.pixelSize: 21 * root.u
+                    font.pixelSize: Antu.pixels(21, root.u)
                 }
             }
         }
     }
 
     // Fondo: el de Antu, oscurecido. La ventana flota sobre el mismo fondo del escritorio y lo continúa.
-    Image {
-        anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
-        sourceSize.width: 1920
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: 0.6
-    }
+    AntuBackdrop { anchors.fill: parent; photographic: false }
 
-    Flickable {
+    FocusScroll {
         id: page
         anchors.fill: parent
         contentHeight: content.implicitHeight + 160 * root.u
@@ -187,7 +176,7 @@ ApplicationWindow {
 
             Image {
                 Layout.bottomMargin: 30 * root.u
-                source: "file:///usr/share/antu/antu-symbol.svg"
+                source: Antu.symbolSource
                 sourceSize.width: 76 * root.u
                 sourceSize.height: 76 * root.u
             }
@@ -256,7 +245,7 @@ ApplicationWindow {
                                 text: root.disk && root.disk.parts.length > 0 ? "Se borrará:" : "El disco está vacío."
                                 color: root.ink
                                 font.family: "Inter"
-                                font.pixelSize: 23 * root.u
+                                font.pixelSize: Antu.pixels(23, root.u)
                                 font.weight: Font.DemiBold
                             }
                             Repeater {
@@ -266,7 +255,7 @@ ApplicationWindow {
                                     text: modelData
                                     color: root.ink2
                                     font.family: "Inter"
-                                    font.pixelSize: 22 * root.u
+                                    font.pixelSize: Antu.pixels(22, root.u)
                                     font.features: ({ "tnum": 1 })
                                 }
                             }
@@ -317,7 +306,7 @@ ApplicationWindow {
                             radius: height / 2
                             color: "#FF5A1F"
                             clip: true
-                            Behavior on width { NumberAnimation { duration: 700; easing.type: Easing.OutExpo } }
+                            Behavior on width { NumberAnimation { duration: Antu.duration(700); easing.type: Easing.OutExpo } }
                             Rectangle {
                                 property real t: 0
                                 width: 220 * root.u
@@ -334,7 +323,7 @@ ApplicationWindow {
                                     to: 1
                                     duration: 1600
                                     loops: Animation.Infinite
-                                    running: root.screen === 2
+                                    running: root.screen === 2 && Antu.motionFactor > 0
                                 }
                             }
                         }
@@ -367,7 +356,7 @@ ApplicationWindow {
                                 text: step.modelData
                                 color: step.done || step.current ? root.ink : root.ink2
                                 font.family: "Inter"
-                                font.pixelSize: 25 * root.u
+                                font.pixelSize: Antu.pixels(25, root.u)
                                 font.weight: step.current ? Font.DemiBold : Font.Normal
                             }
                         }
@@ -383,7 +372,7 @@ ApplicationWindow {
                         color: root.ink2
                         opacity: 0.8
                         font.family: "JetBrains Mono"
-                        font.pixelSize: 18 * root.u
+                        font.pixelSize: Antu.pixels(18, root.u)
                     }
                 }
 
@@ -435,6 +424,7 @@ ApplicationWindow {
                         implicitHeight: errorText.implicitHeight + 56 * root.u
                         Text {
                             id: errorText
+                            Accessible.role: Accessible.AlertMessage
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.top: parent.top
@@ -443,7 +433,7 @@ ApplicationWindow {
                             text: root.error
                             color: root.negative
                             font.family: "JetBrains Mono"
-                            font.pixelSize: 19 * root.u
+                            font.pixelSize: Antu.pixels(19, root.u)
                         }
                     }
                     RowLayout {

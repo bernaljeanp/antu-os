@@ -55,6 +55,7 @@ capturar() {
 capturar inicio root /usr/lib/antu/inicio/inicio.py
 # El instalador solo existe en el sistema en vivo (iso.yml).
 if [ -f /usr/lib/antu/instalador/instalador.py ]; then
+    QT_SCALE_FACTOR=1.5 capturar bienvenida "Antu en vivo" /usr/lib/antu/bienvenida/bienvenida.py
     QT_SCALE_FACTOR=1.5 capturar instalador "Instalar Antu" /usr/lib/antu/instalador/instalador.py
     QT_SCALE_FACTOR=1.5 capturar informe "Informe del equipo" /usr/lib/antu/informe/informe.py
     python /usr/lib/antu/informe-helper --autoprueba || { echo "::error::El informe no limpia los datos personales"; exit 1; }

@@ -1,5 +1,5 @@
 [kdeglobals][KDE]
-widgetStyle=Breeze
+widgetStyle=kvantum
 
 [kdeglobals][General]
 ColorScheme=AntuObsidiana
@@ -24,7 +24,7 @@ Image=Paranal
 
 # Vidrio: menús de las apps translúcidos y un desenfoque más esmerilado detrás de la barra y los menús.
 [breezerc][Style]
-MenuOpacity=82
+MenuOpacity=94
 
 [kwinrc][Effect-blur]
 BlurStrength=8
@@ -35,8 +35,8 @@ NoiseStrength=3
 [breezerc][Common]
 RoundedCorners=true
 OutlineEnabled=true
-ShadowSize=ShadowVeryLarge
-ShadowStrength=210
+ShadowSize=ShadowLarge
+ShadowStrength=160
 
 [breezerc][Windeco]
 TitleAlignment=AlignCenterFullWidth

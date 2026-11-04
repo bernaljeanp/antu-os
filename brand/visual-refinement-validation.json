@@ -1,0 +1,383 @@
+{
+  "date": "2026-11-03",
+  "finish": "Grafito mate, vidrio en cabeceras, acentos lava",
+  "scope": "Local source and isolated Qt/Qt Quick previews; no new ISO or physical session",
+  "icons": {
+    "count": 464,
+    "failures": 0,
+    "minimum_outline_p90": {
+      "panel": 3.2664,
+      "window": 3.0207
+    },
+    "minimum_visible_p90": {
+      "panel": 3.394,
+      "window": 3.1349,
+      "light": 4.8986
+    },
+    "by_size": {
+      "16": {
+        "panel": 3.2664,
+        "window": 3.0207
+      },
+      "22": {
+        "panel": 3.6676,
+        "window": 3.4353
+      },
+      "24": {
+        "panel": 4.0686,
+        "window": 3.8118
+      },
+      "32": {
+        "panel": 3.8239,
+        "window": 3.5833
+      },
+      "48": {
+        "panel": 3.4995,
+        "window": 3.2325
+      },
+      "64": {
+        "panel": 3.8197,
+        "window": 3.5282
+      },
+      "128": {
+        "panel": 4.0039,
+        "window": 3.709
+      },
+      "256": {
+        "panel": 5.5686,
+        "window": 5.1436
+      }
+    },
+    "method": "See icon-theme-validation.json; dark outline+body, light body with outline reported"
+  },
+  "tests": {
+    "visual_regressions": 6,
+    "functional_regressions_linux": 20,
+    "self_checks": [
+      "Zenit",
+      "Biblioteca",
+      "Observatorio"
+    ],
+    "source_syntax": "24 changed Python files; YAML workflows; four shell scripts; git diff --check",
+    "qml": "Nine app surfaces loaded at 4K dark and minimum/1280x800 light with font 200%; SDDM normal/error with mock models",
+    "not_tested": [
+      "New booted Antu ISO",
+      "Real GPU composition/performance/HDR",
+      "Physical Dolphin/SystemSettings integration",
+      "Linux screen reader and controller",
+      "Full installation or new USB flashing"
+    ]
+  },
+  "previews": [
+    {
+      "path": "brand/previews/icon-theme/devices-apps.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "988867e5c6694a78fd4a3207234b0d7989e7f6090b53855ed40210101895fec5"
+    },
+    {
+      "path": "brand/previews/icon-theme/dolphin-mockup-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "a244ec31508d31d59c2e3aa72ce4c02653e4095851576c75cc9300c8deefc3d5"
+    },
+    {
+      "path": "brand/previews/icon-theme/light-background-check.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "9bd1eab459445ee6ebaf61acdc200903a83aeec2a64a3e913225c0f707bd420c"
+    },
+    {
+      "path": "brand/previews/icon-theme/mimetypes.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "cdaaa020ece56caab10d305fff802e9e19d26ba6efd88aa3393424ec0eefc6e4"
+    },
+    {
+      "path": "brand/previews/icon-theme/places.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "740720efe20bd43a0400725acb793d4e158126f27c8c7b68f4e3b316f12fdaa4"
+    },
+    {
+      "path": "brand/previews/icon-theme/small-sizes.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "ec5bdb244775a48fb7b5aa1dbecf597bbabe0139f927fe689c1deca534b32d79"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/aviso-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "edb72e4dba4f33e03ac08452910fe1bd815b35834588a780cf8af83b0cffe409"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/qt-nativo-AntuObsidiana-iconos-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "69b83b350c1df638b395f7785b8503f250e23587e5a41e2a511f9e06cad6bc9d"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/qt-nativo-AntuObsidiana-lista-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "d1579204df46b6cf548a078e8ee0456b20bc327a09cc0dea2856186df3fba0e1"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/qt-nativo-AntuSalar-iconos-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "17e364ab3ab9420fa87c989d64a1c1a684f3690295a3ac2d1e55be245a8f7bc3"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/qt-nativo-AntuSalar-lista-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "b75f4ef89ccbf1af0b2a5ca3efbc3bf6631fd1bf75dcbc541b1893d7ac943be1"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/sddm-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "b36eb08c286303b25b1310e444806d4d2b4ab9f2cd4ac5f5065a7b9f9022ca21"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/sddm-error-4k.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "c8baa4885693b19c42506586e18e6b39473b0ee79713787ae385804b0f9b555c"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/actualizaciones-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "bc8cae01a329cc352253327c989b81ad1ab929bd193fa872fd444289a32faf72"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/biblioteca-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "80aadd5864394fea6545da317ba14f3e88ce9759305e35f54da444973ad1075f"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/bienvenida-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "dbd75d70e9f2be4e958df39d95358e76968def2888f2873d5d82af88f5d35e9a"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/informe-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "8b07b795a9ab0276f00814c77f31a5e7adcba995c9c3425ddd38a3422d2e7f9c"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/inicio-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "42920640304ac9fe536a4f5ed89ab261913064651b4f08014c59259fb5cee982"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/instalador-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "06d5f0b0cab31f013f28c2cdf88a2b3793e92b79fd7890bf2b3659eb0c07d02d"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/observatorio-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "e6679280ae32f4def97429165316e8100dc734ff0d4582b934408fdfafde6450"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/oscuro-4k/zenit-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "655d480b6c7fcbb3e2352a88412ad2473668b4693fdbcfb7928a51952c888e6c"
+    },
+    {
+      "path": "brand/previews/refinamiento-v2/confirmacion-4k/instalador-1280x720.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "2de2c20a94d4e39f880187af4f3df2090b547b243f5a56f7bf42807f4482b0d9"
+    }
+  ],
+  "approved_art": {
+    "files_unchanged_vs_HEAD": 167,
+    "paths": [
+      "brand/antu-icon-256.png",
+      "brand/antu-icon.svg",
+      "brand/antu-logo-4k.png",
+      "brand/antu-logo-light-4k.png",
+      "brand/antu-logo-light.png",
+      "brand/antu-logo.png",
+      "files/system/usr/share/antu/antu-symbol-light.svg",
+      "files/system/usr/share/antu/antu-symbol.svg",
+      "files/system/usr/share/icons/Antu-Cursores/COPYING",
+      "files/system/usr/share/icons/Antu-Cursores/alias.tsv",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/bottom_left_corner",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/bottom_right_corner",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/bottom_side",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/cell",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/closedhand",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/col-resize",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/color-picker",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/context-menu",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/copy",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/crosshair",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/default",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/fleur",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/help",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/left_side",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/link",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/not-allowed",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/openhand",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/pencil",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/pointer",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/progress",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/right_side",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/row-resize",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/size_bdiag",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/size_fdiag",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/size_hor",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/size_ver",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/text",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/top_left_corner",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/top_right_corner",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/top_side",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/vertical-text",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/wait",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/zoom-in",
+      "files/system/usr/share/icons/Antu-Cursores/cursors/zoom-out",
+      "files/system/usr/share/icons/Antu-Cursores/index.theme",
+      "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/1024x1024/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/1024x1024/apps/antu.png",
+      "files/system/usr/share/icons/hicolor/128x128/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/128x128/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/128x128/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/128x128/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/128x128/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/128x128/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/128x128/apps/antu.png",
+      "files/system/usr/share/icons/hicolor/16x16/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/16x16/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/16x16/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/16x16/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/16x16/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/16x16/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/16x16/apps/antu.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/antu.png",
+      "files/system/usr/share/icons/hicolor/256x256/apps/zenit.png",
+      "files/system/usr/share/icons/hicolor/32x32/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/32x32/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/32x32/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/32x32/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/32x32/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/32x32/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/32x32/apps/antu.png",
+      "files/system/usr/share/icons/hicolor/48x48/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/48x48/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/48x48/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/48x48/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/48x48/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/48x48/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/48x48/apps/antu.png",
+      "files/system/usr/share/icons/hicolor/512x512/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/512x512/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/512x512/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/512x512/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/512x512/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/512x512/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/512x512/apps/antu.png",
+      "files/system/usr/share/icons/hicolor/64x64/apps/antu-biblioteca.png",
+      "files/system/usr/share/icons/hicolor/64x64/apps/antu-eclipse.png",
+      "files/system/usr/share/icons/hicolor/64x64/apps/antu-ia.png",
+      "files/system/usr/share/icons/hicolor/64x64/apps/antu-inicio.png",
+      "files/system/usr/share/icons/hicolor/64x64/apps/antu-instalador.png",
+      "files/system/usr/share/icons/hicolor/64x64/apps/antu-observatorio.png",
+      "files/system/usr/share/icons/hicolor/64x64/apps/antu.png",
+      "files/system/usr/share/plymouth/themes/antu/barrido.png",
+      "files/system/usr/share/plymouth/themes/antu/cursor.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-0.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-1.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-2.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-3.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-4.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-5.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-6.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-7.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-8.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-9.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-punto.png",
+      "files/system/usr/share/plymouth/themes/antu/dig-t.png",
+      "files/system/usr/share/plymouth/themes/antu/esquina-1.png",
+      "files/system/usr/share/plymouth/themes/antu/esquina-2.png",
+      "files/system/usr/share/plymouth/themes/antu/esquina-3.png",
+      "files/system/usr/share/plymouth/themes/antu/esquina-4.png",
+      "files/system/usr/share/plymouth/themes/antu/etapa-0.png",
+      "files/system/usr/share/plymouth/themes/antu/etapa-1.png",
+      "files/system/usr/share/plymouth/themes/antu/etapa-2.png",
+      "files/system/usr/share/plymouth/themes/antu/falla-0.png",
+      "files/system/usr/share/plymouth/themes/antu/falla-1.png",
+      "files/system/usr/share/plymouth/themes/antu/falla-2.png",
+      "files/system/usr/share/plymouth/themes/antu/falla-3.png",
+      "files/system/usr/share/plymouth/themes/antu/falla-4.png",
+      "files/system/usr/share/plymouth/themes/antu/falla-5.png",
+      "files/system/usr/share/plymouth/themes/antu/fill.png",
+      "files/system/usr/share/plymouth/themes/antu/franja.png",
+      "files/system/usr/share/plymouth/themes/antu/halo.png",
+      "files/system/usr/share/plymouth/themes/antu/panel-0.png",
+      "files/system/usr/share/plymouth/themes/antu/panel-1.png",
+      "files/system/usr/share/plymouth/themes/antu/panel-2.png",
+      "files/system/usr/share/plymouth/themes/antu/panel-3.png",
+      "files/system/usr/share/plymouth/themes/antu/registro.png",
+      "files/system/usr/share/plymouth/themes/antu/rotulo-abajo.png",
+      "files/system/usr/share/plymouth/themes/antu/rotulo-arriba.png",
+      "files/system/usr/share/plymouth/themes/antu/simbolo.png",
+      "files/system/usr/share/plymouth/themes/antu/titulo-1.png",
+      "files/system/usr/share/plymouth/themes/antu/titulo-2.png",
+      "files/system/usr/share/plymouth/themes/antu/titulo-3.png",
+      "files/system/usr/share/plymouth/themes/antu/titulo-4.png",
+      "files/system/usr/share/plymouth/themes/antu/titulo-5.png",
+      "files/system/usr/share/plymouth/themes/antu/titulo-6.png",
+      "files/system/usr/share/plymouth/themes/antu/titulo-7.png",
+      "files/system/usr/share/plymouth/themes/antu/track.png",
+      "files/system/usr/share/plymouth/themes/antu/velo.png",
+      "files/system/usr/share/wallpapers/Antu/contents/images/2560x1600.jpg",
+      "files/system/usr/share/wallpapers/Antu/contents/images/3840x2160.jpg",
+      "files/system/usr/share/wallpapers/Antu/contents/images_dark/2560x1600.jpg",
+      "files/system/usr/share/wallpapers/Antu/contents/images_dark/3840x2160.jpg",
+      "files/system/usr/share/wallpapers/Antu/contents/screenshot.png",
+      "files/system/usr/share/wallpapers/Antu/metadata.json",
+      "files/system/usr/share/wallpapers/Paranal/contents/images/2560x1600.jpg",
+      "files/system/usr/share/wallpapers/Paranal/contents/images/3840x2160.jpg",
+      "files/system/usr/share/wallpapers/Paranal/contents/images_dark/2560x1600.jpg",
+      "files/system/usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg",
+      "files/system/usr/share/wallpapers/Paranal/contents/screenshot.png",
+      "files/system/usr/share/wallpapers/Paranal/metadata.json",
+      "files/system/usr/share/wallpapers/Salar/contents/images/2560x1600.jpg",
+      "files/system/usr/share/wallpapers/Salar/contents/images/3840x2160.jpg",
+      "files/system/usr/share/wallpapers/Salar/contents/images_dark/2560x1600.jpg",
+      "files/system/usr/share/wallpapers/Salar/contents/images_dark/3840x2160.jpg",
+      "files/system/usr/share/wallpapers/Salar/contents/screenshot.png",
+      "files/system/usr/share/wallpapers/Salar/metadata.json"
+    ]
+  },
+  "button_face_contrast": {
+    "#C44317": 5.045,
+    "#B3340D": 6.152,
+    "#922909": 8.257,
+    "#BA382B": 5.694
+  }
+}

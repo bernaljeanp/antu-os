@@ -6,3 +6,5 @@ scripts
 ci
 third_party
 *.md
+**/__pycache__
+**/*.pyc

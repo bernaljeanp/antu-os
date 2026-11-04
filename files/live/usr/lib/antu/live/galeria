@@ -11,6 +11,9 @@ plasma() {
 
 until pgrep -u antu -x plasmashell > /dev/null; do sleep 2; done
 sleep 25
+serie bienvenida
+sleep 10
+pkill -f bienvenida.py
 pkill -f instalador.py
 sleep 4
 serie escritorio
@@ -87,6 +90,10 @@ sleep 10
 pkill -f aviso.py
 
 # El informe de verdad, con su limpieza y su guardado en el USB; se copia a la consola para revisarlo.
+# El servicio debe seguir midiendo después de cerrar la ventana. Sin conexión también guarda avances.
+serie "registro $(cat /run/antu-informe/estado.json)"
+serie "dns $(setpriv --reuid=65534 --regid=65534 --clear-groups sh -c 'test -r /etc/resolv.conf && echo legible')"
+serie "resolver $(systemctl is-active systemd-resolved)"
 resultado="$(echo "(creado por la prueba)" | /usr/lib/antu/informe-helper)"
 serie "informe-resultado $resultado"
 copia="$(echo "$resultado" | python3 -c 'import json, sys; print(json.load(sys.stdin)["copia"])')"

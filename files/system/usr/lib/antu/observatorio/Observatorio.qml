@@ -13,14 +13,15 @@ ApplicationWindow {
     minimumHeight: 640
     visible: true
     title: "Observatorio"
-    color: "#0B0B0E"
+    color: Antu.base
 
-    readonly property real u: Math.min(width / 1760, height / 1216)
-    readonly property color ink: "#F5F5F7"
-    readonly property color ink2: "#C7C7CC"
-    readonly property color ink3: "#A1A1A6"
-    readonly property color lava: "#FF5A1F"
-    readonly property color superficie: "#17171C"
+    readonly property real u: 0.72
+    readonly property color ink: Antu.ink
+    readonly property color ink2: Antu.secondary
+    readonly property color ink3: Antu.muted
+    readonly property color lava: Antu.lava
+    readonly property color superficie: Antu.window
+    readonly property bool compacta: width < 1250 || Antu.textFactor > 1.4
 
     property var juegos: []
     property int elegido: -1  // al entrar, solo los juegos
@@ -60,7 +61,7 @@ ApplicationWindow {
     }
 
     function colorDe(estado) {
-        return estado === "baja" ? "#FF7069" : estado === "sube" ? "#57D98B" : "#A1A1A6"
+        return estado === "baja" ? Antu.negative : estado === "sube" ? Antu.positive : Antu.muted
     }
 
     Connections {
@@ -92,19 +93,9 @@ ApplicationWindow {
         sequence: "Escape"
         onActivated: root.elegido = -1
     }
+    Shortcut { sequence: "Alt+Left"; onActivated: root.elegido = -1 }
 
-    Image {
-        anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
-        sourceSize.width: 1920
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: 0.66
-    }
+    AntuBackdrop { anchors.fill: parent; photographic: false }
 
     component Linea: Text {
         Layout.fillWidth: true
@@ -112,7 +103,7 @@ ApplicationWindow {
         wrapMode: Text.WordWrap
         color: root.ink2
         font.family: "Inter"
-        font.pixelSize: 22 * root.u
+        font.pixelSize: Antu.pixels(22, root.u)
     }
 
     // Sin nada que mostrar todavía.
@@ -126,7 +117,7 @@ ApplicationWindow {
             text: "Aún no hay juegos medidos"
             color: root.ink
             font.family: "Inter"
-            font.pixelSize: 44 * root.u
+            font.pixelSize: Antu.pixels(44, root.u)
             font.weight: Font.Bold
         }
         Linea {
@@ -141,6 +132,7 @@ ApplicationWindow {
 
         // Los juegos mandan: portadas grandes, lo que rinden y si cambió. El detalle se abre al elegir uno.
         ColumnLayout {
+            visible: !(root.compacta && root.juego !== null)
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.margins: 40 * root.u
@@ -149,7 +141,7 @@ ApplicationWindow {
             RowLayout {
                 spacing: 18 * root.u
                 Image {
-                    source: "file:///usr/share/antu/antu-symbol.svg"
+                    source: Antu.symbolSource
                     sourceSize.width: 54 * root.u
                     sourceSize.height: 54 * root.u
                 }
@@ -157,7 +149,7 @@ ApplicationWindow {
                     text: "Observatorio"
                     color: root.ink
                     font.family: "Inter"
-                    font.pixelSize: 44 * root.u
+                    font.pixelSize: Antu.pixels(44, root.u)
                     font.weight: Font.Bold
                     font.variableAxes: ({ "opsz": 32 })
                 }
@@ -173,7 +165,7 @@ ApplicationWindow {
                 boundsBehavior: Flickable.StopAtBounds
                 readonly property int columnas: root.juego ? 2 : Math.max(2, Math.floor(width / (430 * root.u)))
                 cellWidth: width / columnas
-                cellHeight: cellWidth * 215 / 460 + 112 * root.u
+                cellHeight: cellWidth * 215 / 460 + Math.max(112 * root.u, 52 * Antu.textFactor)
                 ScrollBar.vertical: ScrollBar { }
                 delegate: AbstractButton {
                     id: tarjeta
@@ -214,7 +206,7 @@ ApplicationWindow {
                                     elide: Text.ElideRight
                                     color: root.ink
                                     font.family: "Inter"
-                                    font.pixelSize: 24 * root.u
+                                    font.pixelSize: Antu.pixels(24, root.u)
                                     font.weight: Font.DemiBold
                                 }
                                 RowLayout {
@@ -232,7 +224,7 @@ ApplicationWindow {
                                         elide: Text.ElideRight
                                         color: root.ink2
                                         font.family: "Inter"
-                                        font.pixelSize: 20 * root.u
+                                        font.pixelSize: Antu.pixels(20, root.u)
                                     }
                                 }
                             }
@@ -241,7 +233,7 @@ ApplicationWindow {
                                 text: tarjeta.modelData.fps
                                 color: root.ink
                                 font.family: "Inter"
-                                font.pixelSize: 38 * root.u
+                                font.pixelSize: Antu.pixels(38, root.u)
                                 font.weight: Font.Bold
                             }
                             Text {
@@ -252,7 +244,7 @@ ApplicationWindow {
                                 text: "fps"
                                 color: root.ink3
                                 font.family: "Inter"
-                                font.pixelSize: 19 * root.u
+                                font.pixelSize: Antu.pixels(19, root.u)
                             }
                         }
                     }
@@ -265,23 +257,32 @@ ApplicationWindow {
                 text: "Antu mide desde afuera, sin cargar nada dentro del juego. Todo se queda en este equipo."
                 color: root.ink3
                 font.family: "Inter"
-                font.pixelSize: 18 * root.u
+                font.pixelSize: Antu.pixels(18, root.u)
             }
         }
 
         // La carta del juego elegido.
         Rectangle {
-            Layout.fillWidth: false
-            Layout.preferredWidth: 1020 * root.u
+            Layout.fillWidth: root.compacta
+            Layout.preferredWidth: root.compacta ? root.width : 1020 * root.u
             Layout.fillHeight: true
             visible: root.juego !== null
             color: root.superficie
             border.width: 1
-            border.color: Qt.rgba(1, 1, 1, 0.14)
+            border.color: Antu.softEdge
 
-            ColumnLayout {
+            FocusScroll {
                 anchors.fill: parent
                 anchors.margins: 44 * root.u
+                clip: true
+                contentWidth: width
+                contentHeight: Math.max(height, contenido.implicitHeight)
+                boundsBehavior: Flickable.StopAtBounds
+                ScrollBar.vertical: ScrollBar { }
+            ColumnLayout {
+                id: contenido
+                width: parent.width
+                height: Math.max(parent.height, implicitHeight)
                 spacing: 16 * root.u
 
                 RowLayout {
@@ -293,7 +294,7 @@ ApplicationWindow {
                         elide: Text.ElideRight
                         color: root.ink3
                         font.family: "Inter"
-                        font.pixelSize: 24 * root.u
+                        font.pixelSize: Antu.pixels(24, root.u)
                         font.weight: Font.Medium
                     }
                     LavaButton {
@@ -310,7 +311,7 @@ ApplicationWindow {
                     wrapMode: Text.WordWrap
                     color: root.ink
                     font.family: "Inter"
-                    font.pixelSize: 40 * root.u
+                    font.pixelSize: Antu.pixels(40, root.u)
                     font.weight: Font.Bold
                     font.variableAxes: ({ "opsz": 32 })
                 }
@@ -324,6 +325,7 @@ ApplicationWindow {
                     id: charla
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    Layout.minimumHeight: 220 * Antu.textFactor
                     Layout.topMargin: 12 * root.u
                     visible: root.conversando
                     clip: true
@@ -345,8 +347,8 @@ ApplicationWindow {
                             height: escrito.implicitHeight + 36 * root.u
                             radius: 18 * root.u
                             gradient: Gradient {
-                                GradientStop { position: 0; color: mensaje.deAntu ? "#2B2B32" : "#3A3A42" }
-                                GradientStop { position: 1; color: mensaje.deAntu ? "#1F1F25" : "#26262C" }
+                                GradientStop { position: 0; color: mensaje.deAntu ? Antu.raised : Antu.raisedHover }
+                                GradientStop { position: 1; color: Antu.window }
                             }
                             border.width: 1
                             border.color: mensaje.deAntu ? Qt.rgba(1, 0.353, 0.122, 0.35) : Qt.rgba(1, 1, 1, 0.14)
@@ -367,7 +369,7 @@ ApplicationWindow {
                                 wrapMode: Text.WordWrap
                                 color: mensaje.texto.length > 0 ? root.ink : root.ink3
                                 font.family: "Inter"
-                                font.pixelSize: 24 * root.u
+                                font.pixelSize: Antu.pixels(24, root.u)
                                 lineHeight: 1.2
                             }
                         }
@@ -379,7 +381,7 @@ ApplicationWindow {
                         text: "Antu responde con tus mediciones y sin internet, pero puede equivocarse. Solo responde: no cambia nada en tu equipo."
                         color: root.ink3
                         font.family: "Inter"
-                        font.pixelSize: 19 * root.u
+                        font.pixelSize: Antu.pixels(19, root.u)
                     }
                 }
 
@@ -388,7 +390,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.topMargin: 12 * root.u
-                    Layout.minimumHeight: 240 * root.u
+                    Layout.minimumHeight: Math.max(280, 190 * Antu.textFactor)
                     visible: !root.conversando
 
                     Canvas {
@@ -397,10 +399,16 @@ ApplicationWindow {
                         visible: !root.enTabla && root.hayFotogramas
                         property var datos: root.juego
                         property int encima: -1
-                        readonly property real izq: 66 * root.u
-                        readonly property real der: 104 * root.u
-                        readonly property real arriba: 56 * root.u
-                        readonly property real abajo: 40 * root.u
+                        activeFocusOnTab: true
+                        Accessible.role: Accessible.Chart
+                        Accessible.name: "Rendimiento por sesión. Usa las flechas o Ver tabla para leer las medidas."
+                        Keys.onLeftPressed: encima = Math.max(0, encima - 1)
+                        Keys.onRightPressed: encima = Math.min(datos ? datos.sesiones.length - 1 : 0, encima + 1)
+                        onActiveFocusChanged: { if (activeFocus && encima < 0) encima = 0; requestPaint() }
+                        readonly property real izq: Math.max(66 * root.u, Antu.pixels(19, root.u) * 2)
+                        readonly property real der: Math.max(104 * root.u, Antu.pixels(22, root.u) * 4.8)
+                        readonly property real arriba: Math.max(56 * root.u, Antu.pixels(19, root.u) * 2.6)
+                        readonly property real abajo: Math.max(40 * root.u, Antu.pixels(19, root.u) * 1.7)
                         readonly property real tope: {
                             let m = 0
                             if (datos)
@@ -424,8 +432,8 @@ ApplicationWindow {
                             c.reset()
                             if (!datos)
                                 return
-                            const fuente = Math.round(19 * root.u) + "px Inter"
-                            const fuerte = "600 " + Math.round(22 * root.u) + "px Inter"
+                            const fuente = Antu.pixels(19, root.u) + "px Inter"
+                            const fuerte = "600 " + Antu.pixels(22, root.u) + "px Inter"
                             c.textBaseline = "middle"
 
                             // Eje: una línea tenue por cada 20 fotogramas, siempre desde cero.
@@ -433,13 +441,13 @@ ApplicationWindow {
                             c.font = fuente
                             c.textAlign = "right"
                             for (let v = 0; v <= tope; v += paso) {
-                                c.strokeStyle = "rgba(255,255,255,0.09)"
+                                c.strokeStyle = Antu.softEdge.toString()
                                 c.lineWidth = 1
                                 c.beginPath()
                                 c.moveTo(izq, Math.round(posY(v)) + 0.5)
                                 c.lineTo(width - der, Math.round(posY(v)) + 0.5)
                                 c.stroke()
-                                c.fillStyle = "#A1A1A6"
+                c.fillStyle = Antu.muted.toString()
                                 c.fillText(v, izq - 14 * root.u, posY(v))
                             }
 
@@ -448,13 +456,13 @@ ApplicationWindow {
                             for (let i = 1; i < datos.tramos.length; i++) {
                                 const t = datos.tramos[i]
                                 const raya = Math.round((posX(t.desde - 1) + posX(t.desde)) / 2) + 0.5
-                                c.strokeStyle = "rgba(255,255,255,0.42)"
+                                c.strokeStyle = Antu.muted.toString()
                                 c.lineWidth = 1
                                 c.beginPath()
                                 c.moveTo(raya, arriba - 8 * root.u)
                                 c.lineTo(raya, height - abajo)
                                 c.stroke()
-                                c.fillStyle = "#C7C7CC"
+                                c.fillStyle = Antu.secondary.toString()
                                 c.fillText("Actualización del " + t.fecha, raya, arriba - 28 * root.u)
                             }
 
@@ -464,7 +472,7 @@ ApplicationWindow {
                                     continue
                                 const a = posX(t.desde) - (t.desde === t.hasta ? 18 * root.u : 0)
                                 const b = posX(t.hasta) + (t.desde === t.hasta ? 18 * root.u : 0)
-                                c.strokeStyle = "rgba(245,245,247,0.55)"
+                                c.strokeStyle = Antu.secondary.toString()
                                 c.lineWidth = 1
                                 c.beginPath()
                                 c.moveTo(a, Math.round(posY(t.fps)) + 0.5)
@@ -473,7 +481,7 @@ ApplicationWindow {
                             }
 
                             // Las sesiones: cada una un punto; sin fotogramas medidos, no hay punto.
-                            c.strokeStyle = "#FF5A1F"
+                            c.strokeStyle = Antu.lava.toString()
                             c.lineWidth = 2
                             c.lineJoin = "round"
                             c.lineCap = "round"
@@ -501,7 +509,7 @@ ApplicationWindow {
                                 c.beginPath()
                                 c.arc(posX(i), posY(s.fps), radio + 2, 0, 2 * Math.PI)
                                 c.fill()
-                                c.fillStyle = "#FF5A1F"
+                                c.fillStyle = Antu.lava.toString()
                                 c.beginPath()
                                 c.arc(posX(i), posY(s.fps), radio, 0, 2 * Math.PI)
                                 c.fill()
@@ -510,7 +518,7 @@ ApplicationWindow {
                             // El valor de cada nivel, al final de su tramo y solo ahí.
                             c.font = fuerte
                             c.textAlign = "left"
-                            c.fillStyle = "#F5F5F7"
+                            c.fillStyle = Antu.ink.toString()
                             const ultimo = datos.tramos[datos.tramos.length - 1]
                             if (ultimo.fps > 0)
                                 c.fillText(Math.round(ultimo.fps) + " fps", posX(ultimo.hasta) + 14 * root.u, posY(ultimo.fps))
@@ -523,7 +531,7 @@ ApplicationWindow {
 
                             // Primera y última fecha.
                             c.font = fuente
-                            c.fillStyle = "#A1A1A6"
+                            c.fillStyle = Antu.muted.toString()
                             c.textAlign = "left"
                             c.fillText(datos.sesiones[0].fecha, izq, height - abajo + 22 * root.u)
                             c.textAlign = "right"
@@ -557,7 +565,7 @@ ApplicationWindow {
                             width: textoSesion.implicitWidth + 28 * root.u
                             height: textoSesion.implicitHeight + 20 * root.u
                             radius: 10 * root.u
-                            color: "#26262D"
+                            color: Antu.raised
                             border.width: 1
                             border.color: Qt.rgba(1, 1, 1, 0.18)
                             Text {
@@ -566,7 +574,7 @@ ApplicationWindow {
                                 text: parent.sesion ? parent.sesion.fecha + ": " + Math.round(parent.sesion.fps) + " fps, " + parent.sesion.minutos + " min" : ""
                                 color: root.ink
                                 font.family: "Inter"
-                                font.pixelSize: 19 * root.u
+                                font.pixelSize: Antu.pixels(19, root.u)
                             }
                         }
                     }
@@ -589,7 +597,7 @@ ApplicationWindow {
                                     text: modelData
                                     color: root.ink3
                                     font.family: "Inter"
-                                    font.pixelSize: 19 * root.u
+                                    font.pixelSize: Antu.pixels(19, root.u)
                                 }
                             }
                         }
@@ -612,7 +620,7 @@ ApplicationWindow {
                                     textFormat: Text.PlainText
                                     color: root.ink2
                                     font.family: "Inter"
-                                    font.pixelSize: 21 * root.u
+                                    font.pixelSize: Antu.pixels(21, root.u)
                                     font.features: ({ "tnum": 1 })
                                 }
                             }
@@ -701,7 +709,7 @@ ApplicationWindow {
                                         GradientStop { position: 1; color: sugerencia.hovered ? Qt.rgba(1, 1, 1, 0.1) : Qt.rgba(1, 1, 1, 0.05) }
                                     }
                                     border.width: sugerencia.visualFocus ? 2.5 * root.u : 1
-                                    border.color: sugerencia.visualFocus ? "#FFFFFF" : Qt.rgba(1, 1, 1, 0.14)
+                                    border.color: sugerencia.visualFocus ? Antu.ink : Antu.edge
                                     Reflejo {
                                         anchors.left: parent.left
                                         anchors.right: parent.right
@@ -715,7 +723,7 @@ ApplicationWindow {
                                         text: sugerencia.modelData
                                         color: root.ink
                                         font.family: "Inter"
-                                        font.pixelSize: 19 * root.u
+                                        font.pixelSize: Antu.pixels(19, root.u)
                                     }
                                 }
                             }
@@ -753,6 +761,7 @@ ApplicationWindow {
                         }
                     }
                 }
+            }
             }
         }
     }

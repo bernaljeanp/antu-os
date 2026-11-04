@@ -13,13 +13,14 @@ ApplicationWindow {
     minimumHeight: 680
     visible: false
     title: "Zenit"
-    color: "#0B0B0E"
+    color: Antu.base
 
-    readonly property real u: 0.62
-    readonly property color ink: "#F5F5F7"
-    readonly property color ink2: "#C7C7CC"
-    readonly property color ink3: "#8E8E93"
-    readonly property color lava: "#FF5A1F"
+    readonly property real u: 0.72
+    readonly property bool compacta: width < 1120 || Antu.textFactor > 1.4
+    readonly property color ink: Antu.ink
+    readonly property color ink2: Antu.secondary
+    readonly property color ink3: Antu.muted
+    readonly property color lava: Antu.lava
 
     readonly property var e: backend.estado
     readonly property bool conectado: backend.conectado
@@ -58,6 +59,7 @@ ApplicationWindow {
         property string titulo
         default property alias contenido: cuerpo.data
         Layout.fillWidth: true
+        Layout.minimumWidth: 0
         implicitHeight: columna.implicitHeight + 64 * root.u
         radius: 22 * root.u
         color: Qt.rgba(1, 1, 1, 0.045)
@@ -71,16 +73,20 @@ ApplicationWindow {
             anchors.margins: 32 * root.u
             spacing: 22 * root.u
             Text {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
+                wrapMode: Text.WordWrap
                 visible: text.length > 0
                 text: titulo
                 color: root.ink
                 font.family: "Inter"
-                font.pixelSize: 30 * root.u
+                font.pixelSize: Antu.pixels(30, root.u)
                 font.weight: Font.DemiBold
             }
             ColumnLayout {
                 id: cuerpo
                 Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 spacing: 18 * root.u
             }
         }
@@ -88,11 +94,12 @@ ApplicationWindow {
 
     component Nota: Text {
         Layout.fillWidth: true
+        Layout.minimumWidth: 0
         textFormat: Text.PlainText  // nombres de juegos que vienen de procesos ajenos
         wrapMode: Text.WordWrap
         color: root.ink2
         font.family: "Inter"
-        font.pixelSize: 22 * root.u
+        font.pixelSize: Antu.pixels(22, root.u)
         lineHeight: 1.15
     }
 
@@ -103,10 +110,10 @@ ApplicationWindow {
         property string etiqueta
         property string pie
         property real mostrado: valor
-        Behavior on mostrado { NumberAnimation { duration: 700; easing.type: Easing.OutCubic } }
+        Behavior on mostrado { NumberAnimation { duration: Antu.duration(700); easing.type: Easing.OutCubic } }
         onMostradoChanged: lienzo.requestPaint()
-        implicitWidth: 300 * root.u
-        implicitHeight: 300 * root.u
+        implicitWidth: Math.max(300 * root.u, Antu.pixels(84, root.u) * 2.5)
+        implicitHeight: implicitWidth
         Canvas {
             id: lienzo
             anchors.fill: parent
@@ -141,7 +148,7 @@ ApplicationWindow {
                 text: dial.valor > 0 ? Math.round(dial.mostrado) + "°" : "—"
                 color: root.ink
                 font.family: "Inter"
-                font.pixelSize: 84 * root.u
+                font.pixelSize: Antu.pixels(84, root.u)
                 font.weight: Font.Bold
                 font.features: ({ "tnum": 1 })
             }
@@ -150,7 +157,7 @@ ApplicationWindow {
                 text: dial.etiqueta
                 color: root.ink2
                 font.family: "Inter"
-                font.pixelSize: 22 * root.u
+                font.pixelSize: Antu.pixels(22, root.u)
             }
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -158,7 +165,7 @@ ApplicationWindow {
                 text: dial.pie
                 color: root.ink3
                 font.family: "Inter"
-                font.pixelSize: 19 * root.u
+                font.pixelSize: Antu.pixels(19, root.u)
                 font.features: ({ "tnum": 1 })
             }
         }
@@ -169,7 +176,7 @@ ApplicationWindow {
         property string texto
         property bool encendido: false
         implicitWidth: chipTexto.implicitWidth + 36 * root.u
-        implicitHeight: 40 * root.u
+        implicitHeight: chipTexto.implicitHeight + 12 * root.u
         radius: height / 2
         gradient: Gradient {
             GradientStop { position: 0; color: chip.encendido ? Qt.rgba(1, 0.42, 0.18, 0.34) : Qt.rgba(1, 1, 1, 0.13) }
@@ -190,7 +197,7 @@ ApplicationWindow {
             text: parent.texto
             color: root.ink
             font.family: "Inter"
-            font.pixelSize: 19 * root.u
+            font.pixelSize: Antu.pixels(19, root.u)
             font.weight: Font.Medium
         }
     }
@@ -203,7 +210,8 @@ ApplicationWindow {
         property bool activa: false
         property bool tenue: false  // activa por el modo automático, no elegida a mano
         Layout.fillWidth: true
-        implicitHeight: 96 * root.u
+        Layout.minimumWidth: 0
+        implicitHeight: Math.max(96 * root.u, opcionContenido.implicitHeight + 16 * root.u)
         Accessible.name: titulo + (activa ? ", activo" : "")
         background: Item {
             Halo {
@@ -234,9 +242,9 @@ ApplicationWindow {
                 anchors.fill: parent
                 radius: 16 * root.u
                 gradient: Gradient {
-                    GradientStop { position: 0; color: opcion.enabled ? "#54545E" : "#2E2E34" }
-                    GradientStop { position: 0.2; color: "#2A2A31" }
-                    GradientStop { position: 1; color: "#0E0E11" }
+                    GradientStop { position: 0; color: opcion.enabled ? Antu.edge : Antu.softEdge }
+                    GradientStop { position: 0.2; color: Antu.raised }
+                    GradientStop { position: 1; color: Antu.window }
                 }
                 Rectangle {  // la cara
                     anchors.fill: parent
@@ -244,8 +252,8 @@ ApplicationWindow {
                     anchors.bottomMargin: 3 * root.u
                     radius: 15 * root.u
                     gradient: Gradient {
-                        GradientStop { position: 0; color: opcion.hovered ? "#36363E" : "#2D2D34" }
-                        GradientStop { position: 1; color: opcion.hovered ? "#25252B" : "#1D1D22" }
+                        GradientStop { position: 0; color: opcion.hovered ? Antu.raisedHover : Antu.raised }
+                        GradientStop { position: 1; color: Antu.window }
                     }
                 }
             }
@@ -260,29 +268,36 @@ ApplicationWindow {
             }
         }
         contentItem: Column {
+            id: opcionContenido
             spacing: 4 * root.u
             topPadding: 18 * root.u
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - 24 * root.u
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
                 text: opcion.titulo
                 color: opcion.enabled ? root.ink : root.ink3
                 font.family: "Inter"
-                font.pixelSize: 23 * root.u
+                font.pixelSize: Antu.pixels(23, root.u)
                 font.weight: Font.DemiBold
             }
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - 24 * root.u
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
                 text: opcion.detalle
                 color: root.ink2
                 font.family: "Inter"
-                font.pixelSize: 18 * root.u
+                font.pixelSize: Antu.pixels(18, root.u)
             }
         }
     }
 
     // ---------- Página ----------
 
-    Flickable {
+    FocusScroll {
         id: pagina
         anchors.fill: parent
         contentHeight: contenido.implicitHeight + 120 * root.u
@@ -297,32 +312,42 @@ ApplicationWindow {
             spacing: 26 * root.u
 
             // Cabecera: marca y estado del servicio.
-            RowLayout {
+            GridLayout {
+                Layout.fillWidth: true
+                    columns: root.compacta ? 2 : 4
                 Layout.bottomMargin: 8 * root.u
-                spacing: 18 * root.u
+                columnSpacing: 18 * root.u
+                rowSpacing: 18 * root.u
                 Image {
                     source: "file:///usr/share/icons/hicolor/256x256/apps/zenit.png"
                     sourceSize.width: 64 * root.u
                     sourceSize.height: 64 * root.u
                 }
                 ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     spacing: 2 * root.u
                     Text {
                         text: "Zenit"
                         color: root.ink
                         font.family: "Inter"
-                        font.pixelSize: 44 * root.u
+                        font.pixelSize: Antu.pixels(44, root.u)
                         font.weight: Font.Bold
                     }
                     Text {
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: 0
+                        wrapMode: Text.WordWrap
                         text: "Rendimiento, luces y batería de tu equipo"
                         color: root.ink2
                         font.family: "Inter"
-                        font.pixelSize: 21 * root.u
+                        font.pixelSize: Antu.pixels(21, root.u)
                     }
                 }
-                Item { Layout.fillWidth: true }
+                Item { Layout.fillWidth: true
+                Layout.minimumWidth: 0; visible: !root.compacta }
                 Chip {
+                    Layout.columnSpan: root.compacta ? 2 : 1
                     texto: !root.conectado ? "Servicio sin respuesta"
                          : root.nombrePerfil(root.e.perfil) + (root.e.cargador ? " · con cargador" : " · con batería")
                     encendido: root.conectado
@@ -331,9 +356,12 @@ ApplicationWindow {
 
             // 1. Temperaturas y diagnóstico en palabras simples.
             Panel {
-                RowLayout {
+                GridLayout {
+                    columns: root.compacta ? 2 : 4
                     Layout.fillWidth: true
-                    spacing: 36 * root.u
+                    Layout.minimumWidth: 0
+                    columnSpacing: 36 * root.u
+                    rowSpacing: 36 * root.u
                     Dial {
                         valor: root.cpu
                         etiqueta: "Procesador"
@@ -349,11 +377,14 @@ ApplicationWindow {
                         Layout.topMargin: 30 * root.u
                         Layout.bottomMargin: 30 * root.u
                         implicitWidth: 1
+                        visible: !root.compacta
                         color: Qt.rgba(1, 1, 1, 0.10)
                     }
                     ColumnLayout {
                         id: diagnostico
+                        Layout.columnSpan: root.compacta ? 2 : 1
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         spacing: 14 * root.u
                         readonly property var mensaje:
                             !root.conectado ? ["El servicio Zenit no responde",
@@ -369,16 +400,18 @@ ApplicationWindow {
                                               + (root.auto ? " Zenit lo cambia solo al abrir un juego." : "")]
                         Text {
                             Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             wrapMode: Text.WordWrap
                             text: diagnostico.mensaje[0]
                             color: root.ink
                             font.family: "Inter"
-                            font.pixelSize: 40 * root.u
+                            font.pixelSize: Antu.pixels(40, root.u)
                             font.weight: Font.Bold
                         }
                         Nota { text: diagnostico.mensaje[1] }
                         Flow {
                             Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             Layout.topMargin: 6 * root.u
                             spacing: 10 * root.u
                             visible: root.conectado
@@ -393,9 +426,12 @@ ApplicationWindow {
             // 2. Perfil térmico.
             Panel {
                 titulo: "Perfil térmico"
-                RowLayout {
+                GridLayout {
+                    columns: root.compacta ? 1 : 4
                     Layout.fillWidth: true
-                    spacing: 12 * root.u
+                    Layout.minimumWidth: 0
+                    columnSpacing: 12 * root.u
+                    rowSpacing: 12 * root.u
                     Repeater {
                         model: [
                             { id: "quiet", detalle: "Ventiladores bajos" },
@@ -416,13 +452,14 @@ ApplicationWindow {
                 }
                 RowLayout {
                     Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     spacing: 18 * root.u
                     Switch {
                         checked: root.auto
                         enabled: root.perfiles.length > 0
                         text: "Automático"
                         font.family: "Inter"
-                        font.pixelSize: 23 * root.u
+                        font.pixelSize: Antu.pixels(23, root.u)
                         palette.windowText: root.ink
                         palette.text: root.ink
                         palette.highlight: "#E2480F"
@@ -439,14 +476,18 @@ ApplicationWindow {
             }
 
             // 3. Calor en el tiempo y refrigeración.
-            RowLayout {
+            GridLayout {
+                columns: root.compacta ? 1 : 2
                 Layout.fillWidth: true
-                spacing: 26 * root.u
+                Layout.minimumWidth: 0
+                columnSpacing: 26 * root.u
+                rowSpacing: 26 * root.u
                 Panel {
                     Layout.horizontalStretchFactor: 2
                     titulo: "Procesador, últimos 2 minutos"
                     Canvas {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         implicitHeight: 230 * root.u
                         property var datos: root.historia
                         onDatosChanged: requestPaint()
@@ -480,7 +521,7 @@ ApplicationWindow {
                     Nota {
                         text: "La línea punteada marca los 100 °C, donde el procesador empieza a frenarse solo para no calentarse más."
                         color: root.ink3
-                        font.pixelSize: 19 * root.u
+                        font.pixelSize: Antu.pixels(19, root.u)
                     }
                 }
                 Panel {
@@ -503,7 +544,7 @@ ApplicationWindow {
                                     to: 360
                                     loops: Animation.Infinite
                                     duration: Math.max(600, 6000000 / Math.max(1, filaVentilador.rpm))
-                                    running: root.visible && filaVentilador.rpm > 0
+                                    running: root.visible && Antu.motionFactor > 0 && filaVentilador.rpm > 0
                                 }
                             }
                             ColumnLayout {
@@ -514,13 +555,13 @@ ApplicationWindow {
                                         : "Ventilador " + filaVentilador.modelData
                                     color: root.ink2
                                     font.family: "Inter"
-                                    font.pixelSize: 20 * root.u
+                                    font.pixelSize: Antu.pixels(20, root.u)
                                 }
                                 Text {
                                     text: root.miles(filaVentilador.rpm) + " rpm"
                                     color: root.ink
                                     font.family: "Inter"
-                                    font.pixelSize: 30 * root.u
+                                    font.pixelSize: Antu.pixels(30, root.u)
                                     font.weight: Font.DemiBold
                                     font.features: ({ "tnum": 1 })
                                 }
@@ -535,9 +576,12 @@ ApplicationWindow {
             }
 
             // 4. Luces y batería.
-            RowLayout {
+            GridLayout {
+                columns: root.compacta ? 1 : 2
                 Layout.fillWidth: true
-                spacing: 26 * root.u
+                Layout.minimumWidth: 0
+                columnSpacing: 26 * root.u
+                rowSpacing: 26 * root.u
                 Panel {
                     id: panelLuces
                     Layout.horizontalStretchFactor: 3
@@ -548,6 +592,7 @@ ApplicationWindow {
                     Rectangle {
                         id: teclado
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         implicitHeight: 180 * root.u
                         radius: 18 * root.u
                         color: "#141418"
@@ -556,13 +601,13 @@ ApplicationWindow {
                         property color auroraTono: "#19FF7A"
                         readonly property color luz: panelLuces.tono === "AURORA" ? auroraTono : "#" + panelLuces.tono
                         SequentialAnimation on auroraTono {
-                            running: root.visible && panelLuces.tono === "AURORA"
+                            running: root.visible && Antu.motionFactor > 0 && panelLuces.tono === "AURORA"
                             loops: Animation.Infinite
-                            ColorAnimation { to: "#00E0D0"; duration: 1800 }
-                            ColorAnimation { to: "#1E7BFF"; duration: 1800 }
-                            ColorAnimation { to: "#7A3CFF"; duration: 1800 }
-                            ColorAnimation { to: "#D02BFF"; duration: 1800 }
-                            ColorAnimation { to: "#19FF7A"; duration: 1800 }
+                            ColorAnimation { to: "#00E0D0"; duration: Antu.duration(1800) }
+                            ColorAnimation { to: "#1E7BFF"; duration: Antu.duration(1800) }
+                            ColorAnimation { to: "#7A3CFF"; duration: Antu.duration(1800) }
+                            ColorAnimation { to: "#D02BFF"; duration: Antu.duration(1800) }
+                            ColorAnimation { to: "#19FF7A"; duration: Antu.duration(1800) }
                         }
                         Column {
                             anchors.centerIn: parent
@@ -590,7 +635,7 @@ ApplicationWindow {
                                                 radius: parent.radius
                                                 color: teclado.luz
                                                 opacity: panelLuces.brillo / 100 * 0.55
-                                                Behavior on opacity { NumberAnimation { duration: 250 } }
+                                                Behavior on opacity { NumberAnimation { duration: Antu.duration(250) } }
                                             }
                                         }
                                     }
@@ -600,6 +645,7 @@ ApplicationWindow {
                     }
                     Flow {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         spacing: 14 * root.u
                         Repeater {
                             model: ["FF5A1F", "FFFFFF", "7CC4FF", "1E7BFF", "8A5CFF", "FF2D55", "FFB800", "30D158", "AURORA"]
@@ -629,16 +675,18 @@ ApplicationWindow {
                     }
                     RowLayout {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         spacing: 18 * root.u
                         Text {
                             text: "Brillo"
                             color: root.ink2
                             font.family: "Inter"
-                            font.pixelSize: 21 * root.u
+                            font.pixelSize: Antu.pixels(21, root.u)
                         }
                         Slider {
                             id: brillo
                             Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             from: 0
                             to: 100
                             stepSize: 10
@@ -657,7 +705,7 @@ ApplicationWindow {
                             text: Math.round(brillo.value) === 0 ? "Apagadas" : Math.round(brillo.value) + " %"
                             color: root.ink
                             font.family: "Inter"
-                            font.pixelSize: 21 * root.u
+                            font.pixelSize: Antu.pixels(21, root.u)
                             font.features: ({ "tnum": 1 })
                             Layout.preferredWidth: 110 * root.u
                         }
@@ -679,7 +727,7 @@ ApplicationWindow {
                         ]
                         delegate: Opcion {
                             required property var modelData
-                            implicitHeight: 84 * root.u
+                            implicitHeight: Math.max(84 * root.u, contentItem.implicitHeight + 16 * root.u)
                             titulo: modelData.titulo
                             detalle: modelData.detalle
                             enabled: panelBateria.disponible
@@ -692,7 +740,7 @@ ApplicationWindow {
                               ? "Queda guardado: vale aunque Zenit no esté abierto. Cargar menos desgasta menos la batería."
                               : "Este equipo no permite fijar el límite de carga desde Linux."
                         color: root.ink3
-                        font.pixelSize: 19 * root.u
+                        font.pixelSize: Antu.pixels(19, root.u)
                     }
                 }
             }
@@ -708,19 +756,23 @@ ApplicationWindow {
                 }
                 Repeater {
                     model: panelJuegos.lista
-                    delegate: RowLayout {
+                    delegate: GridLayout {
+                        columns: root.compacta ? 1 : 3
                         id: filaJuego
                         required property string modelData
                         readonly property string clave: modelData.toLowerCase()
                         Layout.fillWidth: true
-                        spacing: 16 * root.u
+                        Layout.minimumWidth: 0
+                        columnSpacing: 16 * root.u
+                        rowSpacing: 16 * root.u
                         Text {
                             Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             elide: Text.ElideRight
                             text: filaJuego.modelData
                             color: root.ink
                             font.family: "Inter"
-                            font.pixelSize: 23 * root.u
+                            font.pixelSize: Antu.pixels(23, root.u)
                             font.weight: Font.Medium
                         }
                         Chip {
@@ -761,22 +813,23 @@ ApplicationWindow {
         anchors.bottomMargin: 36 * root.u
         visible: opacity > 0
         opacity: root.avisoTexto.length > 0 ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on opacity { NumberAnimation { duration: Antu.duration(200) } }
         width: Math.min(avisoEtiqueta.implicitWidth + 56 * root.u, root.width - 80 * root.u)
         height: avisoEtiqueta.implicitHeight + 32 * root.u
         radius: height / 2
-        color: "#2A1714"
+        color: Antu.raised
         border.width: 1
         border.color: Qt.rgba(1, 0.44, 0.41, 0.6)
         Text {
             id: avisoEtiqueta
+                            Accessible.role: Accessible.AlertMessage
             anchors.centerIn: parent
             width: Math.min(implicitWidth, root.width - 136 * root.u)
             wrapMode: Text.WordWrap
             text: root.avisoTexto
             color: root.ink
             font.family: "Inter"
-            font.pixelSize: 21 * root.u
+            font.pixelSize: Antu.pixels(21, root.u)
         }
         Timer {
             id: avisoReloj

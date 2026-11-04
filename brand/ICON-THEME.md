@@ -17,7 +17,7 @@ Los dispositivos conservan su silueta física; las apps usan el cuadrado redonde
 
 En las carpetas de 16–32 el grabado crece de 0,69 a 0,78 de escala. La papelera llena contiene una hoja visible; el teclado pasa de nueve a cinco columnas; desaparecen tornillos, óptica frontal del teléfono, pequeños surcos, ranuras de impresora y palancas pequeñas del mando. La firma de color de los folios gana grosor. A 48 px en adelante vuelve el detalle progresivo. La pestaña de Juegos y las siluetas de casa, descarga, música, imagen y vídeo permanecen reconocibles.
 
-Los íconos de 256 se renderizan nativamente a 1024×1024 y se reducen; los demás tienen supermuestreo de su propia escena (mínimo 128×128), nunca ampliación del resultado final. Los renders ópticos se guardan en `brand/masters/icon-theme/`, dentro de la ruta de másteres ya excluida de Git. Todos los PNG necesarios para la distro están en el tema y sí son archivos del repositorio.
+Los íconos de 256 se renderizan nativamente a 1024×1024 y se reducen; los demás tienen supermuestreo de su propia escena (mínimo 128×128), nunca ampliación del resultado final. Los renders ópticos se guardan en `brand/masters/icon-theme-v2/`, dentro de la ruta de másteres ya excluida de Git. Todos los PNG necesarios para la distro están en el tema y sí son archivos del repositorio.
 
 **Integración.** Solo cambia `Theme=breeze-dark` por `Theme=Antu` en el bloque `[kdeglobals][Icons]` de los defaults de `org.antuos.desktop` y `org.antuos.mac`. El arte aprobado, sus generadores, hicolor, los fondos y Plymouth se conservan byte por byte.
 
@@ -32,8 +32,17 @@ Los íconos de 256 se renderizan nativamente a 1024×1024 y se reducen; los dem�
 
 Las vistas usan los PNG finales del tema. Esta ruta ya está excluida de Git; se conserva localmente y se reconstruye con el generador.
 
-**Fuentes y regeneración.** Se añadieron `scripts/antu_icon_catalog.py`, `render_icon_theme.py`, `make_icon_theme.py` y `preview_icon_theme.py`. El renderer importa las funciones de geometría y luz de `render_art.py` sin modificarlo ni invocar su exportación. Solo escribe sus nuevas escenas bajo `brand/masters/icon-theme/`. No requiere imágenes de stock, red ni modelos generativos.
+**Fuentes y regeneración.** Se añadieron `scripts/antu_icon_catalog.py`, `render_icon_theme.py`, `make_icon_theme.py` y `preview_icon_theme.py`. El renderer importa las funciones de geometría y luz de `render_art.py` sin modificarlo ni invocar su exportación. Solo escribe sus nuevas escenas bajo `brand/masters/icon-theme-v2/`. No requiere imágenes de stock, red ni modelos generativos.
 
 `python scripts/make_icon_theme.py --render` renderiza las escenas que falten y empaqueta el tema (Blender 5.2 y Pillow). Sin `--render`, exporta los renders existentes, genera el índice, las vistas y valida. `--check` comprueba el tema instalado. Para rehacer deliberadamente una escena nueva: `blender -b --python-exit-code 1 -P scripts/render_icon_theme.py -- --only folder-games --sizes 16,22,24,32 --force`; después volver a empaquetar. No se ejecuta `make_brand.py` ni `make_wallpapers.py`.
 
 **Inventario y verificación.** [icon-theme-files.csv](icon-theme-files.csv) lista cada archivo creado o cambiado, con tamaño y SHA-256, distinguiendo los renders y las vistas locales excluidos de Git; [icon-theme-validation.json](icon-theme-validation.json) registra nombres, dimensiones, transparencia, licencia, contextos, herencia, integración y LF. El tema instalado ocupa 2,73 MB. Los hashes de 187 archivos del arte aprobado coinciden con los anteriores al encargo. Se revisaron visualmente las tres familias y los tamaños pequeños. La integración se verificó estáticamente en Windows; falta comprobar el tema en una sesión Linux/Dolphin real. No se hizo commit ni push.
+
+
+## Revisión de contraste · 3 de noviembre de 2026
+
+Las carpetas ahora tienen cuerpo de grafito iluminado, canto continuo y pestaña con brillo propio. Se ajustaron de nuevo 16, 22, 24 y 32 px; también se corrigieron SSD, mando, altavoces, teléfono y otras siluetas que lo necesitaban. `start-here` conserva el símbolo aprobado, montado en una base de grafito para leerlo en claro y oscuro. Los másteres nuevos van en `brand/masters/icon-theme-v2`; no se sobrescriben los anteriores.
+
+Los 464 PNG pasan el objetivo de P90 ≥3 para borde y cuerpo sobre #141418 y #1C1C21. El mínimo del borde es 3,2664 y 3,0207, respectivamente. Sobre #F5F5F7 pasa el cuerpo; se publica también el contraste del canto de plata. Método y resultados por tamaño en `icon-theme-validation.json`, sin presentar este criterio operativo como una certificación WCAG. Las seis hojas/maqueta finales son 3840×2160 y muestran los recursos pequeños sin ampliar. La maqueta de Dolphin usa una ventana opaca #1C1C21.
+
+El tema instalado ocupa 3.05 MiB. La verificación adicional de integridad conserva 167 archivos de arte previo enumerados en `visual-refinement-validation.json` (conjunto explícito de fondos, símbolos, cursores, iconos originales y PNG anteriores de Plymouth). Las pruebas Qt nativas y QML de esta revisión no sustituyen la nueva sesión real de Dolphin ni el arranque físico. Véase `docs/REFINAMIENTO-VISUAL-2026-11-03.md`.

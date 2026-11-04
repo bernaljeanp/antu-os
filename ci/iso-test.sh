@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Prueba la ISO de Antu en QEMU con firmware UEFI (OVMF), sin red y con un disco NVMe vacío, en tres arranques:
-#   1. la ISO arranca hasta la sesión en vivo con el instalador abierto (arranque.png y en-vivo.png);
+#   1. la ISO arranca hasta la sesión en vivo con la bienvenida abierta (arranque.png y en-vivo.png);
 #   galería: las pantallas principales abiertas una a una en la sesión en vivo (galeria.png);
 #   arranque seguro: se registra la llave de Antu con el teclado y la ISO arranca (seguro-*.png, para la guía);
 #   2. el instalador copia Antu al disco sin internet (antu.prueba-instalar en la línea del kernel);
@@ -64,7 +64,7 @@ diagnostico_usb() {
     blkid -p "$lazo" "$lazo"p* || true
     ls -l /dev/disk/by-label/ || true
     losetup -d "$lazo"
-    local linea="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 console=ttyS0,115200 loglevel=7 rd.retry=40 rd.timeout=70"
+    local linea="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.overlay=1 console=ttyS0,115200 loglevel=7 rd.retry=40 rd.timeout=70"
     timeout 200 "${QEMU[@]}" "${USB[@]}" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$linea" \
         -serial file:"$OUT/serie-usb-diagnostico.log" || true
     grep -aiE "xhci|usb-storage|usb_storage|scsi|sd[a-z]|by-label|ANTU_LIVE|isofs|Warning|Failed|error" "$OUT/serie-usb-diagnostico.log" | tail -n 70 || true
@@ -96,15 +96,15 @@ if ! wait_for "$OUT/serie-en-vivo.log" "ANTU-LIVE: arranque OK" 600; then
     echo "::error::La ISO no arrancó hasta el inicio de sesión (ver en-vivo-fallo.png y serie-en-vivo.log)"
     exit 1
 fi
-sleep 75  # Plasma y el instalador abriéndose
+sleep 75  # Plasma y la bienvenida abriéndose
 shot en-vivo
 stop
 
 echo "== Galería: las pantallas principales en la sesión en vivo"
-cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 quiet splash antu.galeria"
+cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.overlay=1 quiet splash antu.galeria"
 "${QEMU[@]}" "${USB[@]}" -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
     -serial file:"$OUT/serie-galeria.log" &
-for vista in escritorio menu pantalla sonido bluetooth dolphin zenit informe biblioteca observatorio-ventana aviso notificacion bloqueo; do
+for vista in bienvenida escritorio menu pantalla sonido bluetooth dolphin zenit informe biblioteca observatorio-ventana aviso notificacion bloqueo; do
     if ! wait_for "$OUT/serie-galeria.log" "ANTU-GALERIA: $vista" 420; then
         echo "::warning::La galería no llegó a «$vista» (ver serie-galeria.log)"
         break
@@ -125,6 +125,18 @@ montage "$OUT"/galeria-*.png -tile 2x -geometry 960x540+6+6 -background black "$
 # El informe de verdad: quedó en la partición del USB y no trae direcciones de red.
 sed -n '/ANTU-INFORME-INICIO/,/ANTU-INFORME-FIN/p' "$OUT/serie-galeria.log" > "$OUT/informe-prueba.log"
 grep -qa 'informe-resultado {"usb": true' "$OUT/serie-galeria.log" || { echo "::error::El informe no quedó en el USB (ver serie-galeria.log)"; exit 1; }
+python3 - "$OUT/serie-galeria.log" <<'PY'
+import json, pathlib, sys
+lineas = pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines()
+registros = [json.loads(l.split("ANTU-GALERIA: registro ", 1)[1]) for l in lineas if "ANTU-GALERIA: registro {" in l]
+assert registros, "No hay estado del registro automático"
+r = registros[-1]
+assert r["activo"] and r["muestras"] >= 12 and r["segundos"] >= 60, r
+assert r["usb"] and r["ultimo_guardado"], "No se guardó el avance automático en ANTU_DATOS"
+assert any("ANTU-GALERIA: dns legible" in l for l in lineas), "DNS ilegible en el USB"
+assert any("ANTU-GALERIA: resolver active" in l for l in lineas), "El servicio DNS no está activo en el USB"
+print("Registro automático: sigue sin ventana, tiene muestras y guarda en el USB.")
+PY
 [ -s "$OUT/informe-prueba.log" ] || { echo "::error::El informe salió vacío"; exit 1; }
 if grep -qaE '\b([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}\b' "$OUT/informe-prueba.log"; then
     echo "::error::El informe trae una dirección de red (ver informe-prueba.log)"
@@ -175,7 +187,7 @@ if grep -qa "Key was rejected" "$OUT/serie-seguro.log"; then
 fi
 
 echo "== 2. El instalador copia Antu al disco, sin internet"
-cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.live.overlay.overlayfs=1 console=ttyS0,115200"
+cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.overlay=1 console=ttyS0,115200"
 cmdline+=" systemd.unit=multi-user.target antu.prueba-instalar=/dev/nvme0n1"
 timeout 3600 "${QEMU[@]}" -no-reboot -cdrom "$B/antu-live.iso" \
     -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \

@@ -26,7 +26,7 @@ Item {
             radio: tarjeta.radio
             tono: tarjeta.alerta ? "#FF5A1F" : "#000000"
             alcance: (tarjeta.alerta ? 20 : 12) * tarjeta.u
-            fuerza: tarjeta.alerta ? 0.4 : 0.34
+            fuerza: Antu.dark ? (tarjeta.alerta ? 0.18 : 0.18) : 0.08
             bajada: 7 * tarjeta.u
         }
         Rectangle {  // el canto
@@ -43,8 +43,8 @@ Item {
                 anchors.margins: tarjeta.activa ? 2 * tarjeta.u : 1
                 radius: tarjeta.radio - (tarjeta.activa ? 2 * tarjeta.u : 1)
                 gradient: Gradient {
-                    GradientStop { position: 0; color: tarjeta.encima ? "#2E2E35" : "#26262C" }
-                    GradientStop { position: 1; color: "#141418" }
+                    GradientStop { position: 0; color: tarjeta.encima ? Antu.raisedHover : Antu.raised }
+                    GradientStop { position: 1; color: Antu.window }
                 }
                 Portada {
                     id: portada
@@ -64,16 +64,16 @@ Item {
                     implicitWidth: textoInsignia.implicitWidth + 24 * tarjeta.u
                     implicitHeight: textoInsignia.implicitHeight + 12 * tarjeta.u
                     radius: 10 * tarjeta.u
-                    color: Qt.rgba(0, 0, 0, 0.72)
+                    color: Antu.raised
                     border.width: 1
                     border.color: Qt.rgba(1, 1, 1, 0.18)
                     Text {
                         id: textoInsignia
                         anchors.centerIn: parent
                         text: tarjeta.insignia
-                        color: "#F5F5F7"
+                        color: Antu.ink
                         font.family: "Inter"
-                        font.pixelSize: 17 * tarjeta.u
+                        font.pixelSize: Antu.pixels(17, tarjeta.u)
                         font.weight: Font.Medium
                     }
                 }
@@ -95,7 +95,7 @@ Item {
             radius: tarjeta.radio + 4 * tarjeta.u
             color: "transparent"
             border.width: 2.5 * tarjeta.u
-            border.color: "#FFFFFF"
+            border.color: Antu.ink
         }
     }
 }

@@ -139,15 +139,30 @@ SENSOR_CPU = {"coretemp": "Package", "k10temp": "Tctl"}  # Intel y AMD
 
 def sensores():
     temps, fans = {}, {}
-    for d in glob.glob(ruta("/sys/class/hwmon/hwmon*")):
+    paquetes = []
+    for d in sorted(glob.glob(ruta("/sys/class/hwmon/hwmon*"))):
         nombre = leer(d + "/name")
         for t in sorted(glob.glob(d + "/temp*_input")) if nombre == "alienware_wmi" or nombre in SENSOR_CPU else ():
             etiqueta = leer(t.replace("_input", "_label"), os.path.basename(t))
             if nombre in SENSOR_CPU and not etiqueta.startswith(SENSOR_CPU[nombre]):
                 continue
-            temps.setdefault("CPU" if nombre in SENSOR_CPU else etiqueta, int(leer(t, "0")) // 1000)
+            valor = leer(t)
+            try:
+                grados = int(valor) // 1000
+            except ValueError:
+                continue  # Un sensor ausente no es 0 °C ni debe derribar el servicio.
+            if nombre in SENSOR_CPU:
+                paquetes.append(grados)
+            else:
+                temps.setdefault(etiqueta, grados)
         for f in sorted(glob.glob(d + "/fan*_input")):  # de cualquier marca: asus, thinkpad, dell_smm…
-            fans[leer(f.replace("_input", "_label"), os.path.basename(f)[:4])] = int(leer(f, "0"))
+            valor = leer(f)
+            if valor.isdigit():
+                fans[leer(f.replace("_input", "_label"), os.path.basename(f)[:4])] = int(valor)
+    if paquetes:
+        # El sensor del procesador tiene prioridad sobre el del firmware, sin depender del orden de hwmon.
+        # En equipos con varios paquetes se muestra el más caliente, no una media que oculte un pico.
+        temps["CPU"] = max(paquetes)
     return temps, fans
 
 

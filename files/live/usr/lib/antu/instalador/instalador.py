@@ -145,6 +145,9 @@ def main():
     app.setWindowIcon(QIcon("/usr/share/antu/antu-symbol.svg"))
     backend = Backend(demo="--demo" in sys.argv)
     engine = QQmlApplicationEngine()
+    sys.path.insert(0, str(HERE.parent / "inicio"))
+    import preferencias
+    preferencias.instalar(app, engine)
     engine.rootContext().setContextProperty("backend", backend)
     engine.load(QUrl.fromLocalFile(str(HERE / "Instalador.qml")))
     if not engine.rootObjects():

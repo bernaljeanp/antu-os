@@ -16,14 +16,14 @@ import shutil
 import subprocess
 import sys
 
-from PIL import Image, PngImagePlugin
+from PIL import Image, ImageDraw, PngImagePlugin
 
 from antu_icon_catalog import ALIASES, CATALOG, CONTEXTS, SIZES
 from make_brand import symbol_png
 
 ROOT=Path(__file__).resolve().parent.parent
 THEME=ROOT/"files/system/usr/share/icons/Antu"
-MASTERS=ROOT/"brand/masters/icon-theme"
+MASTERS=ROOT/"brand/masters/icon-theme-v2"
 REVIEW=ROOT/"brand/previews/icon-theme"
 DEFAULTS=[ROOT/f"files/system/usr/share/plasma/look-and-feel/{name}/contents/defaults"
           for name in ("org.antuos.desktop","org.antuos.mac")]
@@ -70,7 +70,16 @@ def export():
             dest.mkdir(parents=True,exist_ok=True)
             for name in icons:
                 if name in ALIASES:continue
-                if name=="start-here":image=symbol_png(size)
+                if name=="start-here":
+                    # El símbolo aprobado se monta en grafito; su dibujo original no se modifica.
+                    k=4
+                    image=Image.new("RGBA",(size*k,size*k))
+                    draw=ImageDraw.Draw(image)
+                    draw.rounded_rectangle((k,k,size*k-k-1,size*k-k-1),radius=size*k*0.22,
+                                           fill=(58,61,69,255),outline=(162,169,180,255),width=max(2,k))
+                    mark=symbol_png(round(size*k*0.72))
+                    image.alpha_composite(mark,((image.width-mark.width)//2,(image.height-mark.height)//2))
+                    image=image.resize((size,size),Image.Resampling.LANCZOS)
                 else:
                     source=Image.open(MASTERS/context/name/f"{size}.png").convert("RGBA")
                     if source.width<size or source.height<size:raise ValueError(f"Refusing upscale: {name} {size}")
@@ -89,6 +98,7 @@ def export():
 
 
 def check():
+    from icon_contrast import measure
     cp=configparser.ConfigParser(interpolation=None)
     cp.read(THEME/"index.theme",encoding="utf-8")
     assert cp["Icon Theme"]["Name"]=="Antu"
@@ -110,9 +120,10 @@ def check():
                 assert im.getextrema()[3]==(0,255),(path,"alpha")
                 assert im.info.get("License")=="CC-BY-SA-4.0"
                 assert im.getpixel((0,0))[3]==0 and im.getpixel((size-1,size-1))[3]==0
+                contrast = measure(im)
                 records.append({"path":path.relative_to(ROOT).as_posix(),"size":size,
                                 "context":context,"bytes":path.stat().st_size,
-                                "sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
+                                "sha256":hashlib.sha256(path.read_bytes()).hexdigest(), "contrast":contrast})
     for path in DEFAULTS:assert "[kdeglobals][Icons]\nTheme=Antu" in path.read_text(encoding="utf-8")
     assert len(records)==sum(len(v) for v in CATALOG.values())*len(SIZES)==464
     assert not any((THEME/d).exists() for d in ("actions","status","scalable"))
@@ -126,9 +137,16 @@ def check():
                 "22":"Heavy strokes, larger app motif; remove film perforations, bin grooves and small device machining.",
                 "24":"Heavy strokes, larger app motif; simplified graph, optical media, spreadsheet and terminal.",
                 "32":"Intermediate stroke, enlarged marks; simplified small features, retained two-note music and folder silhouettes."},
+            "contrast_method":{"threshold":3,"alpha_min":128,"outline":"alpha mask minus 3x3 erosion",
+                               "statistic":"discrete P90, minimum of the brightest tenth; final alpha composited over sRGB backgrounds",
+                               "backgrounds":{"panel":"#141418","window":"#1C1C21","light":"#F5F5F7"},
+                               "acceptance":"Dark: outline and visible P90 >=3. Light: visible-body P90 >=3; silver outline also reported."},
+            "contrast_failures":[r["path"] for r in records if not all(v["pass"] for v in r["contrast"].values())],
             "assets":records}
     (ROOT/"brand/icon-theme-validation.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8",newline="\n")
-    print("Antu: 58 names × 8 sizes = 464 transparent PNGs; 32 fixed directories; validation passed.")
+    if result["contrast_failures"]:
+        raise SystemExit("Contrast failed: " + ", ".join(result["contrast_failures"][:12]) + f" ({len(result['contrast_failures'])} total)")
+    print("Antu: 464 PNGs, 32 fixed directories; outline/visible P90 >=3 on dark, visible-body P90 >=3 on light.")
 
 
 def main():

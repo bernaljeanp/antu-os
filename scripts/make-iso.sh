@@ -11,26 +11,46 @@ set -euo pipefail
 IMAGE="${1:-ghcr.io/bernaljeanp/antu-nvidia:testing}"
 OUT="$PWD/iso-build"
 LABEL=ANTU_LIVE
-CMDLINE="root=live:CDLABEL=$LABEL rd.live.image rd.live.overlay.overlayfs=1 rd.driver.blacklist=nouveau modprobe.blacklist=nouveau quiet splash"
+CMDLINE="root=live:CDLABEL=$LABEL rd.live.image rd.overlay=1 rd.driver.blacklist=nouveau modprobe.blacklist=nouveau quiet splash"
 
 [ "$(id -u)" = 0 ] || { echo "Ejecútalo con sudo." >&2; exit 1; }
 mkdir -p "$OUT/iso/LiveOS" "$OUT/iso/antu" "$OUT/esp/loader/entries"
 
 # El sistema en vivo y la imagen que se instala son exactamente la misma versión.
 digest="$(skopeo inspect --format '{{.Digest}}' "docker://$IMAGE")"
-pinned="${IMAGE%:*}@$digest"
+repository="${IMAGE%@*}"
+case "${repository##*/}" in *:*) repository="${repository%:*}" ;; esac
+pinned="$repository@$digest"
 echo "Imagen: $pinned"
 echo "$digest" > "$OUT/digest"  # la versión exacta que se prueba y se promueve
-podman build -f Containerfile.live --build-arg BASE="$pinned" -t localhost/antu-live .
 # Se baja como la bajará cada equipo, exigiendo la firma con la llave de Antu: una versión sin ella no llega al USB.
 cat > "$OUT/politica.json" <<JSON
 {"default": [{"type": "reject"}],
- "transports": {"docker": {"${IMAGE%:*}": [{"type": "sigstoreSigned", "signedIdentity": {"type": "matchRepository"},
+ "transports": {"docker": {"$repository": [{"type": "sigstoreSigned", "signedIdentity": {"type": "matchRepository"},
                                             "keyPath": "$PWD/files/system/etc/pki/containers/antu.pub"}]}}}
 JSON
 skopeo --policy "$OUT/politica.json" --registries.d files/system/etc/containers/registries.d \
     copy --quiet --remove-signatures "docker://$pinned" "oci:$OUT/iso/antu/imagen"
 echo "Firma con la llave de Antu: correcta"
+
+# En workflow_run, la ISO debe corresponder al código de la compilación que la disparó.
+# Una etiqueta :testing que avanzó a otra imagen no puede producir una ISO mezclada.
+if [ -n "${ANTU_EXPECTED_BASE_REVISION:-}" ]; then
+    actual="$(podman run --rm --entrypoint /usr/bin/cat "$pinned" /usr/share/antu/revision)"
+    [ "$actual" = "$ANTU_EXPECTED_BASE_REVISION" ] || {
+        echo "La imagen es de $actual; esta prueba requiere $ANTU_EXPECTED_BASE_REVISION. No se crea la ISO." >&2
+        exit 1
+    }
+fi
+podman run --rm --entrypoint /usr/bin/cat "$pinned" /usr/share/antu/escritorio.json > "$OUT/escritorio-sistema.json"
+python3 - "$OUT/escritorio-sistema.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["phase"] == "system" and d["theme"] == "Antu" and d["style"] == "kvantum_available", d
+print("Escritorio integrado:", d["content_id"])
+PY
+podman build -f Containerfile.live --build-arg BASE="$pinned" -t localhost/antu-live .
+podman run --rm --entrypoint /usr/bin/cat localhost/antu-live /usr/share/antu/escritorio-live.json > "$OUT/escritorio-live.json"
 
 mnt="$(podman image mount localhost/antu-live)"
 kver="$(ls "$mnt/usr/lib/modules")"

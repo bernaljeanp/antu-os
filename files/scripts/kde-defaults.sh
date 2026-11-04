@@ -6,14 +6,18 @@
 # última clave repetida gana.
 set -euo pipefail
 
-mkdir -p /etc/xdg
-cat /usr/share/antu/kdeglobals.base \
-    /usr/share/color-schemes/AntuObsidiana.colors >> /etc/xdg/kdeglobals
+# Raíz opcional para el ensayo de empaquetado; sin argumento sigue escribiendo en la imagen.
+raiz="${1:-}"
+case "$raiz" in ""|/*) ;; *) echo "La raíz debe ser absoluta" >&2; exit 2 ;; esac
+
+mkdir -p "$raiz/etc/xdg"
+cat "$raiz/usr/share/antu/kdeglobals.base" \
+    "$raiz/usr/share/color-schemes/AntuObsidiana.colors" >> "$raiz/etc/xdg/kdeglobals"
 
 # Algunas apps y KDE piden los mismos íconos con otro nombre, y un nombre que falta en Antu lo responde Breeze antes de
 # probar el genérico (de ahí las carpetas azules). Si una imagen original no existe, la compilación falla.
 enlazar() {  # carpeta nombre original
-    for imagen in /usr/share/icons/Antu/*/"$1"/"$3.png"; do
+    for imagen in "$raiz"/usr/share/icons/Antu/*/"$1"/"$3.png"; do
         ln -s "$3.png" "$(dirname "$imagen")/$2.png"
     done
 }
@@ -29,8 +33,8 @@ enlazar apps spectacle org.kde.spectacle
 
 # Cursores: los nombres alternativos se crean aquí porque el repositorio se edita en Windows, donde Git no guarda bien
 # los enlaces. Si un cursor original no existe, la compilación falla.
-cursores=/usr/share/icons/Antu-Cursores/cursors
+cursores="$raiz/usr/share/icons/Antu-Cursores/cursors"
 while IFS=$'\t' read -r nombre original; do
     [ -e "$cursores/$original" ]
     ln -s "$original" "$cursores/$nombre"
-done < /usr/share/icons/Antu-Cursores/alias.tsv
+done < "$raiz/usr/share/icons/Antu-Cursores/alias.tsv"

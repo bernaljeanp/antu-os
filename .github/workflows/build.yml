@@ -43,6 +43,13 @@ jobs:
       - name: Liberar espacio en disco
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
 
+      - name: Regresiones del informe y del equipo
+        run: |
+          python3 ci/diagnostico-test.py
+          python3 ci/visual-test.py
+          node ci/panel-test.cjs
+          python3 ci/integracion-test.py
+
       # Instala podman reciente, bcvk y libvirt (las mismas herramientas que usa bootcrew).
       - uses: bootc-dev/actions/bootc-ubuntu-setup@de95828443214c605662555316955bd1425b448d # main, 2026-10-18
         with:
@@ -52,7 +59,7 @@ jobs:
       - name: Compilar imagen de prueba
         run: |
           : > "$RUNNER_TEMP/sin-llave"  # esta imagen no se publica: no recibe la llave de arranque
-          podman build --build-arg ANTU_CI=1 --secret id=antu_arranque,src="$RUNNER_TEMP/sin-llave" -t localhost/antu-test:latest .
+          podman build --build-arg ANTU_CI=1 --build-arg ANTU_REVISION="$GITHUB_SHA" --secret id=antu_arranque,src="$RUNNER_TEMP/sin-llave" -t localhost/antu-test:latest .
 
       - name: Modo Eclipse elige bien la gráfica
         run: bash ci/eclipse-graficas.sh
@@ -88,13 +95,23 @@ jobs:
             pacman -Q ollama-vulkan > /dev/null
             if systemctl is-enabled ollama 2> /dev/null | grep -q enabled; then echo "Ollama arranca solo"; exit 1; fi
             # Lo básico de un escritorio: volumen, pantallas, Bluetooth, sonido de los portátiles y wifi.
-            pacman -Q plasma-pa kscreen bluez bluedevil kwallet-pam sof-firmware wireless-regdb pipewire-alsa switcheroo-control > /dev/null
+            pacman -Q plasma-pa kscreen bluez bluedevil kwallet-pam sof-firmware wireless-regdb pipewire-alsa rtkit switcheroo-control > /dev/null
             for k in kcm_pulseaudio kcm_kscreen kcm_bluetooth; do test -f /usr/lib/qt6/plugins/plasma/kcms/systemsettings/$k.so; done
             systemctl is-enabled bluetooth switcheroo-control
+            busctl --system get-property org.freedesktop.RealtimeKit1 /org/freedesktop/RealtimeKit1 org.freedesktop.RealtimeKit1 MaxRealtimePriority
+            test ! -e /usr/lib/qt6/plugins/discover-notifier/DiscoverPackageKitNotifier.so
+            systemctl is-enabled antu-bluetooth-mt7925
+            test -f /usr/lib/udev/rules.d/80-antu-mt7925.rules
             # Por este aviso de su acceso, KDE abre Steam en la gráfica dedicada, con la lista que da switcheroo-control.
             grep -q "PrefersNonDefaultGPU=true" /usr/share/applications/steam.desktop
             # Cualquier programa puede leer la configuración de red y de nombres, no solo root.
             setpriv --reuid=65534 --regid=65534 --clear-groups cat /etc/resolv.conf /etc/hosts /etc/nsswitch.conf > /dev/null
+            systemctl is-active antu-red-prepare systemd-resolved
+            test "$(readlink /etc/resolv.conf)" = ../run/systemd/resolve/stub-resolv.conf
+            grep -q "dns=systemd-resolved" /etc/NetworkManager/conf.d/10-antu-dns.conf
+            if journalctl -b -u systemd-resolved --no-pager | grep -q "Failed to open /etc/resolv.conf: Permission denied"; then
+              echo "La configuración de DNS llegó tarde"; exit 1
+            fi
             # Cursor de Antu: la biblioteca real del sistema lo lee, también por un nombre alternativo, y es el predeterminado.
             python3 -c "import ctypes as c; l = c.CDLL(\"libXcursor.so.1\"); l.XcursorLibraryLoadImage.restype = c.c_void_p; assert l.XcursorLibraryLoadImage(b\"left_ptr\", b\"Antu-Cursores\", 24)"
             grep -q "cursorTheme=Antu-Cursores" /etc/xdg/kcminputrc && grep -q "Inherits=Antu-Cursores" /usr/share/icons/default/index.theme
@@ -128,6 +145,10 @@ jobs:
             test -f /usr/share/icons/hicolor/256x256/apps/antu.png
             test -f /usr/share/plymouth/themes/antu/simbolo.png
             test -f /usr/share/icons/Antu/index.theme && test -f /usr/share/icons/Antu/32x32/places/folder.png
+            test -f /usr/share/Kvantum/AntuObsidiana/AntuObsidiana.svg
+            test -f /usr/share/Kvantum/AntuSalar/AntuSalar.svg
+            test -s /usr/share/antu/escritorio.json
+            command -v kvantummanager
             # Zenit: su lógica pasa la autoprueba y el servicio corre aunque la VM no sea un Alienware.
             python3 /usr/lib/antu/zenit/zenit.py autoprueba
             systemctl is-active zenit
@@ -196,7 +217,7 @@ jobs:
         run: |
           umask 077
           printf '%s' "$ANTU_ARRANQUE_PEM" > "$RUNNER_TEMP/arranque.pem"
-          podman build --secret id=antu_arranque,src="$RUNNER_TEMP/arranque.pem" -t localhost/antu-nvidia:sin-reempaquetar .
+          podman build --build-arg ANTU_REVISION="$GITHUB_SHA" --secret id=antu_arranque,src="$RUNNER_TEMP/arranque.pem" -t localhost/antu-nvidia:sin-reempaquetar .
           rm -f "$RUNNER_TEMP/arranque.pem"
           # Nunca se publica una versión sin firmar: con el arranque seguro activo, no arrancaría en ningún equipo.
           sudo apt-get install -y -qq sbsigntool > /dev/null

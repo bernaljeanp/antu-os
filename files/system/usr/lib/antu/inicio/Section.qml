@@ -23,8 +23,8 @@ Rectangle {
     border.color: Qt.rgba(1, 1, 1, open ? 0.22 : 0.14)
 
     // El único movimiento de Inicio: abrir y plegar secciones.
-    Behavior on implicitHeight { NumberAnimation { duration: 240; easing.type: Easing.OutCubic } }
-    Behavior on color { ColorAnimation { duration: 160 } }
+    Behavior on implicitHeight { NumberAnimation { duration: Antu.duration(240); easing.type: Easing.OutCubic } }
+    Behavior on color { ColorAnimation { duration: Antu.duration(160) } }
 
     ColumnLayout {
         id: column
@@ -37,7 +37,7 @@ Rectangle {
         AbstractButton {
             id: header
             Layout.fillWidth: true
-            implicitHeight: 48 * section.u
+            implicitHeight: Math.max(48 * section.u, rotulo.implicitHeight + 16 * section.u)
             Accessible.name: section.title + (section.done ? ", completado" : "")
             onClicked: section.headerClicked()
             background: Rectangle {
@@ -64,10 +64,14 @@ Rectangle {
                     }
                 }
                 Text {
+                    id: rotulo
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
+                    wrapMode: Text.WordWrap
                     text: section.title
-                    color: "#F5F5F7"
+                    color: Antu.ink
                     font.family: "Inter"
-                    font.pixelSize: 28 * section.u
+                    font.pixelSize: Antu.pixels(28, section.u)
                     font.weight: Font.DemiBold
                 }
                 Item { Layout.fillWidth: true }
@@ -75,10 +79,10 @@ Rectangle {
                     visible: !section.open && section.summary.length > 0
                     Layout.maximumWidth: 460 * section.u
                     text: section.summary
-                    color: "#C7C7CC"
+                    color: Antu.secondary
                     elide: Text.ElideRight
                     font.family: "Inter"
-                    font.pixelSize: 22 * section.u
+                    font.pixelSize: Antu.pixels(22, section.u)
                 }
             }
         }
@@ -87,7 +91,7 @@ Rectangle {
             id: body
             visible: section.open
             Layout.fillWidth: true
-            Layout.leftMargin: 50 * section.u
+            Layout.leftMargin: section.width < 700 ? 0 : 50 * section.u
             spacing: 18 * section.u
         }
     }

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Antu en vivo
+Comment=Prueba Antu desde el USB o abre el instalador
+Exec=/usr/bin/python3 /usr/lib/antu/bienvenida/bienvenida.py
+Icon=antu
+Categories=System;

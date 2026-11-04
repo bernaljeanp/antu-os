@@ -125,74 +125,96 @@ def marco(r, opacidad, sombra, margen):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
             f'width="{ancho}" height="{alto}" viewBox="0 0 {ancho} {alto}">\n'
             '<defs><style id="current-color-scheme" type="text/css">'
-            '.ColorScheme-Background{color:#141418}.ColorScheme-Text{color:#f5f5f7}</style></defs>\n'
+            '.ColorScheme-Background{color:#141418}.ColorScheme-Text{color:#f5f5f7}</style>'
+            f'<linearGradient id="brillo" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="{r}">'
+            '<stop offset="0" stop-color="#ffffff" stop-opacity="0.07"/>'
+            '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>\n'
             + "\n".join(piezas) + "\n</svg>\n")
 
 
 def tareas():
-    """SVG de widgets/tasks.svg: resaltes de vidrio de las apps en la barra, redondeados y separados de sus bordes."""
-    a, r, C2 = 3, 6, 16  # separación del borde, radio y lado de las piezas centrales
-    b = a + r  # lado de las piezas de borde
+    """Estados nativos de Plasma: punto abierto, marca lava activa y progreso real.
+
+    Los prefijos *-hover conservan el indicador al pasar el cursor. Los cardinales
+    sitúan la marca en el canto exterior del panel. Los lanzadores sin ventana no
+    llevan marca; Plasma pide un prefijo vacío en ese caso.
+    """
+    a, r, C2 = 3, 6, 32
+    b = a + r
     L = 2 * b + C2
-    P, R = b + C2, L - a  # inicio de la columna derecha y borde exterior del vidrio
+    P, R = b + C2, L - a
     i = r - 1
-    invisible = 'style="fill:#000000;fill-opacity:0.002"'  # da a cada pieza su tamaño completo, con la separación
-    # Prefijo: (color del esquema, opacidad del vidrio, opacidad del borde)
-    estados = {
-        "normal": ("Text", 0.05, 0.10),
-        "minimized": ("Text", 0.02, 0.06),
-        "hover": ("Text", 0.10, 0.18),
-        "focus": ("Highlight", 0.26, 0.60),
-        "attention": ("Highlight", 0.45, 0.85),
-        "progress": ("Highlight", 0.35, 0.0),
+    states = {
+        "normal": ("Text", 0.025, 0.08, "dot"),
+        "minimized": ("Text", 0.015, 0.06, "minimized"),
+        "hover": ("Text", 0.08, 0.24, "none"),
+        "launcher-hover": ("Text", 0.08, 0.24, "none"),
+        "normal-hover": ("Text", 0.08, 0.24, "dot"),
+        "minimized-hover": ("Text", 0.06, 0.18, "minimized"),
+        "focus": ("Highlight", 0.10, 0.40, "active"),
+        "focus-hover": ("Highlight", 0.16, 0.55, "active"),
+        "attention": ("Highlight", 0.12, 0.85, "attention"),
+        "attention-hover": ("Highlight", 0.18, 1.0, "attention"),
+        "progress": ("Highlight", 0.18, 0.0, "progress"),
     }
-    piezas = []
-    for fila, (prefijo, (color, vidrio, linea)) in enumerate(estados.items()):
-        y0 = fila * (L + 4)
-
-        def Y(v):
-            return y0 + v
-
-        def g(nombre, x, y, w, h, *formas):
-            piezas.append(f'<g id="{prefijo}-{nombre}"><rect {invisible} x="{x}" y="{Y(y)}" width="{w}" height="{h}"/>'
-                          f'{"".join(formas)}</g>')
-
-        fondo = f'class="ColorScheme-{color}" style="fill:currentColor;fill-opacity:{vidrio}"'
-        borde = f'class="ColorScheme-{color}" style="fill:currentColor;fill-opacity:{linea}"'
-        g("topleft", 0, 0, b, b,
-          f'<path {fondo} d="M{a + 1},{Y(b)} A{i},{i} 0 0 1 {b},{Y(a + 1)} L{b},{Y(b)} Z"/>',
-          f'<path {borde} d="M{a},{Y(b)} A{r},{r} 0 0 1 {b},{Y(a)} L{b},{Y(a + 1)} A{i},{i} 0 0 0 {a + 1},{Y(b)} Z"/>')
-        g("top", b, 0, C2, b, f'<rect {fondo} x="{b}" y="{Y(a + 1)}" width="{C2}" height="{r - 1}"/>',
-          f'<rect {borde} x="{b}" y="{Y(a)}" width="{C2}" height="1"/>')
-        g("topright", P, 0, b, b,
-          f'<path {fondo} d="M{P},{Y(a + 1)} A{i},{i} 0 0 1 {R - 1},{Y(b)} L{P},{Y(b)} Z"/>',
-          f'<path {borde} d="M{P},{Y(a)} A{r},{r} 0 0 1 {R},{Y(b)} L{R - 1},{Y(b)} A{i},{i} 0 0 0 {P},{Y(a + 1)} Z"/>')
-        g("left", 0, b, b, C2, f'<rect {fondo} x="{a + 1}" y="{Y(b)}" width="{r - 1}" height="{C2}"/>',
-          f'<rect {borde} x="{a}" y="{Y(b)}" width="1" height="{C2}"/>')
-        g("center", b, b, C2, C2, f'<rect {fondo} x="{b}" y="{Y(b)}" width="{C2}" height="{C2}"/>')
-        g("right", P, b, b, C2, f'<rect {fondo} x="{P}" y="{Y(b)}" width="{r - 1}" height="{C2}"/>',
-          f'<rect {borde} x="{R - 1}" y="{Y(b)}" width="1" height="{C2}"/>')
-        g("bottomleft", 0, P, b, b,
-          f'<path {fondo} d="M{b},{Y(R - 1)} A{i},{i} 0 0 1 {a + 1},{Y(P)} L{b},{Y(P)} Z"/>',
-          f'<path {borde} d="M{b},{Y(R)} A{r},{r} 0 0 1 {a},{Y(P)} L{a + 1},{Y(P)} A{i},{i} 0 0 0 {b},{Y(R - 1)} Z"/>')
-        g("bottom", b, P, C2, b, f'<rect {fondo} x="{b}" y="{Y(P)}" width="{C2}" height="{r - 1}"/>',
-          f'<rect {borde} x="{b}" y="{Y(R - 1)}" width="{C2}" height="1"/>')
-        g("bottomright", P, P, b, b,
-          f'<path {fondo} d="M{R - 1},{Y(P)} A{i},{i} 0 0 1 {P},{Y(R - 1)} L{P},{Y(P)} Z"/>',
-          f'<path {borde} d="M{R},{Y(P)} A{r},{r} 0 0 1 {P},{Y(R)} L{P},{Y(R - 1)} A{i},{i} 0 0 0 {R - 1},{Y(P)} Z"/>')
-        # El ícono se mide con estos márgenes, no con el tamaño de las piezas: así no se achica.
-        for lado, (x, y, w, h) in {"top": (b, 0, 4, 5), "bottom": (b, L - 5, 4, 5),
-                                   "left": (0, b, 5, 4), "right": (L - 5, b, 5, 4)}.items():
-            piezas.append(f'<rect id="{prefijo}-hint-{lado}-margin" style="fill:none" x="{x}" y="{Y(y)}" '
-                          f'width="{w}" height="{h}"/>')
-    alto = len(estados) * (L + 4)
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{L}" height="{alto}" viewBox="0 0 {L} {alto}">\n'
+    pieces = []
+    row = 0
+    for cardinal, side in (("", "bottom"), ("south-", "bottom"), ("north-", "top"),
+                           ("west-", "left"), ("east-", "right")):
+        for state, (color, opacity, outline, marker) in states.items():
+            prefix = cardinal + state
+            offset = row * (L + 4)
+            row += 1
+            def Y(value): return value + offset
+            fill = f'class="ColorScheme-{color}" style="fill:currentColor;fill-opacity:{opacity}"'
+            edge = f'class="ColorScheme-{color}" style="fill:currentColor;fill-opacity:{outline}"'
+            def g(name, x, y, width, height, *shapes):
+                # Una caja casi invisible mantiene la geometría de las 9 piezas.
+                invisible = f'<rect x="{x}" y="{Y(y)}" width="{width}" height="{height}" fill="#000000" fill-opacity="0.002"/>'
+                indicator = ""
+                if name == side and marker != "none":
+                    length = 3.5 if marker == "dot" else 9 if marker == "minimized" else 19 if marker == "active" else 25
+                    thick = 3.0
+                    x0, y0 = (L-length)/2, L-6
+                    w, h = length, thick
+                    if side == "top": y0 = 3
+                    elif side in ("left", "right"):
+                        x0, y0, w, h = (3 if side == "left" else L-6), (L-length)/2, thick, length
+                    ink = "Text" if marker in ("dot", "minimized") else "Highlight"
+                    style = ('fill:none;stroke:currentColor;stroke-width:1.1;stroke-opacity:0.9'
+                             if marker == "minimized" else 'fill:currentColor;fill-opacity:1')
+                    indicator = f'<rect class="ColorScheme-{ink}" x="{x0}" y="{Y(y0)}" width="{w}" height="{h}" rx="1.5" style="{style}"/>'
+                pieces.append(f'<g id="{prefix}-{name}">{invisible}'+"".join(shapes)+indicator+'</g>')
+            g("topleft", 0, 0, b, b,
+              f'<path {fill} d="M{a+1},{Y(b)} A{i},{i} 0 0 1 {b},{Y(a+1)} L{b},{Y(b)} Z"/>',
+              f'<path {edge} d="M{a},{Y(b)} A{r},{r} 0 0 1 {b},{Y(a)} L{b},{Y(a+1)} A{i},{i} 0 0 0 {a+1},{Y(b)} Z"/>')
+            g("top", b, 0, C2, b, f'<rect {fill} x="{b}" y="{Y(a+1)}" width="{C2}" height="{r-1}"/>',
+              f'<rect {edge} x="{b}" y="{Y(a)}" width="{C2}" height="1"/>')
+            g("topright", P, 0, b, b,
+              f'<path {fill} d="M{P},{Y(a+1)} A{i},{i} 0 0 1 {R-1},{Y(b)} L{P},{Y(b)} Z"/>',
+              f'<path {edge} d="M{P},{Y(a)} A{r},{r} 0 0 1 {R},{Y(b)} L{R-1},{Y(b)} A{i},{i} 0 0 0 {P},{Y(a+1)} Z"/>')
+            g("left", 0, b, b, C2, f'<rect {fill} x="{a+1}" y="{Y(b)}" width="{r-1}" height="{C2}"/>',
+              f'<rect {edge} x="{a}" y="{Y(b)}" width="1" height="{C2}"/>')
+            g("center", b, b, C2, C2, f'<rect {fill} x="{b}" y="{Y(b)}" width="{C2}" height="{C2}"/>')
+            g("right", P, b, b, C2, f'<rect {fill} x="{P}" y="{Y(b)}" width="{r-1}" height="{C2}"/>',
+              f'<rect {edge} x="{R-1}" y="{Y(b)}" width="1" height="{C2}"/>')
+            g("bottomleft", 0, P, b, b,
+              f'<path {fill} d="M{b},{Y(R-1)} A{i},{i} 0 0 1 {a+1},{Y(P)} L{b},{Y(P)} Z"/>',
+              f'<path {edge} d="M{b},{Y(R)} A{r},{r} 0 0 1 {a},{Y(P)} L{a+1},{Y(P)} A{i},{i} 0 0 0 {b},{Y(R-1)} Z"/>')
+            g("bottom", b, P, C2, b, f'<rect {fill} x="{b}" y="{Y(P)}" width="{C2}" height="{r-1}"/>',
+              f'<rect {edge} x="{b}" y="{Y(R-1)}" width="{C2}" height="1"/>')
+            g("bottomright", P, P, b, b,
+              f'<path {fill} d="M{R-1},{Y(P)} A{i},{i} 0 0 1 {P},{Y(R-1)} L{P},{Y(P)} Z"/>',
+              f'<path {edge} d="M{R},{Y(P)} A{r},{r} 0 0 1 {P},{Y(R)} L{P},{Y(R-1)} A{i},{i} 0 0 0 {R-1},{Y(P)} Z"/>')
+            # El área de icono respira sin perder tamaño: 36 px con panel de 56 y contenido de 48.
+            for name, (x, y, w, h) in {"top":(b,0,4,6), "bottom":(b,L-6,4,6),
+                                       "left":(0,b,4,4), "right":(L-4,b,4,4)}.items():
+                pieces.append(f'<rect id="{prefix}-hint-{name}-margin" x="{x}" y="{Y(y)}" width="{w}" height="{h}" fill="none"/>')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{L}" height="{row*(L+4)}" viewBox="0 0 {L} {row*(L+4)}">\n'
             '<defs><style id="current-color-scheme" type="text/css">'
-            '.ColorScheme-Text{color:#f5f5f7}.ColorScheme-Highlight{color:#ff5a1f}</style>'
-            f'<linearGradient id="brillo" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="{r}">'
-            '<stop offset="0" stop-color="#ffffff" stop-opacity="0.11"/>'
-            '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>\n'
-            + "\n".join(piezas) + "\n</svg>\n")
+            '.ColorScheme-Text{color:#f5f5f7}.ColorScheme-Highlight{color:#ff783d}</style></defs>\n'
+            '<rect id="hint-stretch-borders" width="1" height="1" fill="none"/>\n'
+            + "\n".join(pieces) + "\n</svg>\n")
 
 
 # Superficie: (archivo, radio, margen del contenido, sombra)
@@ -206,7 +228,7 @@ SUPERFICIES = [
 def main():
     for archivo, r, margen, sombra in SUPERFICIES:
         # Sin desenfoque disponible: casi opaco. Con desenfoque (translucent/): vidrio de verdad.
-        for carpeta, opacidad in (("", 0.96), ("translucent/", 0.74)):
+        for carpeta, opacidad in (("", 0.96), ("translucent/", 0.94)):
             destino = DEST / carpeta / archivo
             destino.parent.mkdir(parents=True, exist_ok=True)
             destino.write_text(marco(r, opacidad, sombra, margen), encoding="utf-8", newline="\n")
@@ -225,7 +247,7 @@ def main():
         "X-Plasma-API-Minimum-Version": "6.0",
     }, ensure_ascii=False, indent=4) + "\n", encoding="utf-8", newline="\n")
     (DEST / "plasmarc").write_text(
-        "[ContrastEffect]\nenabled=true\ncontrast=0.45\nintensity=0.9\nsaturation=1.4\n\n"
+        "[ContrastEffect]\nenabled=true\ncontrast=0.45\nintensity=0.9\nsaturation=1.0\n\n"
         "[BlurBehindEffect]\nenabled=true\n\n[AdaptiveTransparency]\nenabled=true\n",
         encoding="utf-8", newline="\n")
     print("Estilo de Plasma Antu escrito en", DEST.relative_to(ROOT))

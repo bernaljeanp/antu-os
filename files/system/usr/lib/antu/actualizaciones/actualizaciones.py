@@ -104,6 +104,9 @@ def main():
     app.setWindowIcon(QIcon.fromTheme("antu"))
     backend = Backend(demo="--demo" in sys.argv)
     engine = QQmlApplicationEngine()
+    sys.path.insert(0, str(HERE.parent / "inicio"))
+    import preferencias
+    preferencias.instalar(app, engine)
     engine.rootContext().setContextProperty("backend", backend)
     engine.load(QUrl.fromLocalFile(str(HERE / "Actualizaciones.qml")))
     if not engine.rootObjects():

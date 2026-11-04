@@ -13,13 +13,13 @@ ApplicationWindow {
     minimumHeight: 580
     visible: true
     title: "Actualizaciones de Antu"
-    color: "#0B0B0E"
+    color: Antu.base
 
-    readonly property real u: Math.min(width / 1540, height / 1090)
-    readonly property color ink: "#F5F5F7"
-    readonly property color ink2: "#C7C7CC"
-    readonly property color ink3: "#8E8E93"
-    readonly property color lava: "#FF5A1F"
+    readonly property real u: 0.72
+    readonly property color ink: Antu.ink
+    readonly property color ink2: Antu.secondary
+    readonly property color ink3: Antu.muted
+    readonly property color lava: Antu.lava
 
     readonly property var e: backend.estado
     property bool confirmando: false
@@ -49,20 +49,17 @@ ApplicationWindow {
     }
 
     // Fondo: el de Antu, oscurecido, como en el instalador.
-    Image {
-        anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
-        sourceSize.width: 1920
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: 0.62
-    }
+    AntuBackdrop { anchors.fill: parent; photographic: false }
 
+    FocusScroll {
+        id: desplazamiento
+        anchors.fill: parent
+        contentHeight: pagina.implicitHeight + 150 * root.u
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        ScrollBar.vertical: ScrollBar { }
     ColumnLayout {
+        id: pagina
         width: Math.min(1180 * root.u, root.width - 120 * root.u)
         anchors.horizontalCenter: parent.horizontalCenter
         y: 90 * root.u
@@ -70,7 +67,7 @@ ApplicationWindow {
 
         Image {
             Layout.bottomMargin: 30 * root.u
-            source: "file:///usr/share/antu/antu-symbol.svg"
+            source: Antu.symbolSource
             sourceSize.width: 76 * root.u
             sourceSize.height: 76 * root.u
         }
@@ -78,7 +75,7 @@ ApplicationWindow {
             text: "Actualizaciones de Antu"
             color: root.ink
             font.family: "Inter"
-            font.pixelSize: 50 * root.u
+            font.pixelSize: Antu.pixels(50, root.u)
             font.weight: Font.Bold
             font.variableAxes: ({ "opsz": 32 })
         }
@@ -89,7 +86,7 @@ ApplicationWindow {
                   + "canal " + (root.e.canal || "estable")
             color: root.ink2
             font.family: "Inter"
-            font.pixelSize: 25 * root.u
+            font.pixelSize: Antu.pixels(25, root.u)
         }
 
         Rectangle {
@@ -171,7 +168,7 @@ ApplicationWindow {
                         text: root.titular
                         color: root.ink
                         font.family: "Inter"
-                        font.pixelSize: 40 * root.u
+                        font.pixelSize: Antu.pixels(40, root.u)
                         font.weight: Font.Bold
                     }
                 }
@@ -182,7 +179,7 @@ ApplicationWindow {
                     text: root.detalle
                     color: root.ink2
                     font.family: "Inter"
-                    font.pixelSize: 24 * root.u
+                    font.pixelSize: Antu.pixels(24, root.u)
                     lineHeight: 1.15
                 }
 
@@ -223,7 +220,7 @@ ApplicationWindow {
                         text: "Antu arrancará con la versión anterior la próxima vez que reinicies. Tus archivos y apps no cambian."
                         color: root.ink
                         font.family: "Inter"
-                        font.pixelSize: 24 * root.u
+                        font.pixelSize: Antu.pixels(24, root.u)
                     }
                     Flow {
                         Layout.fillWidth: true
@@ -253,9 +250,11 @@ ApplicationWindow {
                   + "nunca con datos móviles y nunca reinicia solo. Cada versión pasa una prueba completa antes de llegar a tu equipo."
             color: root.ink3
             font.family: "Inter"
-            font.pixelSize: 21 * root.u
+            font.pixelSize: Antu.pixels(21, root.u)
             lineHeight: 1.15
         }
+    }
+
     }
 
     // Aviso flotante: por qué algo no se pudo hacer.
@@ -265,7 +264,7 @@ ApplicationWindow {
         anchors.bottomMargin: 36 * root.u
         visible: opacity > 0
         opacity: root.avisoTexto.length > 0 ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on opacity { NumberAnimation { duration: Antu.duration(200) } }
         width: Math.min(avisoEtiqueta.implicitWidth + 56 * root.u, root.width - 80 * root.u)
         height: avisoEtiqueta.implicitHeight + 32 * root.u
         radius: height / 2
@@ -280,7 +279,7 @@ ApplicationWindow {
             text: root.avisoTexto
             color: root.ink
             font.family: "Inter"
-            font.pixelSize: 22 * root.u
+            font.pixelSize: Antu.pixels(22, root.u)
         }
         Timer {
             id: avisoReloj

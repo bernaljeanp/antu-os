@@ -53,12 +53,17 @@ RUN sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf && \
 # Bluetooth, llavero al iniciar sesión, información del equipo, permisos de apps, avisos de discos y Thunderbolt. Sonido de los
 # portátiles recientes (sof-firmware), canales de wifi del país (wireless-regdb), discos de Windows y USB (ntfs-3g, exfatprogs).
 RUN pacman -S --noconfirm nvidia-open nvidia-utils \
-      plasma-desktop sddm plasma-nm networkmanager konsole dolphin plymouth \
+      plasma-desktop kvantum sddm plasma-nm networkmanager konsole dolphin plymouth \
       plasma-pa kscreen bluez bluedevil kwallet-pam kinfocenter kde-gtk-config breeze-gtk flatpak-kcm plasma-disks \
       plasma-thunderbolt ffmpegthumbs sof-firmware wireless-regdb ntfs-3g exfatprogs \
-      pipewire pipewire-pulse pipewire-alsa wireplumber noto-fonts openssh \
+      pipewire pipewire-pulse pipewire-alsa wireplumber rtkit noto-fonts openssh \
       discover flatpak ark gwenview spectacle kate kcalc 7zip python-pyqt6 firewalld plasma-firewall git podman distrobox && \
     pacman -S --clean --noconfirm
+
+# Discover usa Flatpak. Sus complementos de PackageKit se distribuyen incluso sin su biblioteca opcional: quitarlos
+# evita que el notificador intente cargar un motor que no corresponde a un sistema atómico.
+RUN rm -f /usr/lib/qt6/plugins/discover-notifier/DiscoverPackageKitNotifier.so \
+          /usr/lib/qt6/plugins/discover/packagekit-backend.so
 
 # Ollama con Vulkan, para el asistente del Observatorio: funciona con NVIDIA, AMD e Intel y ocupa poco. Solo corre al preguntar, y
 # el modelo se baja si la persona activa el asistente.
@@ -93,7 +98,7 @@ RUN --mount=type=bind,source=files/scripts,target=/antu-scripts bash /antu-scrip
 # cada versión nueva en segundo plano y la deja lista para el próximo reinicio.
 # Firewall: zona antu (solo lo que llega sin pedirlo se bloquea; ver usr/lib/firewalld/zones/antu.xml).
 # La red la maneja NetworkManager: systemd-networkd queda apagado, también en el primer arranque (10-antu.preset).
-RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer firewalld bluetooth switcheroo-control \
+RUN systemctl enable sddm NetworkManager systemd-resolved antu-red-prepare systemd-timesyncd systemd-homed antu-inicio-prepare antu-ia antu-apps antu-craft-apps zenit antu-actualizar.timer firewalld bluetooth antu-bluetooth-mt7925 switcheroo-control \
       nvidia-suspend nvidia-resume nvidia-hibernate nvidia-suspend-then-hibernate && \
     systemctl disable systemd-networkd.service systemd-networkd.socket systemd-networkd-wait-online.service && \
     systemctl --global enable antu-observatorio && \
@@ -102,6 +107,14 @@ RUN systemctl enable sddm NetworkManager systemd-timesyncd systemd-homed antu-in
     passwd -l root && \
     echo "uninitialized" > /etc/machine-id && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+
+# El informe debe identificar la imagen exacta, además del núcleo y del controlador.
+ARG ANTU_REVISION=desconocida
+RUN printf '%s\n' "$ANTU_REVISION" > /usr/share/antu/revision
+
+# La imagen debe contener el escritorio revisado, no solo sus vistas locales.
+RUN --mount=type=bind,source=files/scripts,target=/antu-scripts \
+    python3 /antu-scripts/verificar-escritorio.py --runtime > /usr/share/antu/escritorio.json
 
 # Initramfs con los módulos de bootc, regenerado después de instalar kernel y NVIDIA.
 RUN mkdir -p /usr/lib/dracut/dracut.conf.d && \

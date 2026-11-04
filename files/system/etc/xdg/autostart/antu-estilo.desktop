@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Estilo de Antu
+Exec=/usr/bin/python3 /usr/lib/antu/inicio/estilo.py
+OnlyShowIn=KDE;
+NoDisplay=true
+X-KDE-autostart-phase=1

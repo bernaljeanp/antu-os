@@ -19,7 +19,8 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 
 > **Estado: prueba de concepto.** Arranca con KDE Plasma y la interfaz «macOS gamer» de Antu, y trae Steam, el modo
 > juego Eclipse, Brave, Discover, un USB en vivo con instalador gráfico e Inicio para el primer arranque. Aún no se ha
-> probado en hardware real: no la uses todavía como sistema principal.
+> completado la validación en hardware real: el primer arranque físico ya está registrado, con incidencias pendientes.
+> No la uses todavía como sistema principal.
 
 ## Jugar
 
@@ -37,7 +38,7 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
   escritorio sin escribir la contraseña. En un híbrido, la gráfica con la pantalla conectada dibuja y el juego corre en
   NVIDIA. Toda la vuelta está probada en máquinas virtuales; Gamescope con una gráfica real falta probarlo.
 - **Botones y avisos con material:** lo principal es lava con luz propia y lo demás, una tecla retroiluminada que baja al
-  apretarla. Las ventanas de sistema de KDE todavía usan su propio estilo.
+  apretarla. Dolphin y las apps Qt Widgets usan controles Antu con Kvantum; Ajustes conserva los controles Qt Quick de KDE con la paleta de Antu.
 - **GameMode** se activa solo al abrir un juego con el cargador conectado, sin escribir nada en Steam y sin cargar nada
   dentro del juego. **MangoHud** muestra los datos de rendimiento: en Eclipse, desde el menú rápido de Steam; en el
   escritorio, con `mangohud %command%` en las opciones de lanzamiento del juego (Mayús derecha + F12 los oculta).
@@ -82,12 +83,21 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 3. **Arranque seguro (Secure Boot):** puedes dejarlo activo. La primera vez que enciendas con el USB, registra la llave de Antu
    siguiendo [la guía con fotos](files/live/usr/share/antu/guia-arranque-seguro.png). Se hace una sola vez.
 4. Arranca desde el USB (en Alienware y Dell, con F12). Antu arranca en vivo, sin tocar el disco, y abre
-   **Instalar Antu**. Si la pantalla se queda negra, elige en el menú de arranque *modo seguro: sin NVIDIA*.
+   **Antu en vivo**, con **Probar Antu** e **Instalar Antu…**. Si la pantalla se queda negra, elige en el menú de arranque *modo seguro: sin NVIDIA*.
 5. Elige el disco, confirma el borrado y espera entre 5 y 20 minutos. No hace falta internet: la imagen viaja en el USB.
 6. Reinicia y quita el USB. Inicio te pide idioma, zona horaria y tu cuenta (ver [Primer arranque](#primer-arranque)).
 
 El instalador ocupa el disco entero. Para conservar Windows, instala Antu en otro disco: la instalación junto a Windows
 en el mismo disco aún no existe.
+
+Para probar sin instalar, pulsa **Probar Antu**. El USB registra temperaturas, uso de la gráfica y estado del equipo
+desde el inicio; sigue aunque cierres **Informe del equipo**. Toma una muestra cada cinco segundos, hasta cuatro horas,
+y guarda un avance en la partición de informes del USB cada minuto y al apagar normalmente. Puedes detener el registro desde esa ventana.
+Al terminar, pulsa **Crear informe** para reunir también los detalles de la sesión. No se sube nada a internet.
+Si se corta la energía, queda el último avance que alcanzó a guardarse.
+
+La [primera revisión física del Alienware](docs/PRUEBA-ALIENWARE-2026-11-03.md) distingue lo observado en el USB de las
+correcciones preparadas y las comprobaciones que aún faltan repetir.
 
 Cada ISO se prueba sola en una VM antes de publicarse: arranca en vivo, se instala en un disco virtual vacío y ese
 disco arranca hasta Inicio. Las capturas quedan en el artefacto `pruebas-iso`.
@@ -122,11 +132,12 @@ Equipo de referencia: Alienware 16X Aurora (Core Ultra 9 275HX, RTX 5070 Laptop)
 
 | Gráfica | Estado |
 |---|---|
+| Alienware 16X Aurora AC16251, Intel + RTX 5070 Laptop | Primer arranque en vivo registrado: pantalla a 2560×1600/240 Hz, wifi conectado y ambas gráficas reconocidas. Bluetooth, sonido, temperaturas y juegos pendientes de validación completa |
 | NVIDIA GTX 16xx, RTX 20xx o más nueva | Es el objetivo principal. Falta confirmarlo en equipos reales |
 | AMD e Intel | Traen su controlador, pero aún nadie los ha probado |
 | NVIDIA más antigua (GTX 10xx o anterior) | No funciona: `nvidia-open` no la soporta y usaría gráficos básicos |
 
-Aún no hay ningún equipo confirmado. Si tienes uno, arranca el USB en vivo, crea el *Informe del equipo* y
+Hay una primera prueba física parcial; aún ningún equipo tiene la validación completa. Si tienes uno, arranca el USB en vivo, crea el *Informe del equipo* y
 [cuéntanos cómo te fue](https://github.com/bernaljeanp/antu-os/issues/new?template=equipo.yml): así se llena esta tabla.
 
 ## Primer arranque

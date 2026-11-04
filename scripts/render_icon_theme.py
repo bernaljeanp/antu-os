@@ -18,7 +18,7 @@ import render_art as A
 from antu_icon_catalog import ALIASES, CATALOG, MIME_ACCENTS, SIZES
 
 ROOT = Path(__file__).resolve().parent.parent
-OUTPUT = ROOT/"brand/masters/icon-theme"
+OUTPUT = ROOT/"brand/masters/icon-theme-v2"
 PALETTE = {
     "lava": A.LAVA, "neutral": (0.44, 0.47, 0.51, 1),
     "sage": (0.16, 0.34, 0.26, 1), "steel": (0.17, 0.29, 0.40, 1),
@@ -240,6 +240,10 @@ def folder(kind):
              (-1.96, 0.78 if kind != "open" else 0.26)]
     A.solid("Folded obsidian front", front, 0.16 if kind != "open" else 0.45, 0.17, M["folder"], 0.085)
     z = 0.345 if kind != "open" else 0.63
+    # Canto continuo, dimensionado para sobrevivir a la rasterización de 16–32 px.
+    rim = {16:0.16,22:0.13,24:0.12,32:0.10}.get(TARGET,0.042)
+    stroke("Continuous anodised silhouette / folder front", front, z+0.016, rim, "edge", True)
+    stroke("Illuminated folder tab", back[2:]+back[:1], 0.175, rim, "edge")
     stroke("Folder lip / silver reveal", [(-1.82, 0.78), (1.82, 0.78)] if kind != "open" else [(-1.81, 0.26), (1.81, 0.26)],
            z, 0.025 if micro else 0.012, "edge")
     if kind not in ("folder", "open"):
@@ -254,6 +258,8 @@ def paper(kind):
     pts = [(-1.28, -1.62), (1.28, -1.62), (1.28, 0.83), (0.48, 1.64), (-1.28, 1.64)]
     A.solid("Anodised folio edge", pts, -0.12, 0.25, M["edge"], 0.055)
     A.solid("Obsidian folio", [(x*0.962,y*0.974) for x,y in pts], 0.10, 0.11, M["folder"], 0.035)
+    stroke("Continuous folio silver reveal", pts, 0.225,
+           {16:0.12,22:0.10,24:0.09,32:0.075}.get(TARGET,0.035), "edge", True)
     # A real raised triangular folded corner, with a soft cast shadow.
     A.solid("Folded silver corner", [(0.45, 1.56), (0.45, 0.83), (1.19, 0.83)], 0.23, 0.05, M["paper"], 0.025)
     accent = MIME_ACCENTS[kind]
@@ -290,7 +296,8 @@ def device(kind):
     if kind in ("display","laptop","phone"):
         if kind=="phone":
             plate("Anodised phone rim",-0.81,-1.62,0.81,1.62,0,0.28,"silver",0.12)
-            plate("Phone obsidian glass",-0.72,-1.51,0.72,1.51,0.25,0.05,"dark",0.10)
+            plate("Phone obsidian glass",-0.62,-1.40,0.62,1.40,0.25,0.05,"dark",0.10)
+            stroke("Continuous phone reveal",rect(-0.76,-1.55,0.76,1.55),0.30,0.12 if small else 0.045,"edge",True)
             stroke("Phone horizon",[(-0.51,-0.76),(-0.20,-0.39),(0.21,-0.64),(0.51,-0.12)],0.32,0.065 if small else 0.03,"lava")
             if not small:disk("Front optics",0,1.26,0.32,0.055,"edge")
             return
@@ -336,6 +343,7 @@ def device(kind):
         pts=[(-1.74,-0.79),(-1.48,0.86),(-0.91,1.09),(0.91,1.09),(1.48,0.86),(1.74,-0.79),
              (1.09,-1.03),(0.51,-0.43),(-0.51,-0.43),(-1.09,-1.03)]
         A.solid("Ergonomic obsidian controller",pts,0,0.47,M["body"],0.19)
+        stroke("Controller silver silhouette",pts,0.48,0.13 if small else 0.065,"edge",True)
         plate("Horizontal D pad",-1.24,0.18,-0.47,0.40,0.49,0.08,"silver",0.03)
         plate("Vertical D pad",-0.97,-0.09,-0.74,0.67,0.50,0.08,"silver",0.03)
         for xx,yy in [(0.99,0.59),(1.28,0.28),(0.70,0.28),(0.99,-0.02)]:
@@ -366,6 +374,7 @@ def device(kind):
     elif kind=="speakers":
         for xx in (-0.91,0.91):
             plate("Speaker cabinet",xx-0.64,-1.47,xx+0.64,1.47,0,0.37,"body",0.11)
+            stroke("Speaker silver silhouette",rect(xx-0.61,-1.43,xx+0.61,1.43),0.39,0.12 if small else 0.055,"edge",True)
             disk("Silver woofer rim",xx,-0.43,0.42,0.47,"silver")
             disk("Obsidian woofer",xx,-0.43,0.53,0.34,"dark")
             disk("Tweeter",xx,0.74,0.43,0.23,"edge")
@@ -389,29 +398,33 @@ def scene(context,name,target,proof=False):
     A.reset(n,n,48 if target>=64 else 32,True)
     A.world((0.13,0.14,0.16),0.45)
     M={
-        "body":A.material("Approved polished obsidian",(0.026,0.027,0.033,1),0.58,0.21,coat=0.65),
-        "folder":A.material("Folder obsidian / brighter edges",(0.047,0.050,0.059,1),0.46,0.26,coat=0.45),
-        "edge":A.material("Approved anodised edge",(0.080,0.083,0.093,1),0.78,0.24),
-        "silver":A.material("Approved bead-blasted silver",A.SILVER,0.82 if target>32 else 0.5,0.23),
+        "body":A.material("Illuminated polished obsidian",(0.095,0.105,0.125,1),0.42,0.29,coat=0.45),
+        "folder":A.material("Illuminated graphite obsidian",(0.13,0.145,0.17,1),0.32,0.32,coat=0.38),
+        "edge":A.material("Continuous satin anodised silver",(0.61,0.65,0.70,1),0.48,0.40),
+        "silver":A.material("Bead-blasted silver",A.SILVER,0.58 if target>32 else 0.35,0.38),
         "paper":A.material("Satin folded silver",(0.59,0.62,0.66,1),0.35,0.32),
         "dark":A.material("Optically black ceramic",(0.009,0.010,0.014,1),0.45,0.22,coat=0.4),
     }
     for key,color in PALETTE.items():M[key]=A.material(key+" enamel",color,0.28,0.2,0.12 if key=="lava" else 0,0.6)
     kind=CATALOG[context][name]
     if context=="places":
-        if kind=="network":glyph("network",scale=1.62,z=0.25)
+        if kind=="network":
+            tile()
+            glyph("network",scale=1.40,z=0.35)
         elif kind.startswith("trash"):trash(kind=="trash-full")
         else:folder(kind)
     elif context=="devices":device(kind)
     elif context=="mimetypes":paper(kind)
     elif context=="apps":
         tile()
+        if name == "org.kde.spectacle" and target == 16:
+            stroke("Capture tile continuous reveal",rect(-1.66,-1.66,1.66,1.66),0.27,0.15,"edge",True)
         k={16:1.31,22:1.27,24:1.24,32:1.20,48:1.17,64:1.14,128:1.12,256:1.10}[target]
         glyph(kind,z=0.35,scale=k)
     A.camera((0,-0.48,12),(0,0,0),ortho=4.24 if context!="mimetypes" else 4.0)
     A.area("Key / approved softbox northwest",(-3.5,4.8,6),(0,0,0),520,4,(0.93,0.96,1),5)
     A.area("Approved narrow silver rim",(4,1.5,4),(0,0,0),250,1.4,(1,0.94,0.88),5)
-    A.area("Approved gentle fill",(0,-4,6),(0,0,0),70,5)
+    A.area("Lower graphite fill",(0,-4,6),(0,0,0),190,5)
 
 
 def main():
@@ -431,7 +444,7 @@ def main():
         for name in icons:
             if name in ALIASES or name=="start-here" or only and name not in only:continue
             if a.proof and name not in proof_names:continue
-            for size in ((256,16) if a.proof else sizes):
+            for size in ((256,16) if a.proof and not a.sizes else sizes):
                 path=OUTPUT/context/name/f"{size}.png"
                 if path.exists() and not a.force:continue
                 print(f"ANTU_THEME {context}/{name} {size}",flush=True)

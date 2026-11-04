@@ -1,0 +1,22 @@
+[Unit]
+Description=Registra la prueba en vivo y guarda avances en el USB de Antu
+After=zenit.service
+Wants=zenit.service
+ConditionPathExists=/run/initramfs/live
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/python3 /usr/lib/antu/informe/registro.py
+RuntimeDirectory=antu-informe
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+KillMode=mixed
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

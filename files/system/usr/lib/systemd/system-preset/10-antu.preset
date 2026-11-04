@@ -3,3 +3,5 @@
 disable systemd-networkd.service
 disable systemd-networkd.socket
 disable systemd-networkd-wait-online.service
+enable systemd-resolved.service
+enable antu-red-prepare.service

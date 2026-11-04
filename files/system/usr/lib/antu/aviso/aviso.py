@@ -61,6 +61,9 @@ def main():
 
     backend = Backend()
     engine = QQmlApplicationEngine()
+    sys.path.insert(0, str(HERE.parent / "inicio"))
+    import preferencias
+    preferencias.instalar(app, engine)
     engine.rootContext().setContextProperty("backend", backend)
     engine.load(QUrl.fromLocalFile(str(HERE / "VentanaAviso.qml")))
     if not engine.rootObjects():

@@ -10,15 +10,15 @@ TextField {
     readonly property bool encendido: activeFocus || invalid
     readonly property color borde: invalid ? "#FF7069" : "#FF5A1F"
 
-    implicitHeight: 60 * u
+    implicitHeight: Math.max(40, 60 * u, font.pixelSize * 1.5 + 12)
     leftPadding: 24 * u
     rightPadding: 24 * u
-    color: "#F5F5F7"
-    placeholderTextColor: "#A1A1A6"
+    color: Antu.ink
+    placeholderTextColor: Antu.muted
     selectionColor: "#C93A0C"
     selectedTextColor: "#FFFFFF"
     font.family: "Inter"
-    font.pixelSize: 23 * u
+    font.pixelSize: Antu.pixels(23, u)
     verticalAlignment: TextInput.AlignVCenter
     background: Item {
         Halo {
@@ -41,9 +41,9 @@ TextField {
                 anchors.margins: field.encendido ? 2 * field.u : 1
                 radius: 15 * field.u
                 gradient: Gradient {
-                    GradientStop { position: 0; color: "#0E0E12" }
-                    GradientStop { position: 0.3; color: field.hovered && !field.activeFocus ? "#212127" : "#1A1A1F" }
-                    GradientStop { position: 1; color: field.hovered && !field.activeFocus ? "#2C2C33" : "#26262C" }
+                    GradientStop { position: 0; color: Antu.fieldTop }
+                    GradientStop { position: 0.3; color: field.hovered && !field.activeFocus ? Antu.raisedHover : Antu.window }
+                    GradientStop { position: 1; color: Antu.fieldBottom }
                 }
             }
         }

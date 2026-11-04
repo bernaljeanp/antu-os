@@ -44,6 +44,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Liberar espacio en disco
         run: |
@@ -60,9 +61,11 @@ jobs:
       - name: Crear la ISO
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTU_EXPECTED_BASE_REVISION: ${{ github.event.workflow_run.head_sha }}
         run: |
           echo "$GITHUB_TOKEN" | sudo podman login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
-          sudo bash scripts/make-iso.sh "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:testing"
+          sudo env ANTU_EXPECTED_BASE_REVISION="$ANTU_EXPECTED_BASE_REVISION" \
+            bash scripts/make-iso.sh "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/antu-nvidia:testing"
           df -h /
 
       # El instalador en modo demo dentro del sistema en vivo; falla si su interfaz tiene errores de QML.
@@ -131,6 +134,8 @@ jobs:
             capturas/
             pruebas-iso/*.png
             pruebas-iso/*.log
+            iso-build/escritorio-sistema.json
+            iso-build/escritorio-live.json
           retention-days: 7
           if-no-files-found: warn
 
@@ -141,5 +146,7 @@ jobs:
           path: |
             iso-build/antu-live.iso
             iso-build/antu-live.iso.sha256
+            iso-build/escritorio-sistema.json
+            iso-build/escritorio-live.json
           retention-days: 7
           compression-level: 0

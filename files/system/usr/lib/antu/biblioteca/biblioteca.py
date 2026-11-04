@@ -37,14 +37,14 @@ URL_PROTONDB = "https://www.protondb.com/api/v1/reports/summaries/{}.json"
 MAS_JUGADOS = 36
 
 TIERS = {
-    "platinum": ("perfecto", "Funciona perfecto"),
-    "gold": ("bien", "Funciona bien"),
+    "platinum": ("perfecto", "Muy buen soporte en Linux"),
+    "gold": ("bien", "Buen soporte en Linux"),
     "silver": ("ajustes", "Funciona con ajustes"),
     "bronze": ("problemas", "Funciona con problemas"),
     "borked": ("no", "No funciona"),
 }
 VALVE = {
-    3: ("bien", "Funciona bien", "Valve lo verificó para SteamOS."),
+    3: ("bien", "Verificado para SteamOS", "Valve lo verificó para SteamOS; no es una prueba de tu equipo con Antu."),
     2: ("ajustes", "Funciona con ajustes", "Valve lo marca como jugable en SteamOS, con algún detalle."),
     1: ("no", "No funciona", "Valve lo marca como no compatible con SteamOS."),
 }
@@ -249,8 +249,14 @@ def main():
             trampa = (self._por_steam.get(str(juego["appid"])) or self._por_nombre.get(normal(juego["nombre"]))) or {}
             nivel, titulo, razones = veredicto(informe.get("tier"), informe.get("total", 0), juego["valve"], juego["nativo"],
                                                trampa.get("status"), trampa.get("anticheats") or (), self._hay_trampas)
+            consulta = "ProtonDB: " + (time.strftime("%d/%m/%Y, %H:%M") if informe else "sin datos en esta consulta")
+            if self._hay_trampas:
+                try:
+                    consulta += ". Antitrampas: copia del " + time.strftime("%d/%m/%Y", time.localtime(CACHE.stat().st_mtime))
+                except OSError:
+                    consulta += ". Antitrampas: sin fecha disponible"
             self.revisado.emit(f"s{juego['appid']}", json.dumps({"nivel": nivel, "titulo": titulo,
-                                                                 "razones": "\n".join(razones)}))
+                                                                 "razones": "\n".join(razones), "consulta": consulta}))
 
         def _mostrar_steam(self, turno, juegos, primero=(), vacio=""):
             self._publicar(turno, list(primero) + [self._ficha(j) for j in juegos], vacio)
@@ -350,6 +356,9 @@ def main():
     app.setWindowIcon(QIcon.fromTheme("antu-biblioteca"))
     backend = Backend(demo="--demo" in sys.argv)
     engine = QQmlApplicationEngine()
+    sys.path.insert(0, str(HERE.parent / "inicio"))
+    import preferencias
+    preferencias.instalar(app, engine)
     engine.rootContext().setContextProperty("backend", backend)
     engine.load(QUrl.fromLocalFile(str(HERE / "Biblioteca.qml")))
     if not engine.rootObjects():
@@ -359,7 +368,7 @@ def main():
 
 def autoprueba():
     v = veredicto
-    assert v("platinum", 10)[:2] == ("perfecto", "Funciona perfecto")
+    assert v("platinum", 10)[:2] == ("perfecto", "Muy buen soporte en Linux")
     assert v("borked", 10)[0] == "no"
     # El antitrampas manda aunque la gente diga que el juego abre.
     assert v("platinum", 10, estado_trampa="Denied", trampas=["Vanguard"])[:2] == ("no", "No funciona")

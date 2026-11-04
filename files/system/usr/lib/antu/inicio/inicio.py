@@ -105,6 +105,9 @@ def main():
     app.setApplicationName("Antu Inicio")
     backend = Backend(demo="--demo" in sys.argv)
     engine = QQmlApplicationEngine()
+    sys.path.insert(0, str(HERE.parent / "inicio"))
+    import preferencias
+    preferencias.instalar(app, engine)
     engine.rootContext().setContextProperty("backend", backend)
     engine.load(QUrl.fromLocalFile(str(HERE / "Inicio.qml")))
     if not engine.rootObjects():

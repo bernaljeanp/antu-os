@@ -1,0 +1,12 @@
+singleton Antu 1.0 Antu.qml
+FocusScroll 1.0 FocusScroll.qml
+AntuBackdrop 1.0 AntuBackdrop.qml
+LavaButton 1.0 LavaButton.qml
+GlassField 1.0 GlassField.qml
+GlassCombo 1.0 GlassCombo.qml
+Aviso 1.0 Aviso.qml
+Halo 1.0 Halo.qml
+Reflejo 1.0 Reflejo.qml
+Portada 1.0 Portada.qml
+TarjetaDeJuego 1.0 TarjetaDeJuego.qml
+Section 1.0 Section.qml

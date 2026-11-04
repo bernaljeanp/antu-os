@@ -1,5 +1,6 @@
 [KDE]
 LookAndFeelPackage=org.antuos.desktop
+widgetStyle=kvantum
 
 # Inter: la alternativa libre más cercana a la tipografía de macOS. Títulos de ventana en seminegrita.
 [General]
@@ -13,5 +14,5 @@ fixed=JetBrains Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 activeFont=Inter,10,-1,5,600,0,0,0,0,0,0,0,0,0,0,1
 
 [Icons]
-Theme=breeze-dark
+Theme=Antu
 

@@ -23,7 +23,7 @@ LAVA="#FF5A1F"
 
 def font(size,weight=500):
     f=ImageFont.truetype(str(FONT),size)
-    f.set_variation_by_axes([weight])
+    f.set_variation_by_axes([14,weight])
     return f
 
 
@@ -37,9 +37,9 @@ def put(out,context,name,size,x,y):
 
 
 def sheet(items,title,filename):
-    columns=5;cw=320;rh=490
+    columns=7 if len(items)>20 else 5;cw=3840/columns;rh=490
     rows=math.ceil(len(items)/columns)
-    out=Image.new("RGB",(1600,150+rows*rh),BG)
+    out=Image.new("RGB",(3840,2160),"#1C1C21")
     d=ImageDraw.Draw(out)
     d.text((34,27),title,font=font(34,600),fill=INK)
     d.text((34,82),"Recursos finales · 16 / 32 / 64 / 256 px · todos a tamaño real (1:1)",font=font(22),fill=SECONDARY)
@@ -50,43 +50,44 @@ def sheet(items,title,filename):
         for size,dx in [(16,0),(32,65),(64,151)]:
             put(out,context,name,size,x+dx,y+85)
             d.text((x+dx,y+153),str(size),font=font(16),fill=SECONDARY)
-        put(out,context,name,256,x,y+200)
+        put(out,context,name,256,x+100,y+200)
         d.text((x,y+460),"256 px",font=font(16),fill=SECONDARY)
     out.save(OUT/filename,optimize=True)
 
 
 def small_sizes():
     items=[(c,n) for c,v in CATALOG.items() for n in v]
-    cols=2;rows=math.ceil(len(items)/cols);cw=860;rh=58
-    out=Image.new("RGB",(1720,130+rows*rh),BG);d=ImageDraw.Draw(out)
+    cols=3;rows=math.ceil(len(items)/cols);cw=1280;rh=92
+    out=Image.new("RGB",(3840,2160),"#1C1C21");d=ImageDraw.Draw(out)
     d.text((28,20),"ANTU / LECTURA PEQUEÑA",font=font(31,600),fill=INK)
     for col in range(cols):
-        for n,x in zip((16,22,24,32),(445,535,625,715)):
+        for n,x in zip((16,22,24,32),(780,880,980,1080)):
             d.text((col*cw+x,83),str(n)+" px",font=font(18),fill=SECONDARY)
     for i,(context,name) in enumerate(items):
         col=i//rows;row=i%rows;x=col*cw+28;y=130+row*rh
-        if row%2==0:d.rectangle((x-8,y-5,x+812,y+rh-7),fill="#111115")
+        if row%2==0:d.rectangle((x-8,y-5,x+1220,y+rh-7),fill="#111115")
         d.text((x,y+8),name,font=font(19),fill=INK)
-        for n,dx in zip((16,22,24,32),(445,535,625,715)):
+        for n,dx in zip((16,22,24,32),(780,880,980,1080)):
             put(out,context,name,n,col*cw+dx,y+8+(32-n)//2)
     out.save(OUT/"small-sizes.png",optimize=True)
     # Transparent PNGs are also legible over a light file-manager pane.
-    compact=Image.new("RGB",(1400,260),"#F5F5F7");cd=ImageDraw.Draw(compact)
-    cd.text((28,20),"Comprobación sobre fondo claro / 16 y 32 px",font=font(23,600),fill=BG)
-    names=["folder","user-home","folder-documents","folder-download","folder-pictures","folder-games","user-trash","user-trash-full"]
-    for i,name in enumerate(names):
-        x=28+i*173
-        put(compact,"places",name,16,x,88);put(compact,"places",name,32,x,135)
-        cd.text((x,191),name.replace("folder-","").replace("user-",""),font=font(15),fill=BG)
+    compact=Image.new("RGB",(3840,2160),"#F5F5F7");cd=ImageDraw.Draw(compact)
+    cd.text((48,36),"ANTU / FONDO CLARO · recursos a tamaño real",font=font(38,600),fill=BG)
+    names=[("places",n) for n in ["folder","folder-open","user-home","folder-documents","folder-download","folder-pictures","folder-games","user-trash","network-workgroup","start-here"]]+[("devices","drive-harddisk-solidstate"),("mimetypes","text-plain")]
+    for i,(context,name) in enumerate(names):
+        x=48+(i%4)*960;y=160+(i//4)*650
+        cd.text((x,y),name,font=font(26),fill=BG)
+        for size,dx in [(16,0),(32,100),(64,220),(256,390)]:
+            put(compact,context,name,size,x+dx,y+110)
+            cd.text((x+dx,y+395),str(size)+" px",font=font(22),fill=BG)
     compact.save(OUT/"light-background-check.png",optimize=True)
 
 
 def glass(out,rect,radius=26,darkness=0.86):
     mask=Image.new("L",out.size)
     ImageDraw.Draw(mask).rounded_rectangle(rect,radius,fill=255)
-    blurred=out.filter(ImageFilter.GaussianBlur(24))
-    blurred=Image.blend(blurred,Image.new("RGB",out.size,BG),darkness)
-    out.paste(blurred,(0,0),mask)
+    # La ventana real es grafito opaco; el fondo de pantalla no sustituye su superficie.
+    out.paste(Image.new("RGB",out.size,"#1C1C21"),(0,0),mask)
     ImageDraw.Draw(out).rounded_rectangle(rect,radius,outline="#48484D",width=2)
 
 

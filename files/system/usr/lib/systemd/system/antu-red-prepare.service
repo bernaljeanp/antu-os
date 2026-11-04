@@ -1,0 +1,13 @@
+[Unit]
+Description=Prepara la configuración de nombres de Antu antes de activar la red
+DefaultDependencies=no
+After=local-fs.target
+Before=systemd-resolved.service NetworkManager.service network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemd-tmpfiles --create /usr/lib/tmpfiles.d/antu-dns.conf
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

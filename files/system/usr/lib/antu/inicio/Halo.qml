@@ -10,20 +10,20 @@ Item {
     property real fuerza: 0.3
     property real bajada: 6
 
-    Behavior on fuerza { NumberAnimation { duration: 120 } }
-    Behavior on alcance { NumberAnimation { duration: 120 } }
+    Behavior on fuerza { enabled: Antu.motionFactor > 0; NumberAnimation { duration: Antu.duration(120) } }
+    Behavior on alcance { enabled: Antu.motionFactor > 0; NumberAnimation { duration: Antu.duration(120) } }
 
     Repeater {
-        model: 10
+        model: halo.fuerza > 0 ? 6 : 0
         Rectangle {
             required property int index
-            readonly property real extra: (index + 1) / 10 * halo.alcance
+            readonly property real extra: (index + 1) / 6 * halo.alcance
             x: -extra
             y: -extra + halo.bajada
             width: halo.width + 2 * extra
             height: halo.height + 2 * extra
             radius: halo.radio + extra
-            color: Qt.rgba(halo.tono.r, halo.tono.g, halo.tono.b, halo.fuerza / 10)
+            color: Qt.rgba(halo.tono.r, halo.tono.g, halo.tono.b, halo.fuerza / 6)
         }
     }
 }

@@ -1,0 +1,190 @@
+{
+  "date": "2026-11-03",
+  "status": "Source ready for review; no new ISO, USB or physical test",
+  "layout_cases": 24,
+  "migration_cases": 6,
+  "visual_regression_tests": 7,
+  "zenit_policy": "Remove permanent launcher; preserve tray and normal open-window task",
+  "migration_scope": "Antu layouts only; other launchers/geometry untouched; idempotent",
+  "pixel_samples": [
+    {
+      "palette": "dark",
+      "surface_rgb": [
+        20,
+        20,
+        24
+      ],
+      "open_rgb": [
+        245,
+        245,
+        247
+      ],
+      "active_rgb": [
+        201,
+        58,
+        12
+      ],
+      "adjacent_frame_rgb": [
+        38,
+        24,
+        23
+      ],
+      "ratios": {
+        "opened_vs_surface": 16.8737,
+        "active_vs_surface": 3.5818,
+        "active_vs_adjacent_frame": 3.3409
+      },
+      "method": "Interior pixel samples of native KSVG at stated crop coordinates; not a whole-taskbar WCAG certification."
+    },
+    {
+      "palette": "light",
+      "surface_rgb": [
+        245,
+        245,
+        247
+      ],
+      "open_rgb": [
+        29,
+        29,
+        31
+      ],
+      "active_rgb": [
+        201,
+        58,
+        12
+      ],
+      "adjacent_frame_rgb": [
+        241,
+        227,
+        224
+      ],
+      "ratios": {
+        "opened_vs_surface": 15.4568,
+        "active_vs_surface": 4.7109,
+        "active_vs_adjacent_frame": 4.1045
+      },
+      "method": "Interior pixel samples of native KSVG at stated crop coordinates; not a whole-taskbar WCAG certification."
+    }
+  ],
+  "previews": [
+    {
+      "path": "brand/previews/barra/panel-installed-dark-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "2e7a948289c8da015d89adf66aa77a836644691250a1d98c04cde3aa6595a031"
+    },
+    {
+      "path": "brand/previews/barra/panel-live-dark-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "ea7f074caa47ea7818d9ccf203b727197b1e205209feac80b926067aac88c80c"
+    },
+    {
+      "path": "brand/previews/barra/panel-mac-dark-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "0ab4b610c78faa249f876e1fe690f484bd5f4a2e0ac9acabd7a6c1a9ea1f9a8d"
+    },
+    {
+      "path": "brand/previews/barra/panel-states-dark-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "19ae28c29bb2fd311a9dac2919ad901c0396f2e9e7361c3639a8a92e3f2f0ec6"
+    },
+    {
+      "path": "brand/previews/barra/panel-states-light-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "a2edf392f09d2aa0657953bf6633c3e64c31cd2b8266a5f878c0f4160d28856b"
+    }
+  ],
+  "render": "Qt Quick 6.8 + native KSVG 6.13, software; assembled review scene, not a running Plasma desktop",
+  "render_log_warnings": 0,
+  "remaining": [
+    "Boot new ISO",
+    "Real task-manager/tray integration",
+    "Existing-profile migration in Plasma",
+    "Keyboard and scaling 100/125/150/200%",
+    "Hardware/GPU performance"
+  ],
+  "sources": [
+    {
+      "path": ".github/workflows/build.yml",
+      "sha256": "7d913e351790a223d8fe34183e5ecaf9cd4f41af2fdb040018f678a6226925ce"
+    },
+    {
+      "path": "ci/panel-test.cjs",
+      "sha256": "a0133ac951318737fedb0935405fa4d9e9af6cb377fab42681154509580d9faa"
+    },
+    {
+      "path": "ci/visual-test.py",
+      "sha256": "0316485d6692bfb8920c71117e0c2eba5e3307ee38e9f1893ec8e0bf88823529"
+    },
+    {
+      "path": "scripts/make_plasma_theme.py",
+      "sha256": "108f4b5c1612414631d2bfab3afb5eedac9cdee3a1a288789c8dbe9a58aa6dcc"
+    },
+    {
+      "path": "scripts/preview_panel.py",
+      "sha256": "6abf0f460db84caec95232d10bf1b891adc62d24b593dff031885c5e61905884"
+    },
+    {
+      "path": "DESIGN.md",
+      "sha256": "b99214febee64da34a323f60dc69cf6169c1944ec6c766d50bfc371d2ec96596"
+    },
+    {
+      "path": "docs/BARRA-DE-TAREAS-2026-11-03.md",
+      "sha256": "250a5ec37e009dae0eb999a72b65baf23229d9cceb4d08a0ac1547679a280b5f"
+    },
+    {
+      "path": "files/system/usr/share/plasma/look-and-feel/org.antuos.desktop/contents/layouts/org.kde.plasma.desktop-layout.js",
+      "sha256": "f7f5996657444fd906c7a5cf6a0432a0293fe21d86bf5e7de5c61a02f9f8fa76"
+    },
+    {
+      "path": "files/system/usr/share/plasma/look-and-feel/org.antuos.mac/contents/layouts/org.kde.plasma.desktop-layout.js",
+      "sha256": "d158376dac95cbaac074e5dfdb17a972f7f555e0c3bf9b6f926b08d84591c8c7"
+    },
+    {
+      "path": "files/system/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/antu-2026-11-zenit-tray.js",
+      "sha256": "0005c943ab17fb3f779f45516a1cd8a025c885fc32cf5b58c7fde401623e9482"
+    },
+    {
+      "path": "files/system/usr/share/plasma/desktoptheme/antu/dialogs/background.svg",
+      "sha256": "c71f8fa0a68133841dd527f09c4c3fac14b847e60043898ac8a6aa25313ba1a0"
+    },
+    {
+      "path": "files/system/usr/share/plasma/desktoptheme/antu/widgets/panel-background.svg",
+      "sha256": "c5c7f22ce948aa98b88996e39525338896373f7ef683aae5ea7eab6ae93864b3"
+    },
+    {
+      "path": "files/system/usr/share/plasma/desktoptheme/antu/widgets/tooltip.svg",
+      "sha256": "56d73f2389fd2147fabb5f0668b975278ade5e1c05add650d98399da72bcf81e"
+    },
+    {
+      "path": "files/system/usr/share/plasma/desktoptheme/antu/translucent/dialogs/background.svg",
+      "sha256": "533c87741395d88ad6ef4d4d360bec990af0ea04969a87aa2f669851e4bc52a7"
+    },
+    {
+      "path": "files/system/usr/share/plasma/desktoptheme/antu/translucent/widgets/panel-background.svg",
+      "sha256": "12cce5aac151e020976153e5afd2a49b3739192b46d67c635346738f1785518e"
+    },
+    {
+      "path": "files/system/usr/share/plasma/desktoptheme/antu/translucent/widgets/tooltip.svg",
+      "sha256": "085ad52634ce6545b761a83988f009cf670c1ff5c56c02aa3caa3c6a16b365e1"
+    },
+    {
+      "path": "files/system/usr/share/plasma/desktoptheme/antu/widgets/tasks.svg",
+      "sha256": "fc64b044793ca62fccf5ae1b5b1a9cda92ac43716388ce28791834fb617d85db"
+    }
+  ]
+}

@@ -7,21 +7,21 @@ ComboBox {
 
     property real u: 1
 
-    implicitHeight: 60 * u
+    implicitHeight: Math.max(40, 60 * u, font.pixelSize * 1.5 + 12)
     font.family: "Inter"
-    font.pixelSize: 23 * u
+    font.pixelSize: Antu.pixels(23, u)
     leftPadding: 24 * u
-    palette.buttonText: "#F5F5F7"
-    palette.text: "#F5F5F7"
-    palette.window: "#1C1C21"
-    palette.base: "#1C1C21"
+    palette.buttonText: Antu.ink
+    palette.text: Antu.ink
+    palette.window: Antu.window
+    palette.base: Antu.base
     palette.highlight: "#C93A0C"
     palette.highlightedText: "#FFFFFF"
-    palette.dark: "#C7C7CC"
+    palette.dark: Antu.edge
     background: Rectangle {
         radius: height / 2
-        color: combo.hovered ? Qt.rgba(1, 1, 1, 0.18) : Qt.rgba(1, 1, 1, 0.13)
+        color: combo.hovered ? Antu.raisedHover : Antu.raised
         border.width: combo.visualFocus ? 2 * combo.u : 1
-        border.color: combo.visualFocus ? "#FF5A1F" : Qt.rgba(1, 1, 1, 0.20)
+        border.color: combo.visualFocus ? Antu.lava : Antu.edge
     }
 }

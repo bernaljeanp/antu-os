@@ -5,13 +5,13 @@ FROM ${BASE}
 
 COPY files/live/ /
 
-# Usuario en vivo sin contraseña que entra solo al escritorio; el instalador se abre al entrar. Sin Inicio ni descargas
+# Usuario en vivo sin contraseña que entra solo al escritorio; la bienvenida de prueba se abre al entrar. Sin Inicio ni descargas
 # de primer arranque: en vivo todo lo que se escribe va a la memoria RAM. Tampoco la app de actualizaciones: el USB no
 # se actualiza y solo mostraría que no puede leer el estado.
 RUN rm /usr/share/applications/antu-actualizaciones.desktop && \
     mkdir -p /var/home && useradd -m -G wheel -c "Antu en vivo" antu && passwd -d antu && \
     systemctl mask antu-inicio-prepare.service antu-apps.service antu-craft-apps.service antu-ia.service antu-actualizar.timer && \
-    systemctl enable antu-live-listo.service antu-prueba-instalar.service antu-galeria.service
+    systemctl enable antu-live-listo.service antu-prueba-instalar.service antu-galeria.service antu-registro-live.service
 
 # Initramfs del USB: monta la imagen comprimida (squashfs) con una capa de escritura en memoria (overlayfs).
 # --tmpdir: la imagen base no trae /var/tmp (todo /var se crea al arrancar).
@@ -20,3 +20,7 @@ RUN kver="$(ls /usr/lib/modules)" && mkdir -p /usr/lib/antu/live && \
     dracut --force --no-hostonly --tmpdir /tmp --omit " bootc ostree " --add " dmsquash-live " \
       --add-drivers " usb_storage uas sd_mod sr_mod " /usr/lib/antu/live/initramfs.img "$kver" && \
     lsinitrd /usr/lib/antu/live/initramfs.img | grep -q "usb-storage.ko"
+
+# El live conserva el mismo escritorio de la imagen que instala y añade la bienvenida/registro.
+RUN --mount=type=bind,source=files/scripts,target=/antu-scripts \
+    python3 /antu-scripts/verificar-escritorio.py --live --runtime > /usr/share/antu/escritorio-live.json

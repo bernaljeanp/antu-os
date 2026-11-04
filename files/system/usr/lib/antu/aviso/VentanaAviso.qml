@@ -1,5 +1,7 @@
 // La ventana de aviso.py: la placa flotando sobre el escritorio, sin marco, con espacio para su sombra.
 import QtQuick
+import QtQuick.Controls.Basic
+import QtQuick.Window
 import "../inicio"
 
 Window {
@@ -7,8 +9,8 @@ Window {
 
     readonly property real margen: 48
 
-    width: 760
-    height: placa.implicitHeight + 2 * margen
+    width: Math.min(Screen.width - 48, 760 * Antu.textFactor)
+    height: Math.min(Screen.height - 80, placa.implicitHeight + 2 * margen)
     visible: true
     color: "transparent"
     flags: Qt.Dialog | Qt.FramelessWindowHint
@@ -21,11 +23,15 @@ Window {
         onActivated: backend.salir(1)
     }
 
+    FocusScroll {
+        anchors.fill: parent
+        anchors.margins: ventana.margen
+        contentHeight: placa.implicitHeight
+        contentWidth: width
+        ScrollBar.vertical: ScrollBar { }
     Aviso {
         id: placa
-        x: ventana.margen
-        y: ventana.margen
-        width: ventana.width - 2 * ventana.margen
+        width: parent.width
         titulo: backend.titulo
         texto: backend.texto
         tipo: backend.tipo
@@ -42,5 +48,6 @@ Window {
             text: backend.cancelar
             onClicked: backend.salir(1)
         }
+    }
     }
 }

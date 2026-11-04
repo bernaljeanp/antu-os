@@ -13,14 +13,14 @@ ApplicationWindow {
     minimumHeight: 660
     visible: true
     title: "Informe del equipo"
-    color: "#0B0B0E"
+    color: Antu.base
 
-    readonly property real u: Math.min(width / 1760, height / 1216)
-    readonly property color ink: "#F5F5F7"
-    readonly property color ink2: "#C7C7CC"
-    readonly property color ink3: "#8E8E93"
-    readonly property color lava: "#FF5A1F"
-    readonly property color negative: "#FF7069"
+    readonly property real u: 0.72
+    readonly property color ink: Antu.ink
+    readonly property color ink2: Antu.secondary
+    readonly property color ink3: Antu.muted
+    readonly property color lava: Antu.lava
+    readonly property color negative: Antu.negative
 
     // 0 inicio, 1 creando, 2 listo, 3 error
     property int screen: 0
@@ -46,7 +46,7 @@ ApplicationWindow {
             wrapMode: Text.WordWrap
             color: root.ink
             font.family: "Inter"
-            font.pixelSize: 50 * root.u
+            font.pixelSize: Antu.pixels(50, root.u)
             font.weight: Font.Bold
             font.variableAxes: ({ "opsz": 32 })
         }
@@ -57,7 +57,7 @@ ApplicationWindow {
             wrapMode: Text.WordWrap
             color: root.ink2
             font.family: "Inter"
-            font.pixelSize: 25 * root.u
+            font.pixelSize: Antu.pixels(25, root.u)
         }
     }
 
@@ -66,7 +66,7 @@ ApplicationWindow {
         wrapMode: Text.WordWrap
         color: root.ink2
         font.family: "Inter"
-        font.pixelSize: 23 * root.u
+        font.pixelSize: Antu.pixels(23, root.u)
         lineHeight: 1.15
     }
 
@@ -95,7 +95,7 @@ ApplicationWindow {
                 text: lista.titulo
                 color: root.ink
                 font.family: "Inter"
-                font.pixelSize: 25 * root.u
+                font.pixelSize: Antu.pixels(25, root.u)
                 font.weight: Font.DemiBold
             }
             Repeater {
@@ -118,7 +118,7 @@ ApplicationWindow {
                         wrapMode: Text.WordWrap
                         color: root.ink2
                         font.family: "Inter"
-                        font.pixelSize: 22 * root.u
+                        font.pixelSize: Antu.pixels(22, root.u)
                     }
                 }
             }
@@ -126,20 +126,17 @@ ApplicationWindow {
     }
 
     // Fondo: el de Antu, oscurecido, como en el instalador.
-    Image {
-        anchors.fill: parent
-        source: "file:///usr/share/wallpapers/Paranal/contents/images_dark/3840x2160.jpg"
-        sourceSize.width: 1920
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: 0.62
-    }
+    AntuBackdrop { anchors.fill: parent; photographic: false }
 
+    FocusScroll {
+        id: desplazamiento
+        anchors.fill: parent
+        contentHeight: pagina.implicitHeight + 130 * root.u
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        ScrollBar.vertical: ScrollBar { }
     ColumnLayout {
+        id: pagina
         width: Math.min(1240 * root.u, root.width - 120 * root.u)
         anchors.horizontalCenter: parent.horizontalCenter
         y: 80 * root.u
@@ -147,7 +144,7 @@ ApplicationWindow {
 
         Image {
             Layout.bottomMargin: 26 * root.u
-            source: "file:///usr/share/antu/antu-symbol.svg"
+            source: Antu.symbolSource
             sourceSize.width: 72 * root.u
             sourceSize.height: 72 * root.u
         }
@@ -177,21 +174,21 @@ ApplicationWindow {
             Switch {
                 id: registro
                 Layout.topMargin: 26 * root.u
-                text: "Registrar temperaturas y uso de la gráfica mientras pruebo"
+                text: "Registrar automáticamente esta prueba"
+                checked: backend.registrando
                 font.family: "Inter"
-                font.pixelSize: 23 * root.u
+                font.pixelSize: Antu.pixels(23, root.u)
                 palette.windowText: root.ink
                 palette.text: root.ink
                 palette.highlight: "#E2480F"
                 palette.mid: Qt.rgba(1, 1, 1, 0.3)
                 Accessible.name: text
-                onToggled: backend.registrar(checked)
+                onClicked: backend.registrar(checked)
             }
             Body {
                 Layout.topMargin: 8 * root.u
-                visible: backend.registrando
-                text: "Registrando desde hace " + backend.minutos + " min. Deja esta ventana abierta o minimizada mientras "
-                      + "juegas; se detiene sola a las 4 horas."
+                text: backend.estadoRegistro + " Sigue aunque cierres esta ventana. Guarda un avance cada minuto y "
+                      + "al apagar normalmente; reúne hasta 4 horas de muestras. Crea la copia completa al terminar."
             }
             LavaButton {
                 Layout.topMargin: 26 * root.u
@@ -209,7 +206,7 @@ ApplicationWindow {
                 text: "Nada se sube a internet. Queda en el USB y tú decides si lo compartes."
                 color: root.ink3
                 font.family: "Inter"
-                font.pixelSize: 21 * root.u
+                font.pixelSize: Antu.pixels(21, root.u)
             }
         }
 
@@ -219,7 +216,7 @@ ApplicationWindow {
             spacing: 0
             Heading {
                 title: "Creando el informe…"
-                subtitle: "Tarda menos de un minuto."
+                subtitle: "Puede tardar un momento. El registro sigue mientras se prepara."
             }
         }
 
@@ -288,5 +285,6 @@ ApplicationWindow {
                 onClicked: root.screen = 0
             }
         }
+    }
     }
 }
