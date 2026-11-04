@@ -295,4 +295,8 @@ echo quit | socat - unix:"$OUT/monitor.sock" > /dev/null
 exec 9>&-
 kill "$reader" 2>/dev/null || true
 wait || true
-echo "ANTU: pruebas de la ISO OK"
+if [ "${ANTU_STORAGE_ONLY:-false}" = true ]; then
+    echo "ANTU: prueba aislada de almacenamiento OK (no publica la ISO)"
+else
+    echo "ANTU: pruebas de la ISO OK"
+fi
