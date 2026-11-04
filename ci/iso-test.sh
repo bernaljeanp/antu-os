@@ -234,6 +234,10 @@ done
 comprobar_eclipse "$OUT/serie-firma.log"
 echo "== 6. Cifrado LUKS2 y conservación de particiones en un segundo disco virtual"
 qemu-img create -f qcow2 "$OUT/premium.qcow2" 64G > /dev/null
+# El huésped necesita leer NTFS, no formatearlo. La muestra se crea en el runner y se
+# presenta solo durante la instalación, como una unidad virtual de solo lectura.
+truncate -s 256M "$OUT/ntfs-fixture.img"
+mkntfs -F -Q -L ANTU_PRUEBA "$OUT/ntfs-fixture.img" > /dev/null
 QEMU_STORAGE=()
 for argument in "${QEMU[@]}"; do
     case "$argument" in
@@ -244,9 +248,12 @@ for argument in "${QEMU[@]}"; do
 done
 cmdline="root=live:CDLABEL=ANTU_LIVE rd.live.image rd.overlay=1 console=ttyS0,115200 systemd.unit=multi-user.target antu.prueba-almacenamiento"
 timeout 2400 "${QEMU_STORAGE[@]}" -no-reboot -cdrom "$B/antu-live.iso" \
+    -drive file="$OUT/ntfs-fixture.img",if=none,id=ntfsfixture,format=raw,readonly=on \
+    -device virtio-blk-pci,drive=ntfsfixture,serial=ANTU-NTFS-FIXTURE \
     -kernel "$B/vmlinuz" -initrd "$B/initramfs-live.img" -append "$cmdline" \
     -serial file:"$OUT/serie-almacenamiento.log" || true
 grep -qa "ANTU-STORAGE: particiones preservadas y LUKS2 instalado OK" "$OUT/serie-almacenamiento.log" || {
+    grep -a -B 15 -A 5 'ANTU-STORAGE:' "$OUT/serie-almacenamiento.log" || true
     tail -n 100 "$OUT/serie-almacenamiento.log"
     echo "::error::Cifrado o conservación de particiones falló. No se entrega la ISO."
     exit 1

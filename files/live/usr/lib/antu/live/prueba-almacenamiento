@@ -3,6 +3,7 @@
 import hashlib
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -14,12 +15,24 @@ def main():
     device = "/dev/nvme0n1"
     if storage.query(["lsblk", "-dno", "SERIAL", device]) != "ANTU-PREMIUM-VM":
         raise ValueError("Prueba prohibida: el destino no es el disco virtual reservado de CI.")
+    fixture = "/dev/vda"
+    if storage.query(["lsblk", "-dno", "SERIAL", fixture]) != "ANTU-NTFS-FIXTURE":
+        raise ValueError("Falta la muestra NTFS virtual de solo lectura.")
+    if storage.query(["lsblk", "-bdno", "SIZE,RO", fixture]).split() != [str(256 * 1024**2), "1"]:
+        raise ValueError("La muestra NTFS no tiene el tamaño o la protección esperados.")
+    if storage.query(["blkid", "-p", "-s", "TYPE", "-o", "value", fixture]) != "ntfs":
+        raise ValueError("La muestra no contiene un sistema NTFS.")
     layout = "label: gpt\nstart=2048,size=131072,type=" + storage.ESP + "\nsize=524288,type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7\n"
     storage.run(["sfdisk", "--wipe", "always", device], input=layout, text=True)
     storage.run(["udevadm", "settle"])
     old = storage.partitions(device)
     storage.run(["mkfs.vfat", "-F", "32", old[0]["node"]])
-    storage.run(["mkntfs", "-F", "-Q", old[1]["node"]])
+    with open(fixture, "rb") as source, open(old[1]["node"], "wb") as target:
+        shutil.copyfileobj(source, target, 1024**2)
+        target.flush()
+        os.fsync(target.fileno())
+    if storage.query(["blkid", "-p", "-s", "TYPE", "-o", "value", old[1]["node"]]) != "ntfs":
+        raise RuntimeError("La copia de la muestra NTFS no se reconoce.")
     def sha(path):
         with open(path, "rb") as source:
             return hashlib.file_digest(source, "sha256").hexdigest()
