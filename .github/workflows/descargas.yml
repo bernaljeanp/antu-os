@@ -27,6 +27,7 @@ permissions:
 jobs:
   compilar:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-2025, ubuntu-24.04]
     runs-on: ${{ matrix.os }}
@@ -38,6 +39,11 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
+      - name: Bibliotecas gráficas del runner Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libxkbcommon0 libxcb-cursor0 > /dev/null
       - name: Preparar Python
         shell: bash
         run: |
