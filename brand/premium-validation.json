@@ -1,7 +1,7 @@
 {
   "date": "2026-11-04",
   "baseline": "8383c3929232ef5f438b73bd1012c57f184ac492",
-  "status": "Local checks passed; new image/ISO and storage QEMU result pending",
+  "status": "Automated checks and full QEMU suite passed; signed preview published; physical Alienware validation pending",
   "regressions": {
     "diagnostics": 20,
     "visual": 7,
@@ -9,27 +9,48 @@
     "migration": 6,
     "integration": 8,
     "zenit": 12,
-    "premium": 11,
+    "premium": 15,
     "release": 2,
-    "total": 90
+    "download": 5,
+    "total": 99
   },
   "flatpak_real": "ProtonPlus and dependencies installed in an isolated temporary user installation; official Flathub GPG key; application not executed",
   "approved_raster_art_changed": false,
   "sources": [
     {
+      "path": ".containerignore",
+      "bytes": 304,
+      "sha256": "453cf5481117a73db3386cc2514e3dacc95948670d361506bb21b0d81a836aa9"
+    },
+    {
+      "path": ".gitattributes",
+      "bytes": 471,
+      "sha256": "fbd0a75f8515615ae6b0e2e0eda8b11350a86de7e4ddd2baa54fca1fd9fefd45"
+    },
+    {
       "path": ".github/workflows/build.yml",
-      "bytes": 18175,
-      "sha256": "df516f048b4f2629d02549a8541eb291d556d6d98d654369cd2ce76de160d5a0"
+      "bytes": 18579,
+      "sha256": "7a11e88b51b541f2992d479072c6bc821fa4d2ae903d0f6ba0d8411438bc9dea"
+    },
+    {
+      "path": ".github/workflows/descargas.yml",
+      "bytes": 3626,
+      "sha256": "56c0c9e8db8073fb0cd9eb13ec40c716dd834cce69a4e9549db81ee86929c1f3"
     },
     {
       "path": ".github/workflows/iso.yml",
-      "bytes": 9494,
-      "sha256": "1c801eb50c6843810983ee28c6ac05b39584736939d4ec7bdf982ccf802b4bb1"
+      "bytes": 12276,
+      "sha256": "299cd1e804b20d5cbf1f002fe6777afc3a8bc9c7b4a2290e82bbf1c0e60ae485"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 674,
+      "sha256": "d489a88b71c344d8bad65e02e8f79f6fa012217002ccc4eeef8d5f03ad6f0e3e"
     },
     {
       "path": "Containerfile",
-      "bytes": 11744,
-      "sha256": "3e4df03e97016d37a9246d0a2439c7e636b554ff22df13840b934ef4eba41688"
+      "bytes": 11854,
+      "sha256": "8ee4042199db7dad966a673f3becc7640dcd1ddac33046b8ff3a2e891444e8e9"
     },
     {
       "path": "Containerfile.live",
@@ -38,23 +59,58 @@
     },
     {
       "path": "DESIGN.md",
-      "bytes": 5515,
-      "sha256": "0c4472a39ff0d8a36c69ec49371ba9bb0ea3b232d15dae42045a9630aa5b5c65"
+      "bytes": 5841,
+      "sha256": "8b0daf4a401f6c87abc046c2739274f96d3b528cd130def8241ef1252210fddd"
     },
     {
       "path": "README.md",
-      "bytes": 20627,
-      "sha256": "03098b51e7f90ea0c2364c77d3a35637b9c2c717bb3e1981c6257dccb1cfa95e"
+      "bytes": 20767,
+      "sha256": "28119275d07a450bc6cc463dfc4ef5b3544918ff3e5ed4d4a267b9f208c4b510"
+    },
+    {
+      "path": "ci/descarga-compilar.py",
+      "bytes": 1255,
+      "sha256": "430d791f577772bbb6b8cc17c2f816e988c9d97c6cb34005fb54ff12f2fc9079"
+    },
+    {
+      "path": "ci/descarga-icono.py",
+      "bytes": 684,
+      "sha256": "36ef49ab88c6d850f69bceca2057de7a400344d36ed6cd4f7247b4264036e5c3"
+    },
+    {
+      "path": "ci/descarga-requirements.txt",
+      "bytes": 181,
+      "sha256": "d1619affb4900b59a8bb1cda0f7ae9757cf2111a82da61607aa15b6b3d0a4f94"
+    },
+    {
+      "path": "ci/descarga-test.py",
+      "bytes": 6448,
+      "sha256": "ec86f9298f3f4b17b8624260b9b79837255f3375e409f97c36a88a494cd3d2b6"
+    },
+    {
+      "path": "ci/iso-entrada.py",
+      "bytes": 3136,
+      "sha256": "22f4c983e0a19054cb7a8541ce2e10360c1159ae9f09229fbb2298c22828ffed"
     },
     {
       "path": "ci/iso-test.sh",
-      "bytes": 14441,
-      "sha256": "f444d6b57b4dd228dddb64096258e3d1edb2123debf0e756ebc31931ed833a71"
+      "bytes": 15668,
+      "sha256": "ebafd3254170b96ab1a3a265f685d0c94d0acd2d87f59b745a2862af81bd3172"
     },
     {
       "path": "ci/premium-test.py",
-      "bytes": 7168,
-      "sha256": "b0d7ac9e4dacc0ce9d40c8d3ab32ab21b81d2ea84e553623dbb46fcc438d1aad"
+      "bytes": 10682,
+      "sha256": "d189add2dad2d3f7d623b740546c3d321633705978d9010d4c8a7a336727445b"
+    },
+    {
+      "path": "ci/probar-descarga-empaquetada.py",
+      "bytes": 1802,
+      "sha256": "0f08e3410b7cd1fe2a0d0ce647db7b007b107ce0dee3fb3a606941eb90be9e3f"
+    },
+    {
+      "path": "ci/publicar-descargas.py",
+      "bytes": 2299,
+      "sha256": "42f75a5e3ad2966b16e92611133d08b06c27cf5de2b61815f04f4dcfeb2c6e7d"
     },
     {
       "path": "ci/release-test.py",
@@ -83,18 +139,18 @@
     },
     {
       "path": "docs/ROBUSTEZ-2026-11-04.md",
-      "bytes": 7122,
-      "sha256": "defecd06995d14aef97325bce52c8f86a36ccc66bd29320534318c7b895e0023"
+      "bytes": 11986,
+      "sha256": "35a7a4a3ad06993ee749b9d95169097ed8090883ec34a78e06132b6b3377ad40"
     },
     {
       "path": "docs/descargas.js",
-      "bytes": 2258,
-      "sha256": "8645412b8e93e87aabf6ec8d660b120a823e570f5c18afe0679c9d730e2cabba"
+      "bytes": 2892,
+      "sha256": "bb4501e22328f4c58c08294e5d248728a5d1cd972ab689994ea988d168bac0cf"
     },
     {
       "path": "docs/index.html",
-      "bytes": 6907,
-      "sha256": "cbedaf7288a25abb1b389484c082a88c3b9cfbe7de656cddc1024ac8ac345c3d"
+      "bytes": 7160,
+      "sha256": "b0e137bb8a4f3dd31a4f142a5d3f8f1d04b1a7a3ee191785a5dcd9da8d7a0445"
     },
     {
       "path": "files/live/usr/lib/antu/instalador-helper",
@@ -103,18 +159,18 @@
     },
     {
       "path": "files/live/usr/lib/antu/instalador/Instalador.qml",
-      "bytes": 23396,
-      "sha256": "2615f00d74d0f4dcd063fd3eb3d17ea1549389626911314fcb5313c8eb3349e6"
+      "bytes": 23422,
+      "sha256": "a4516d77834d0fe97c0e4a1571bb31bad4e76ba3f621f270be88ce71e24a68a2"
     },
     {
       "path": "files/live/usr/lib/antu/instalador/almacenamiento.py",
-      "bytes": 11820,
-      "sha256": "5258a22e87e15524a19322549b609a0ad46608dfead342d3f0feb84d22bd117a"
+      "bytes": 11925,
+      "sha256": "a2013f22b02e683f1ba9e7bf70d733cad05ee6401c71068651b183a871ddbdd1"
     },
     {
       "path": "files/live/usr/lib/antu/instalador/instalador.py",
-      "bytes": 8596,
-      "sha256": "0f50d4d109fe4f2249dd31a6150766e43222de3020656263765087a343c51bf2"
+      "bytes": 8551,
+      "sha256": "2b7efebf0218b4e5eab14efecb13de4cbeabdb2ab647112de4291dbef42c67d1"
     },
     {
       "path": "files/live/usr/lib/antu/instalador/instalar-entero.sh",
@@ -123,8 +179,8 @@
     },
     {
       "path": "files/live/usr/lib/antu/live/prueba-almacenamiento",
-      "bytes": 2066,
-      "sha256": "bc54c6f8f87987325acb4e9828ab759ec2d684ac6aea45f8a7cdf625ae44bd1c"
+      "bytes": 3351,
+      "sha256": "9bde5463938cb758f3a2c09f6615152f52195dcbeb919e0c986be5bdf2934045"
     },
     {
       "path": "files/live/usr/lib/systemd/system/antu-prueba-almacenamiento.service",
@@ -135,6 +191,11 @@
       "path": "files/scripts/bootc-esp-mounted.patch",
       "bytes": 3594,
       "sha256": "7fc1e319709483a2d3461c1fd7dab38be381431d47b90767c8907fc8d96b57b1"
+    },
+    {
+      "path": "files/scripts/corregir-dracut.py",
+      "bytes": 1422,
+      "sha256": "c44dfac055dede7d1f79d187a0193dc4fbbc8c8357191441a6750b13658aa456"
     },
     {
       "path": "files/scripts/verificar-escritorio.py",
@@ -153,8 +214,8 @@
     },
     {
       "path": "files/system/usr/lib/antu/centro/centro.py",
-      "bytes": 22473,
-      "sha256": "b1a8fc568ca9bc6098a7ba66f35462ea42ce0c40204dbba80b692e1a261977fe"
+      "bytes": 23977,
+      "sha256": "54dffcc130e1a501a82d4b01fbf34b23668ec70f4f1c8384712dd712f8cd7a6d"
     },
     {
       "path": "files/system/usr/lib/antu/centro/rendimiento.py",
@@ -163,8 +224,8 @@
     },
     {
       "path": "files/system/usr/lib/antu/centro/respaldo.py",
-      "bytes": 4615,
-      "sha256": "0b20d7900f628bddeba4cad905a25a1b64da10eddf9805ed3d0be5e09c81e4d9"
+      "bytes": 5588,
+      "sha256": "2816dbd4f8a875bccb8ec5e9970ccd41d8b76a44355a54fc034be8dbd685e4d7"
     },
     {
       "path": "files/system/usr/lib/antu/inicio/Inicio.qml",
@@ -173,8 +234,8 @@
     },
     {
       "path": "files/system/usr/lib/antu/preparar-helper",
-      "bytes": 6476,
-      "sha256": "1e7e0adba9b8169dfed58bf0fbb7db7a42e4fd98a43c729fe3ba74c87c4de5c9"
+      "bytes": 7689,
+      "sha256": "6ad1acddd082ee6d52d31d0fceac6e2ebb46c91b2337aef2777618c99fabb3bb"
     },
     {
       "path": "files/system/usr/lib/antu/zenit/Zenit.qml",
@@ -217,9 +278,14 @@
       "sha256": "928a0de39e19954ac15aba5284770f03c31edaf84f37ec397a6390fe6cbea7b3"
     },
     {
+      "path": "scripts/descargar-antu-gui.py",
+      "bytes": 15034,
+      "sha256": "63c2dc580fda8dd9cb611990d257921f5c7e31fa52861838bb9cfb7c4d74f517"
+    },
+    {
       "path": "scripts/descargar-antu.py",
-      "bytes": 5389,
-      "sha256": "2aef90b92838d45ea32c1e7ea01527d595bdae3e2ca852149bcf0bbc63a6f04e"
+      "bytes": 7261,
+      "sha256": "c144fe719dcffed5d7b9880bd8bdd793b6ca7edfb08bb3ba722d3d3f5aa1f4ea"
     },
     {
       "path": "scripts/preparar-release.py",
@@ -308,12 +374,36 @@
       "sha256": "690d272a96f0f96b2fe82ddcf9ec807763d68991b301e2e572af3c05cb32d1a7"
     },
     {
+      "path": "brand/previews/premium/descarga/descarga-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "cdfab6cee7b793a9c7dbdf7430af086749be2d72f4933820b3e3ae6d236b7f4b"
+    },
+    {
       "path": "brand/previews/premium/descargas-4k.png",
       "pixels": [
         3840,
         2160
       ],
       "sha256": "16249b635d51b394cce820659504b4ffb4699a735f80367a55c8bb40a2e0fb3c"
+    },
+    {
+      "path": "brand/previews/premium/descargas-estados-demostracion-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "f896b4468d590916da1beff037bffe3984f5fd51f5c50060d9175d5396bceac8"
+    },
+    {
+      "path": "brand/previews/premium/descargas-publica-4k.png",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "sha256": "f69bb1a1a5f7fe56a8596b4793e1e1dcf76edb22eaa7ea95e8d34c56278081dd"
     },
     {
       "path": "brand/previews/premium/instalador-AntuObsidiana-4k.png",
@@ -353,5 +443,87 @@
     "Physical sleep/audio/Bluetooth/lighting/battery",
     "Windows/BitLocker boot on real hardware"
   ],
-  "historical_reports": "Reports dated 2026-11-03 describe baseline 8383c39; their source hashes are historical, not current source assertions."
+  "historical_reports": "Reports dated 2026-11-03 describe baseline 8383c39; their source hashes are historical, not current source assertions.",
+  "delivery": {
+    "release": "antu-preview-20261104-41897537415",
+    "url": "https://github.com/bernaljeanp/antu-os/releases/tag/antu-preview-20261104-41897537415",
+    "page": "https://bernaljeanp.github.io/antu-os/",
+    "iso_revision": "1b1c8498bcc02f6ed1b1ebb155cd214d8a583826",
+    "image_revision": "f28dfbc444d05849ac9274faf2633657dd8c494a",
+    "image_digest": "sha256:84249dee034a7ff53e766148be319b3fc5d7ba191e6f3770f2e1b474fe3cd399",
+    "iso_bytes": 6910193664,
+    "iso_sha256": "2018c3123ebb51a02541f5da047594b9a22fe49538a750866eb3f02452076679",
+    "public_assets": 15,
+    "signed_manifests": [
+      {
+        "file": "release.json",
+        "sha256": "aa0d2fc87bba992f0dfc7c23cf460a54029096a582532021e67ddce049022f83",
+        "signature": "verified with repository public key"
+      },
+      {
+        "file": "descargas.json",
+        "sha256": "9de93be6d870e1073241a2b5d1fdf30df1b378e58b0bc19a0da34a66de5eed47",
+        "signature": "verified with repository public key"
+      }
+    ],
+    "downloaders": [
+      {
+        "name": "Antu-Descargas-Windows.exe",
+        "size": 40518823,
+        "sha256": "1981249ebbad9122e6c58958654713d4f6b25220371233c73082ae3906af4fbd"
+      },
+      {
+        "name": "Antu-Descargas-Linux.tar.gz",
+        "size": 76379989,
+        "sha256": "936e714592ac892c58659b83374796072c290ec73129d176a57a8c0cd56a56cf"
+      }
+    ],
+    "full_public_iso_download": "Passed by packaged Linux executable in GitHub Actions run 41897537415; not downloaded again locally",
+    "public_page": {
+      "url": "https://bernaljeanp.github.io/antu-os/",
+      "api": "real; no interception or simulated responses",
+      "version": "antu-preview-20261104-41897537415 · versión de prueba",
+      "desktop": [
+        3840,
+        2160
+      ],
+      "mobile": [
+        390,
+        844
+      ],
+      "overflow": false,
+      "javascript_errors": []
+    }
+  },
+  "ci": {
+    "image": {
+      "run": 41882524888,
+      "conclusion": "success"
+    },
+    "iso_and_native_downloaders": {
+      "run": 41897537415,
+      "conclusion": "success"
+    },
+    "prior_manual_iso": {
+      "run": 41889643054,
+      "conclusion": "success"
+    },
+    "qemu": [
+      "Live and recording",
+      "Offline installation",
+      "Installed graphical boot",
+      "Secure Boot",
+      "Signed updates and account migration",
+      "LUKS2 boot and FAT/NTFS preservation"
+    ]
+  },
+  "physical_alienware": {
+    "model": "Alienware 16X Aurora AC16251",
+    "cpu": "Intel Core Ultra 9 275HX",
+    "gpu": "NVIDIA GeForce RTX 5070 Laptop",
+    "current_iso_booted": false,
+    "physical_disks_or_usb_modified": false,
+    "comparative_game_or_battery_results": false,
+    "recommendation": "Candidate tailored to this hardware; use Live validation before choosing it as the primary OS. No best-distro claim is established."
+  }
 }

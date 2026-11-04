@@ -199,11 +199,9 @@ jobs:
 
           Pasó arranque Live, instalación y pruebas automatizadas en QEMU. La validación completa en equipos físicos sigue pendiente.
 
-          La ISO se divide por el límite de tamaño de cada recurso de GitHub. Descarga descargar-antu.py y ejecuta, con Python 3 y OpenSSL:
+          Descarga desde https://bernaljeanp.github.io/antu-os/ usando Descargas de Antu para Windows o Linux. Abre la aplicación, elige una carpeta y descarga la ISO. No requiere instalar Python ni escribir comandos. Si los descargadores aún se están preparando, la página lo indica.
 
-          python descargar-antu.py --tag $tag --output antu-live.iso
-
-          El descargador comprueba la firma del manifiesto y el SHA-256 de cada parte y de la ISO completa. Conserva las partes para reintentar una descarga interrumpida. No modifica discos ni USB.
+          La ISO se divide por el límite de tamaño de cada recurso de GitHub. La aplicación reúne las partes y comprueba la firma y el SHA-256 de la ISO completa. Permite detener y reanudar la descarga. No modifica discos ni USB. descargar-antu.py queda disponible para automatización con Python 3 y OpenSSL.
 
           Para grabar, usa USBoot o un grabador de imágenes. Elige cuidadosamente el destino: grabar un USB borra su contenido.
 
