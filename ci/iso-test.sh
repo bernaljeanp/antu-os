@@ -233,6 +233,15 @@ for esperado in "internet OK" "actualizar OK" "sin firma RECHAZADA"; do
 done
 comprobar_eclipse "$OUT/serie-firma.log"
 echo "== 6. Cifrado LUKS2 y conservación de particiones en un segundo disco virtual"
+# Las cinco pruebas del primer disco ya terminaron. No retener dos instalaciones
+# de 64 GiB mientras se prueba LUKS (sus bloques cifrados dejan de ser dispersos).
+rm -f "$OUT/disco.qcow2"
+available="$(df --output=avail -B1 "$OUT" | tail -n 1 | tr -d ' ')"
+if [ "$available" -lt $((20 * 1024 * 1024 * 1024)) ]; then
+    echo "::error::Faltan 20 GiB libres para la segunda instalación virtual. No se inicia el ensayo."
+    df -h "$OUT"
+    exit 1
+fi
 qemu-img create -f qcow2 "$OUT/premium.qcow2" 64G > /dev/null
 # El huésped necesita leer NTFS, no formatearlo. La muestra se crea en el runner y se
 # presenta solo durante la instalación, como una unidad virtual de solo lectura.

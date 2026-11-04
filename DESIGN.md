@@ -77,3 +77,7 @@ los estados de descarga y verificación vienen del motor real. Las restauracione
 Zenit conserva sus materiales y confirma perfiles/carga; las funciones ausentes se desactivan. La instalación
 muestra un plan revisable, distingue conservar/borrar y separa la frase LUKS2 de la cuenta de usuario.
 La página de descargas mantiene grafito/lava, Inter y el símbolo aprobado; no usa arte de sustitución.
+
+Descargas de Antu extiende ese recorrido con una ventana Qt de tarea única: versión, progreso, destino y
+confirmación de firma. Mantiene grafito/lava, Inter y el icono existente. El proceso de red y verificación vive
+en un trabajador; detener conserva las partes y no bloquea la ventana. Windows no necesita una consola.

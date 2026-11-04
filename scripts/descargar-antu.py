@@ -23,10 +23,37 @@ RpZIUmDrfU9lRn7q3BaHCCOxmd9a4qgVXssHz3X/Zj2IycNjItcp/Kw+Yg==
 """
 
 
-def fetch(url, path):
-    request = urllib.request.Request(url, headers={"User-Agent": "Antu-Downloader/1"})
-    with urllib.request.urlopen(request, timeout=90) as source, Path(path).open("wb") as target:
-        shutil.copyfileobj(source, target, length=1024**2)
+def fetch(url, path, progress=None, limit=None):
+    path = Path(path)
+    offset = path.stat().st_size if limit and path.exists() and 0 < path.stat().st_size < limit else 0
+    # Los manifiestos siempre se vuelven a descargar; solo se reanudan las partes.
+    if not path.name.startswith("antu-live.iso.parte-"):
+        offset = 0
+    headers = {"User-Agent": "Antu-Downloader/1"}
+    if offset:
+        headers["Range"] = f"bytes={offset}-"
+    request = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(request, timeout=90) as source:
+        if source.status == 206:
+            content_range = source.headers.get("Content-Range", "")
+            match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+)", content_range)
+            if not offset or not match or int(match[1]) != offset or int(match[3]) != limit or int(match[2]) != limit - 1:
+                raise ValueError("El servidor no permite reanudar esta parte con seguridad.")
+        else:
+            offset = 0  # El servidor puede ignorar Range: reemplazar, nunca concatenar una respuesta completa.
+        return _receive(source, path, offset, progress, limit)
+
+
+def _receive(source, path, offset, progress, limit):
+    with path.open("ab" if offset else "wb") as target:
+        received = offset
+        while data := source.read(1024**2):
+            received += len(data)
+            if limit is not None and received > limit:
+                raise ValueError("La descarga supera el tamaño esperado.")
+            target.write(data)
+            if progress:
+                progress(received)
 
 
 def digest(path):
@@ -34,9 +61,12 @@ def digest(path):
         return hashlib.file_digest(f, "sha256").hexdigest()
 
 
-def verify(manifest, signature, directory):
-    key = Path(directory) / "antu-confianza.pub"; key.write_bytes(PUBLIC_KEY)
-    subprocess.run(["openssl", "dgst", "-sha256", "-verify", str(key), "-signature", str(signature), str(manifest)], check=True)
+def verify(manifest, signature, directory, verifier=None):
+    if verifier:
+        verifier(PUBLIC_KEY, Path(signature).read_bytes(), Path(manifest).read_bytes())
+    else:
+        key = Path(directory) / "antu-confianza.pub"; key.write_bytes(PUBLIC_KEY)
+        subprocess.run(["openssl", "dgst", "-sha256", "-verify", str(key), "-signature", str(signature), str(manifest)], check=True)
     data = json.loads(Path(manifest).read_text())
     if data.get("schema") != 1 or data.get("filename") != "antu-live.iso" or not re.fullmatch(r"[a-f0-9]{64}", data.get("sha256", "")):
         raise ValueError("Manifiesto no válido.")
@@ -51,7 +81,7 @@ def verify(manifest, signature, directory):
     return data
 
 
-def assemble(data, directory, output):
+def assemble(data, directory, output, progress=None):
     output = Path(output)
     if output.exists():
         raise FileExistsError("El destino ya existe. No se sobrescribe: " + str(output))
@@ -59,18 +89,27 @@ def assemble(data, directory, output):
     import os
     try:
         with os.fdopen(fd, "wb") as target:
+            received = 0
             for part in data["parts"]:
                 path = Path(directory) / part["name"]
                 if path.stat().st_size != part["size"] or digest(path) != part["sha256"]:
                     raise ValueError("Parte incompleta o alterada: " + part["name"])
                 with path.open("rb") as source:
-                    shutil.copyfileobj(source, target, length=1024**2)
+                    while chunk := source.read(1024**2):
+                        target.write(chunk)
+                        received += len(chunk)
+                        if progress:
+                            progress(received)
             target.flush(); os.fsync(target.fileno())
         if digest(temporary) != data["sha256"]:
             raise ValueError("La ISO recompuesta no coincide con la firma del manifiesto.")
-        # link crea el destino de forma exclusiva; un archivo creado mientras se descargaba no se pierde.
-        os.link(temporary, output)
-        Path(temporary).unlink()
+        # En Windows rename rechaza un destino existente y funciona también en exFAT.
+        # En Linux, link publica de forma exclusiva sin sobrescribir una descarga ajena.
+        if os.name == "nt":
+            os.rename(temporary, output)
+        else:
+            os.link(temporary, output)
+            Path(temporary).unlink()
     finally:
         Path(temporary).unlink(missing_ok=True)
 
@@ -91,7 +130,7 @@ def main():
     directory.mkdir(exist_ok=True)
     base = f"https://github.com/{REPO}/releases/download/{urllib.parse.quote(args.tag)}/"
     manifest, signature = directory / "release.json", directory / "release.json.sig"
-    fetch(base + manifest.name, manifest); fetch(base + signature.name, signature)
+    fetch(base + manifest.name, manifest, limit=128 * 1024); fetch(base + signature.name, signature, limit=4096)
     data = verify(manifest, signature, directory)
     if shutil.disk_usage(args.output.parent).free < data["size"] * 2 + 1024**3:
         raise ValueError("Necesitas espacio para las partes y la ISO: aproximadamente el doble de su tamaño más 1 GB.")
@@ -99,7 +138,7 @@ def main():
         path = directory / part["name"]
         if not path.exists() or path.stat().st_size != part["size"] or digest(path) != part["sha256"]:
             print(f"Descargando parte {index}/{len(data['parts'])}: {part['size'] / 10**6:.0f} MB", flush=True)
-            fetch(base + part["name"], path)
+            fetch(base + part["name"], path, limit=part["size"])
         if digest(path) != part["sha256"]:
             raise ValueError("La descarga no superó la comprobación: " + part["name"])
     assemble(data, directory, args.output)

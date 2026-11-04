@@ -1,0 +1,113 @@
+name: descargas
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/descargar-antu*.py
+      - ci/descarga-*.txt
+      - ci/descarga-*.py
+      - ci/probar-descarga-empaquetada.py
+      - ci/publicar-descargas.py
+      - .github/workflows/descargas.yml
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión de prueba ya publicada a la que añadir la aplicación gráfica"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  compilar:
+    strategy:
+      matrix:
+        os: [windows-2025, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Preparar Python
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check -r ci/descarga-requirements.txt
+      - name: Compilar y probar sin consola
+        shell: bash
+        env:
+          QT_QPA_PLATFORM: offscreen
+          ANTU_CAPTURAS: capturas-descarga
+          ANTU_VERSION: ${{ inputs.version }}
+        run: |
+          python ci/descarga-test.py
+          python ci/descarga-icono.py
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --name Antu-Descargas \
+            --icon build-descarga/antu.ico \
+            --distpath entrega-descarga --workpath build-descarga \
+            --specpath build-descarga --add-data "scripts/descargar-antu.py:." \
+            --add-data "brand/antu-icon-256.png:." \
+            --add-data "files/system/usr/share/fonts/antu/Inter-Variable.ttf:." \
+            --add-data "files/system/usr/share/fonts/antu/Inter-OFL.txt:licencias" \
+            --add-data "LICENSE:licencias" \
+            --copy-metadata PyQt6 --copy-metadata cryptography \
+            scripts/descargar-antu-gui.py
+          if [ "$RUNNER_OS" = Linux ] && [ -n "$ANTU_VERSION" ]; then
+            sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          fi
+          python ci/probar-descarga-empaquetada.py
+      - name: Preparar archivo para descargar
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then
+            mv entrega-descarga/Antu-Descargas.exe entrega-descarga/Antu-Descargas-Windows.exe
+          else
+            tar -C entrega-descarga -czf entrega-descarga/Antu-Descargas-Linux.tar.gz Antu-Descargas
+            rm entrega-descarga/Antu-Descargas
+          fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: descarga-${{ runner.os }}
+          path: |
+            entrega-descarga/*
+            capturas-descarga/*
+          retention-days: 7
+
+  publicar:
+    needs: compilar
+    if: inputs.version != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Recuperar binarios probados
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" -n descarga-Windows -D descarga-windows
+          gh run download "$GITHUB_RUN_ID" -n descarga-Linux -D descarga-linux
+      - name: Firmar y añadir a la versión existente
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTU_FIRMA_PEM: ${{ secrets.ANTU_FIRMA_PEM }}
+          ANTU_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/antu-descargas.pem"
+          trap 'rm -f "$key"' EXIT
+          printf '%s\n' "$ANTU_FIRMA_PEM" > "$key"
+          python ci/publicar-descargas.py --version "$ANTU_VERSION" --key "$key"

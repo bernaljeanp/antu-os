@@ -1,0 +1,6 @@
+# Versiones publicadas en PyPI; el binario incluye Qt, Python y el verificador de firma.
+PyQt6==6.12.0
+PyQt6-Qt6==6.12.0
+PyQt6-sip==13.13.0
+cryptography==50.0.2
+pyinstaller==6.22.3

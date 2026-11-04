@@ -28,14 +28,41 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  iso:
-    name: Crear y probar la ISO
-    # Tras una compilación de la imagen, solo si salió bien; por push o a mano, siempre.
+  preparar:
+    name: Elegir la fuente de la ISO
     if: >-
       github.event_name != 'workflow_run' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'pull_request')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      ejecutar: ${{ steps.entrada.outputs.ejecutar }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Esperar la imagen cuando también cambia la base
+        id: entrada
+        run: |
+          python3 -m pip install --disable-pip-version-check PyYAML==6.0.3
+          python3 ci/iso-entrada.py --autoprueba
+          python3 ci/iso-entrada.py
+
+  iso:
+    name: Crear y probar la ISO
+    needs: preparar
+    # Tras una compilación de la imagen, solo si salió bien; por push o a mano, siempre.
+    if: >-
+      needs.preparar.outputs.ejecutar == 'true' &&
+      (github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'pull_request'))
+    runs-on: ubuntu-24.04
     timeout-minutes: 180
+    outputs:
+      version: ${{ steps.publicacion.outputs.version }}
     permissions:
       contents: write  # entrega duradera de la ISO verificada, en una versión de prueba
       packages: write  # para promover al canal estable la versión que pasó la prueba
@@ -74,6 +101,15 @@ jobs:
           mkdir -p capturas
           sudo podman run --rm -v "$PWD/capturas:/out" -v "$PWD/ci:/ci:ro" localhost/antu-live bash /ci/screenshots.sh
 
+      - name: Liberar las copias usadas solo para construir
+        run: |
+          # La ISO ya está sellada. Guardar las versiones antes de retirar el contenedor.
+          sudo podman run --rm localhost/antu-live pacman -Q nvidia-utils linux > iso-build/versiones.txt
+          sudo rm -rf iso-build/iso iso-build/esp
+          sudo rm -f iso-build/efiboot.img iso-build/datos.img
+          sudo podman system prune --all --force > /dev/null
+          df -h /
+
       - name: Probar en QEMU
         id: prueba_iso
         run: sudo bash ci/iso-test.sh iso-build
@@ -98,7 +134,7 @@ jobs:
 
           # Freno: la VM no tiene gráfica real. Las correcciones pasan solas, pero una rama nueva de NVIDIA o una versión nueva
           # del núcleo esperan a que alguien las apruebe tras probarlas en un equipo. Lo aprobado queda como etiqueta.
-          versiones="$(sudo podman run --rm localhost/antu-live pacman -Q nvidia-utils linux)"
+          versiones="$(cat iso-build/versiones.txt)"
           rama="$(awk '$1 == "nvidia-utils" {split($2, v, "."); print v[1]}' <<< "$versiones")"
           nucleo="$(awk '$1 == "linux" {split($2, v, "."); print v[1] "." v[2]}' <<< "$versiones")"
           [ -n "$rama" ] && [ -n "$nucleo" ]
@@ -127,6 +163,7 @@ jobs:
           echo "Canal estable: $image@$digest"
 
       - name: Publicar descarga duradera y firmada
+        id: publicacion
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTU_FIRMA_PEM: ${{ secrets.ANTU_FIRMA_PEM }}
@@ -161,6 +198,7 @@ jobs:
             --notes-file "$RUNNER_TEMP/release.md" --prerelease --draft \
             iso-build/release/* iso-build/escritorio-sistema.json iso-build/escritorio-live.json
           gh release edit "$tag" --draft=false
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Subir capturas y registros
         if: always()
@@ -188,3 +226,14 @@ jobs:
             iso-build/escritorio-live.json
           retention-days: 7
           compression-level: 0
+
+  descargadores:
+    needs: iso
+    if: needs.iso.outputs.version != ''
+    uses: ./.github/workflows/descargas.yml
+    with:
+      version: ${{ needs.iso.outputs.version }}
+    secrets: inherit
+    permissions:
+      contents: write
+      actions: read

@@ -4,6 +4,16 @@ on:
     branches: [main]
     paths-ignore:
       - "**.md"
+      # Web y descargador externo: tienen pruebas y empaquetado propios; no cambian la imagen Linux.
+      - "docs/**"
+      - scripts/descargar-antu.py
+      - scripts/descargar-antu-gui.py
+      - scripts/preparar-release.py
+      - ci/descarga-requirements.txt
+      - ci/descarga-*.py
+      - ci/probar-descarga-empaquetada.py
+      - ci/publicar-descargas.py
+      - .github/workflows/descargas.yml
       # Solo el USB en vivo: lo compila iso.yml sobre la imagen ya publicada.
       - Containerfile.live
       - "files/live/**"

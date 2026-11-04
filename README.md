@@ -77,7 +77,7 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 
 ## Instalar desde un USB
 
-1. Consulta la [página de descargas](https://bernaljeanp.github.io/antu-os/) o las [versiones públicas](https://github.com/bernaljeanp/antu-os/releases). Las nuevas entregas incluyen un manifiesto firmado, partes de la ISO y `descargar-antu.py`, que las verifica y reúne (Python 3 y OpenSSL). Mientras se publica la primera, *Actions → iso →* última ejecución verde *→* `antu-live-iso` conserva la ISO completa y su SHA-256 durante siete días.
+1. Consulta la [página de descargas](https://bernaljeanp.github.io/antu-os/) o las [versiones públicas](https://github.com/bernaljeanp/antu-os/releases). Abre **Descargas de Antu** para Windows, o extrae y abre la versión Linux. Elige dónde guardar la ISO: la aplicación comprueba la firma y reúne sus partes. No necesita Python instalado ni comandos; permite detener y reanudar. `descargar-antu.py` queda como alternativa para automatización (Python 3 y OpenSSL). *Actions → iso →* última ejecución verde *→* `antu-live-iso` conserva también la ISO completa durante siete días.
 2. Grábala en un USB de 16 GB o más con [USBoot](https://github.com/bernaljeanp/usboot), o con cualquier grabador en
    modo imagen (DD). El USB se borra entero.
 3. **Arranque seguro (Secure Boot):** puedes dejarlo activo. La primera vez que enciendas con el USB, registra la llave de Antu

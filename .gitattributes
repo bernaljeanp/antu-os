@@ -2,3 +2,7 @@
 * text=auto eol=lf
 *.png binary
 *.ttf binary
+# El espacio de contexto de un diff es parte de su formato, no código con espacios sobrantes.
+files/scripts/*.patch text eol=lf whitespace=-blank-at-eol
+# Conservar los finales de los textos de licencia upstream sin convertirlos en errores de código.
+third_party/bootc-LICENSE-* text eol=lf whitespace=-blank-at-eof

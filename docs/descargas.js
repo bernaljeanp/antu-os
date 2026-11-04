@@ -17,14 +17,22 @@
     }
     document.getElementById("version").textContent = release.tag_name + (release.prerelease ? " · versión de prueba" : "");
     document.getElementById("release-title").textContent = release.name || "Antu OS";
-    const download = document.getElementById("download");
-    download.href = asset.browser_download_url; download.hidden = false;
+    let graphical = false;
+    for (const [name, element] of [["Antu-Descargas-Windows.exe", "download"], ["Antu-Descargas-Linux.tar.gz", "download-linux"]]) {
+      const binary = release.assets.find(item => item.name === name);
+      if (binary && binary.browser_download_url.startsWith("https://github.com/bernaljeanp/antu-os/")) {
+        const link = document.getElementById(element);
+        link.href = binary.browser_download_url; link.hidden = false; graphical = true;
+      }
+    }
+    document.getElementById("gui-help").hidden = !graphical;
+    document.getElementById("script-download").href = asset.browser_download_url;
     document.getElementById("release-link").href = release.html_url;
     document.getElementById("download-command").textContent = "python descargar-antu.py --tag " + release.tag_name + " --output antu-live.iso";
     document.getElementById("command").hidden = false;
     const parts = release.assets.filter(item => /^antu-live\.iso\.parte-\d+$/.test(item.name));
     const size = parts.reduce((total, part) => total + part.size, 0);
-    state.textContent = "Publicada el " + new Date(release.published_at).toLocaleDateString("es-CL") + ". ISO de " + (size / 1e9).toFixed(1) + " GB. Descarga pública, sin cuenta de GitHub.";
+    state.textContent = "Publicada el " + new Date(release.published_at).toLocaleDateString("es-CL") + ". ISO de " + (size / 1e9).toFixed(1) + " GB. " + (graphical ? "Descarga pública, sin cuenta de GitHub." : "La aplicación de descarga con ventanas se está preparando. Puedes consultar los archivos de la versión.");
   } catch (error) {
     state.textContent = "No se pudo cargar la versión ahora. Usa «Ver versiones y archivos» para consultar la descarga directamente.";
   }
