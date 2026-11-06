@@ -46,6 +46,14 @@ Para investigar una tecla sin efecto, usa **Gestión del equipo → Probar tecla
 
 Otros modelos pueden enviar códigos diferentes o requerir Fn/Fn Lock. Zenit no intercepta F6/F7/F9 normales, que usan otras aplicaciones. Si no funciona F9, pulsa la tecla y exporta el informe: indica qué códigos anuncia cada dispositivo y si Zenit lo abrió. No contiene texto tecleado ni un registro del teclado. La compatibilidad física sigue pendiente de comprobar en el Alienware del usuario.
 
+## Suspensión, reanudación y reconexión
+
+Al detectar una reanudación, el motor vuelve a enviar el color y brillo guardados, reabre los dispositivos de teclas y reinicia la comparación de contadores térmicos. Detecta el tiempo suspendido comparando los relojes BOOTTIME y MONOTONIC de Linux, sin depender de cambios de fecha. También detecta la desaparición o nueva identidad del controlador HID, aunque vuelva a usar el mismo nombre. Si no está listo, reintenta en los ciclos de lectura posteriores.
+
+En modo solo luces esta recuperación no escribe perfiles ni límites de carga. En gestión completa, si Sigilo estaba activo, mantiene sus luces tenues. Al reiniciar el servicio se recuperan las preferencias guardadas, incluido brillo cero y la elección de gestión. El informe incluye el número de reanudaciones detectadas y si hay luces pendientes de enviar.
+
+Las pruebas cubren suspensión y fallos USB simulados. La suspensión real, la recuperación de firmware y el arranque físico deben comprobarse en el Alienware después de actualizar; no se han ejecutado desde el entorno en la nube.
+
 ## Actualización de lecturas y desplazamiento
 
 Las lecturas se actualizan conservando los controles existentes cuando no cambia la lista de sensores, baterías, juegos o perfiles. El desplazamiento automático para mostrar un control solo se activa al navegar con Tab o Mayús+Tab; una actualización o un cambio de foco incidental no debe bajar la página mientras la recorres con el ratón.
@@ -90,7 +98,7 @@ Si el kernel no expone un control, la interfaz lo deshabilita. Comprueba tambié
 
 ## Validación y límites
 
-Se han ejecutado las 31 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
+Se han ejecutado las 35 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
 
 ```bash
 python3 ci/zenit-test.py

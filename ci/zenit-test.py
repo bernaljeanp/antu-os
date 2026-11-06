@@ -202,6 +202,81 @@ class Zenit(unittest.TestCase):
             self.assertEqual(z.teclados(), {})
             self.assertEqual(z.teclados(prueba=True), {"/dev/input/event2": 42})
 
+    def test_reanudacion_restaura_luces_una_vez_sin_gestionar_energia(self):
+        service = self.service
+        service.estado.update(gestion="sistema", luces={"color": "123456", "brillo": 40})
+        service.controlador_actual = ("/dev/hidraw1", 1, 1)
+        service.suspendido_previo = 0
+        service.luces_puestas = True
+        service.prueba_teclas_hasta = float("inf")
+        with patch.object(z, "reloj_suspension", return_value=30), \
+             patch.object(z, "controlador_luces", return_value="/dev/hidraw1"), \
+             patch.object(z, "identidad_luces", return_value=service.controlador_actual), \
+             patch.object(z, "poner_luces", return_value={"enviado": True}) as lights, \
+             patch.object(z, "escribir") as write, patch.object(z, "poner_carga") as charge:
+            service.tic()
+            service.tic()
+            lights.assert_called_once_with("123456", 40)
+            write.assert_not_called()
+            charge.assert_not_called()
+        self.assertTrue(service.reabrir_entradas)
+        self.assertEqual(service.reanudaciones, 1)
+        self.assertTrue(service.luces_puestas)
+        self.assertEqual(service.prueba_teclas_hasta, 0)
+
+    def test_usb_desconectado_y_reconectado_restaura_incluso_misma_ruta(self):
+        service = self.service
+        service.estado["gestion"] = "sistema"
+        service.controlador_actual = ("/dev/hidraw1", 1, 1)
+        service.luces_puestas = True
+        with patch.object(z, "reloj_suspension", return_value=service.suspendido_previo), \
+             patch.object(z, "controlador_luces", return_value=None):
+            service.tic()
+        self.assertFalse(service.luces_puestas)
+        self.assertIn("desconectado", service.error_luces)
+        with patch.object(z, "reloj_suspension", return_value=service.suspendido_previo), \
+             patch.object(z, "controlador_luces", return_value="/dev/hidraw1"), \
+             patch.object(z, "identidad_luces", return_value=("/dev/hidraw1", 1, 2)), \
+             patch.object(z, "poner_luces", return_value={"enviado": True}) as lights:
+            service.tic()
+            service.tic()
+            lights.assert_called_once()
+        self.assertEqual(service.error_luces, "")
+        self.assertEqual(service.reanudaciones, 0)
+
+    def test_reanudacion_reintenta_controlador_ocupado_y_preserva_sigilo(self):
+        service = self.service
+        service.sigilo = True
+        service.suspendido_previo = 0
+        service.controlador_actual = ("/dev/hidraw1", 1, 1)
+        with patch.object(z, "reloj_suspension", return_value=10), \
+             patch.object(z, "controlador_luces", return_value="/dev/hidraw1"), \
+             patch.object(z, "identidad_luces", return_value=service.controlador_actual), \
+             patch.object(z, "poner_luces", side_effect=[OSError("ocupado"), {"enviado": True}]) as lights:
+            service.tic()
+            self.assertFalse(service.luces_puestas)
+            service.tic()
+            self.assertTrue(service.luces_puestas)
+            self.assertEqual(lights.call_count, 2)
+            lights.assert_called_with("FFFFFF", 15)
+
+    def test_reinicio_carga_preferencias_y_espera_al_usb_sin_cambiar_bateria(self):
+        self.service.estado.update(gestion="sistema", luces={"color": "7CC4FF", "brillo": 0}, carga="80")
+        self.service.guardar()
+        with patch.object(z, "controlador_luces", return_value=None):
+            restarted = z.Zenit(procesos=lambda: [])
+            restarted.tic()
+        self.assertFalse(restarted.luces_puestas)
+        with patch.object(z, "controlador_luces", return_value="/dev/hidraw1"), \
+             patch.object(z, "poner_luces", return_value={"enviado": True}) as lights, \
+             patch.object(z, "escribir") as write, patch.object(z, "poner_carga") as charge:
+            restarted.restaurar_carga()
+            restarted.tic()
+            lights.assert_called_once_with("7CC4FF", 0)
+            write.assert_not_called()
+            charge.assert_not_called()
+        self.assertEqual(restarted.estado["gestion"], "sistema")
+
     def test_f7_en_solo_luces_no_actua_ni_muestra_avisos(self):
         self.service.estado["gestion"] = "sistema"
         previous = {"codigo": z.KEY_F18, "accion": "luces", "aceptada": True}

@@ -352,6 +352,21 @@ def controlador_luces():
     return None
 
 
+def identidad_luces(dispositivo):
+    if not dispositivo:
+        return None
+    try:
+        stat = os.stat(ruta("/sys/class/hidraw/" + os.path.basename(dispositivo)))
+        return dispositivo, stat.st_dev, stat.st_ino
+    except OSError:
+        return dispositivo, None, None
+
+
+def reloj_suspension():
+    # BOOTTIME incluye suspensión; MONOTONIC no. No depende de ajustes de fecha/NTP.
+    return time.clock_gettime(time.CLOCK_BOOTTIME) - time.monotonic()
+
+
 def poner_luces(color, brillo):
     dispositivo = controlador_luces()
     if not dispositivo:
@@ -474,6 +489,10 @@ class Zenit:
         self.vistos = {}  # pid -> juego o None: cada proceso se revisa una sola vez
         self.con_gamemode = {}  # juego -> pid que se le pidió a GameMode
         self.procesos = procesos or self.leer_procesos
+        self.controlador_actual = identidad_luces(controlador_luces())
+        self.suspendido_previo = reloj_suspension()
+        self.reanudaciones = 0
+        self.reabrir_entradas = False
         self.luces_puestas = False
         self.luces_envio = None
         self.error_luces = ""
@@ -505,6 +524,7 @@ class Zenit:
             self.luces_envio = poner_luces(color, brillo)
             self.error_luces = ""
             self.luces_puestas = True
+            self.controlador_actual = identidad_luces(controlador_luces())
         except (OSError, RuntimeError, ValueError) as error:
             self.error_luces = str(error)
             raise
@@ -555,7 +575,26 @@ class Zenit:
             if leer(perfil) != elegido:
                 raise RuntimeError("El firmware no confirmó el perfil solicitado. Se conserva el estado anterior.")
 
+    def recuperar_dispositivos(self):
+        suspended = reloj_suspension()
+        resumed = suspended - self.suspendido_previo > 0.5
+        self.suspendido_previo = suspended
+        identity = identidad_luces(controlador_luces())
+        if resumed:
+            self.reanudaciones += 1
+            self.reabrir_entradas = True
+            self.thermal_previous = contadores_termicos()
+            self.limitacion_termica = None
+            self.prueba_teclas_hasta = 0
+        if resumed or identity != self.controlador_actual:
+            self.luces_puestas = False
+            self.luces_envio = None
+            if identity is None and self.controlador_actual is not None:
+                self.error_luces = "Controlador de luces desconectado; se reintentará cuando aparezca."
+        self.controlador_actual = identity
+
     def tic(self):
+        self.recuperar_dispositivos()
         juegos = self.procesos()
         self.juego = juegos[0] if juegos else None
         try:
@@ -575,7 +614,8 @@ class Zenit:
         if not self.luces_puestas and controlador_luces():  # al arrancar, cuando el USB ya está listo
             self.luces_puestas = True
             try:
-                self.enviar_luces(self.estado["luces"]["color"], self.estado["luces"]["brillo"])
+                self.enviar_luces(*(("FFFFFF", 15) if self.sigilo else
+                                    (self.estado["luces"]["color"], self.estado["luces"]["brillo"])))
             except (OSError, RuntimeError, ValueError):
                 self.ultimo_error = "El controlador de luces no confirmó el cambio."
                 self.luces_puestas = False
@@ -669,6 +709,7 @@ class Zenit:
                 "temperaturas_c": state["temperaturas"], "limites_termicos_c": state["limites_termicos"],
                 "hwmon": chips, "graficas": graphics,
                 "carga": {"modo": state["carga_modo"], "limite": state["carga_tope"]},
+                "recuperacion": {"reanudaciones_detectadas": self.reanudaciones, "luces_pendientes": not self.luces_puestas},
                 "luces": {"envio_registrado": bool(self.luces_envio), "ultimo_envio_fallo": bool(self.error_luces)},
                 "notas": ["Una instantánea de 0 rpm no confirma que el ventilador esté parado.",
                           "No se consultó nvidia-smi ni se modificaron perfiles, luces o batería.",
@@ -710,6 +751,7 @@ class Zenit:
                     "prueba_teclas": self.estado_prueba_teclas(),
                     "ultima_tecla": self.ultima_tecla, "entradas_abiertas": len(self.entradas_abiertas),
                     "gestion": self.estado["gestion"], "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga(),
+                    "reanudaciones_detectadas": self.reanudaciones,
                     "luces_envio": self.luces_envio, "error_luces": self.error_luces,
                     "capacidades": capacidades(), "baterias": bateria(), "limites_termicos": limites_termicos(),
                     "nvidia": self.nvidia, "limitacion_termica_observada": self.limitacion_termica,
@@ -811,6 +853,14 @@ def demonio():
                 zenit.tic()
             except (OSError, RuntimeError, ValueError) as error:
                 zenit.ultimo_error = "No se pudo actualizar el estado: " + str(error)
+            if zenit.reabrir_entradas:
+                for handle in teclas.values():
+                    try:
+                        os.close(handle)
+                    except OSError:
+                        pass
+                teclas = {}
+                zenit.reabrir_entradas = False
             teclas = teclados(teclas, prueba=time.monotonic() < zenit.prueba_teclas_hasta)
             zenit.entradas_abiertas = [os.path.basename(path) for path in teclas]
             siguiente = time.monotonic() + 3
