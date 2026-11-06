@@ -4,6 +4,7 @@
 Port de Zenit Engine (Windows) a las interfaces del kernel: alienware-wmi (perfil de plataforma y sensores con
 fanN_boost), dell-wmi-sysman (atributos de la BIOS para la carga) y hidraw para el controlador de luces AW-ELC.
 
+  zenit gestion sistema|zenit   solo luces y monitorización, o control completo
   zenit demonio                 servicio de sistema (root): aplica perfiles, escucha las teclas, guarda el estado
   zenit estado                  temperaturas, ventiladores, perfil y modo
   zenit perfil auto|NOMBRE      automático (cargador, batería y juegos) o un perfil fijo
@@ -159,8 +160,13 @@ def sensores():
                 temps.setdefault(etiqueta, grados)
         for f in sorted(glob.glob(d + "/fan*_input")):  # de cualquier marca: asus, thinkpad, dell_smm…
             valor = leer(f)
-            if valor.isdigit():
-                fans[leer(f.replace("_input", "_label"), os.path.basename(f)[:4])] = int(valor)
+            # Nombre estable sin colisiones entre chips; no convertir fallos en cero.
+            etiqueta = leer(f.replace("_input", "_label"), os.path.basename(f).removesuffix("_input"))
+            clave = f"{nombre or os.path.basename(d)} / {etiqueta}"
+            if clave in fans:
+                clave = f"{os.path.basename(d)} / {clave}"
+            fault = leer(f.replace("_input", "_fault"), "0")
+            fans[clave] = int(valor) if valor.isdigit() and fault == "0" else None
     if paquetes:
         # El sensor del procesador tiene prioridad sobre el del firmware, sin depender del orden de hwmon.
         # En equipos con varios paquetes se muestra el más caliente, no una media que oculte un pico.
@@ -413,12 +419,14 @@ def aviso(titulo, detalle):
 # ---------- El servicio ----------
 
 class Zenit:
-    def __init__(self, procesos=None):
-        self.estado = {"modo": "auto", "juegos": {}, "luces": {"color": "FFFFFF", "brillo": 100}}
+    def __init__(self, procesos=None, gestion="zenit"):
+        self.estado = {"gestion": gestion, "modo": "auto", "juegos": {}, "luces": {"color": "FFFFFF", "brillo": 100}}
         try:
             with open(ruta(ESTADO)) as f:
                 saved = json.load(f)
                 if isinstance(saved, dict):
+                    if saved.get("gestion") in ("sistema", "zenit"):
+                        self.estado["gestion"] = saved["gestion"]
                     if saved.get("modo") in {"auto", *PERFILES}:
                         self.estado["modo"] = saved["modo"]
                     self.estado["juegos"] = {k: v for k, v in (saved.get("juegos") or {}).items()
@@ -455,6 +463,10 @@ class Zenit:
             if os.path.exists(temporary):
                 os.unlink(temporary)
 
+    def restaurar_carga(self):
+        if self.estado["gestion"] == "zenit" and topes_de_bateria() and self.estado.get("carga"):
+            poner_carga(None if self.estado["carga"] == "adaptativa" else int(self.estado["carga"]))
+
     def leer_procesos(self):
         vivos = {}
         for d in glob.glob(ruta("/proc/[0-9]*")):
@@ -486,6 +498,8 @@ class Zenit:
         return leer(perfil) if perfil else ""
 
     def aplicar(self):
+        if self.estado["gestion"] == "sistema":
+            return
         perfil, opciones = rutas_perfil()
         if not perfil:
             return
@@ -509,7 +523,7 @@ class Zenit:
         common = counters.keys() & self.thermal_previous.keys()
         self.limitacion_termica = any(counters[key] > self.thermal_previous[key] for key in common) if common else None
         self.thermal_previous = counters
-        if en_cargador():  # con batería, un juego no debe subir el consumo más de lo que ya pide el perfil
+        if self.estado["gestion"] == "zenit" and en_cargador():  # con batería, un juego no debe subir el consumo más de lo que ya pide el perfil
             for pid in pendientes_gamemode(self.vistos, self.con_gamemode):
                 pedir_gamemode(pid)
         if not self.luces_puestas and controlador_luces():  # al arrancar, cuando el USB ya está listo
@@ -554,15 +568,24 @@ class Zenit:
                     "perfiles": leer(opciones).split() if opciones else [], "carga_modo": carga_modo,
                     "carga_tope": carga_tope, "juegos": self.estado["juegos"],
                     "juego": self.juego, "boost": self.boost, "sigilo": self.sigilo, "temperaturas": temps,
-                    "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga(),
+                    "gestion": self.estado["gestion"], "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga(),
                     "capacidades": capacidades(), "baterias": bateria(), "limites_termicos": limites_termicos(),
                     "nvidia": self.nvidia, "limitacion_termica_observada": self.limitacion_termica,
                     "ultimo_error": self.ultimo_error, "ultima_muestra": self.ultima_muestra,
                     "perfil_solicitado": self.deseado(),
-                    "motivo": "Boost temporal" if self.boost else "Sigilo temporal" if self.sigilo else
+                    "motivo": "Energía y batería gestionadas por el sistema" if self.estado["gestion"] == "sistema" else
+                              "Boost temporal" if self.boost else "Sigilo temporal" if self.sigilo else
                               "Perfil fijo" if self.estado["modo"] != "auto" else
                               "Juego detectado: " + self.juego if self.juego else
                               "Automático con cargador" if en_cargador() else "Automático con batería"}
+        if o == "gestion" and len(args) == 2 and args[1] in ("sistema", "zenit"):
+            self.estado["gestion"] = args[1]
+            self.boost = self.sigilo = False
+            self.aplicar()
+            self.guardar()
+            return {"ok": True}
+        if self.estado["gestion"] == "sistema" and o in ("perfil", "juego", "boost", "sigilo", "carga"):
+            raise RuntimeError("Solo luces y monitorización: la energía y la batería las gestiona el sistema.")
         if o == "perfil" and len(args) == 2 and (args[1] == "auto" or args[1] in PERFILES):
             _, options = rutas_perfil()
             if args[1] != "auto" and args[1] not in (leer(options).split() if options else []):
@@ -621,13 +644,12 @@ class Zenit:
 
 
 def demonio():
-    zenit = Zenit()
+    zenit = Zenit(gestion="sistema" if "--solo-luces" in sys.argv else "zenit")
     # El límite estándar se pierde al apagar en varias marcas; el de Dell queda en la BIOS.
-    if topes_de_bateria() and zenit.estado.get("carga"):
-        try:
-            poner_carga(None if zenit.estado["carga"] == "adaptativa" else int(zenit.estado["carga"]))
-        except (OSError, RuntimeError, ValueError):
-            pass
+    try:
+        zenit.restaurar_carga()
+    except (OSError, RuntimeError, ValueError):
+        pass
     if os.path.exists(SOCKET):
         os.unlink(SOCKET)
     servidor = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -702,8 +724,9 @@ def cliente(args):
         sys.exit(respuesta.get("error", "Zenit no pudo hacerlo."))
     if args[0] == "estado":
         r = respuesta
+        print("Gestión: " + r.get("gestion", "zenit"))
         print(f"Perfil: {PERFILES.get(r['perfil'], r['perfil'] or 'no disponible')}"
-              f" ({'automático' if r['modo'] == 'auto' else 'fijo'}"
+              f" ({'observado del sistema' if r.get('gestion') == 'sistema' else 'automático' if r['modo'] == 'auto' else 'fijo'}"
               f"{', Boost' if r['boost'] else ''}{', Sigilo' if r['sigilo'] else ''})")
         print(f"Energía: {'cargador' if r['cargador'] else 'batería'} · carga {r['carga']}")
         if r["juego"]:
@@ -711,7 +734,7 @@ def cliente(args):
         for nombre, grados in r["temperaturas"].items():
             print(f"{nombre}: {grados} °C")
         for nombre, rpm in r["ventiladores"].items():
-            print(f"{nombre}: {rpm} rpm")
+            print(f"{nombre}: " + ("lectura no disponible" if rpm is None else "0 rpm informadas; parada no confirmada" if rpm == 0 else f"{rpm} rpm"))
         luces = r["luces"]
         print(f"Luces: {'Aurora' if luces['color'] == 'AURORA' else '#' + luces['color']} al {luces['brillo']} %")
     elif "aviso" in respuesta:
@@ -817,7 +840,7 @@ def autoprueba():
         for archivo, valor in (("hwmon0/name", "k10temp"), ("hwmon0/temp1_input", "72000"), ("hwmon0/temp1_label", "Tctl"),
                                ("hwmon1/name", "asus"), ("hwmon1/fan1_input", "3100"), ("hwmon1/fan1_label", "cpu_fan")):
             escribir(raiz + "/sys/class/hwmon/" + archivo, valor)
-        assert sensores() == ({"CPU": 72}, {"cpu_fan": 3100})
+        assert sensores() == ({"CPU": 72}, {"asus / cpu_fan": 3100})
         RAIZ = ""
 
     print("Zenit: autoprueba OK")

@@ -26,6 +26,22 @@ journalctl -u zenit -b
 
 Objetivo solicitado: Alienware descrito como «X16 Aurora R6, RTX 5070, i9». El modelo DMI exacto y la versión del kernel deben comprobarse en el equipo; no se da por equivalente al AC16251 de referencia de Antu.
 
+## Solo luces y monitorización
+
+La instalación en Bazzite usa ahora este modo por defecto, también al actualizar una instalación antigua que no guardaba una elección de gestión. En Zenit puedes cambiarlo con **Solo luces y monitorización**. Se conserva una elección explícita al reiniciar o reinstalar.
+
+En este modo, Zenit mantiene las luces (incluida F9), los sensores y la detección de juegos, pero no escribe perfiles térmicos, no solicita GameMode, no restaura límites de batería al arrancar y bloquea los cambios de carga, Boost/F6 y Sigilo/F7. Bazzite conserva la gestión de energía. No revierte límites ya escritos a la BIOS ni el último perfil aplicado. La CPU y GPU mantienen la regulación térmica del firmware.
+
+También se puede elegir por CLI:
+
+```bash
+~/.local/share/zenit/zenit-cli gestion sistema
+# Control completo, solo si quieres que Zenit gestione los perfiles:
+~/.local/share/zenit/zenit-cli gestion zenit
+```
+
+Los ventiladores incluyen el chip y la etiqueta para evitar sobrescribir sensores con el mismo nombre. Un error, valor inválido o indicador de fallo se muestra como «Lectura no disponible». Un cero se muestra como «0 rpm informadas · parada no confirmada»: no prueba que el ventilador esté físicamente detenido. Si no hay sensores, se informa su ausencia.
+
 El motor detecta `alienware-wmi`, perfiles de plataforma (interfaz nueva y ACPI), `hwmon`, límites de batería y Dell WMI sysman. AlienFX usa HID cuando reconoce el controlador. La presencia de una RTX 5070 no garantiza soporte de estas interfaces. No instala módulos de terceros ni controladores de Windows. NVIDIA se consulta cuando corresponde mediante `nvidia-smi`; se evita despertar la GPU dedicada en reposo.
 
 Antes de atribuir un fallo al programa, recoge estos datos de solo lectura:
@@ -42,7 +58,7 @@ Si el kernel no expone un control, la interfaz lo deshabilita. Comprueba tambié
 
 ## Validación y límites
 
-Se han ejecutado las 12 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
+Se han ejecutado las 17 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
 
 ```bash
 python3 ci/zenit-test.py

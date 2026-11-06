@@ -113,6 +113,70 @@ class Zenit(unittest.TestCase):
         self.assertEqual(device["temperatura"], 65)
         self.assertIsNone(device["vatios"])
 
+    def test_solo_luces_no_escribe_perfiles_bateria_ni_gamemode(self):
+        service = z.Zenit(procesos=lambda: ["cs2"], gestion="sistema")
+        service.estado["carga"] = "80"
+        service.vistos = {123: "cs2"}
+        with patch.object(z, "escribir") as write, patch.object(z, "poner_carga") as charge, \
+             patch.object(z, "pedir_gamemode") as gamemode, patch.object(z, "poner_luces"):
+            service.tic()
+            service.restaurar_carga()
+            for command in (["perfil", "auto"], ["perfil", "quiet"], ["boost"], ["sigilo"],
+                            ["carga", "80"], ["juego", "cs2", "performance"]):
+                self.assertFalse(service.orden(command)["ok"], command)
+            service.tecla(z.KEY_F17)
+            service.tecla(z.KEY_F20)
+            write.assert_not_called()
+            charge.assert_not_called()
+            gamemode.assert_not_called()
+        with patch.object(z, "poner_luces") as lights:
+            self.assertTrue(service.orden(["color", "123456", "40"])["ok"])
+            lights.assert_called_once_with("123456", 40)
+        self.assertEqual(service.orden(["estado"])["gestion"], "sistema")
+
+    def test_cambio_de_gestion_persiste_sin_revertir_el_hardware(self):
+        self.assertTrue(self.service.orden(["perfil", "quiet"])["ok"])
+        with patch.object(z, "escribir") as write:
+            self.assertTrue(self.service.orden(["gestion", "sistema"])["ok"])
+            write.assert_not_called()
+        restored = z.Zenit(procesos=lambda: [], gestion="zenit")
+        self.assertEqual(restored.estado["gestion"], "sistema")
+        self.assertTrue(restored.orden(["gestion", "zenit"])["ok"])
+        self.assertTrue(restored.orden(["perfil", "performance"])["ok"])
+        self.assertEqual(z.leer(z.ruta(self.profile + "profile")), "performance")
+
+    def test_actualizacion_bazzite_con_estado_antiguo_usa_solo_luces(self):
+        self.write(z.ESTADO, '{"modo":"performance","carga":"80","luces":{"color":"123456","brillo":40}}')
+        service = z.Zenit(procesos=lambda: [], gestion="sistema")
+        self.assertEqual(service.estado["gestion"], "sistema")
+        self.assertEqual(service.estado["luces"], {"color": "123456", "brillo": 40})
+        with patch.object(z, "escribir") as write, patch.object(z, "poner_carga") as charge:
+            service.aplicar()
+            service.restaurar_carga()
+            write.assert_not_called()
+            charge.assert_not_called()
+
+    def test_fallo_al_guardar_gestion_no_confirma_el_cambio(self):
+        with patch.object(z.os, "replace", side_effect=OSError("disco lleno")):
+            self.assertFalse(self.service.orden(["gestion", "sistema"])["ok"])
+        self.assertEqual(self.service.estado["gestion"], "zenit")
+
+    def test_ventiladores_cero_fallo_y_nombres_sin_colisiones(self):
+        for chip in ("hwmon0", "hwmon1"):
+            path = "/sys/class/hwmon/" + chip + "/"
+            self.write(path + "name", "alienware_wmi")
+            self.write(path + "fan1_label", "CPU")
+            self.write(path + "fan1_input", "0" if chip == "hwmon0" else "2500")
+        self.write("/sys/class/hwmon/hwmon0/fan2_input", "not available")
+        self.write("/sys/class/hwmon/hwmon0/fan3_input", "1200")
+        self.write("/sys/class/hwmon/hwmon0/fan3_fault", "1")
+        self.write("/sys/class/hwmon/hwmon0/fan4_input", "-1")
+        fans = self.service.orden(["estado"])["ventiladores"]
+        self.assertEqual(fans["alienware_wmi / CPU"], 0)
+        self.assertEqual(fans["hwmon1 / alienware_wmi / CPU"], 2500)
+        for name in ("fan2", "fan3", "fan4"):
+            self.assertIsNone(fans["alienware_wmi / " + name])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

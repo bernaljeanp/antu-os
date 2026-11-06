@@ -32,6 +32,9 @@ engine.load(QUrl.fromLocalFile(str(base / "zenit/Zenit.qml")))
 assert engine.rootObjects(), "La ventana no se pudo crear"
 window = engine.rootObjects()[0]
 window.show()
+backend.gestion("sistema")
+backend._estado["ventiladores"] = {"Sensor sin lectura": None, "Sensor cero": 0, "Sensor activo": 2300}
+backend.cambio.emit()
 QTimer.singleShot(500, app.quit)
 app.exec()
 sip.delete(engine)  # destruir las vinculaciones QML antes del backend

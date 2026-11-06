@@ -156,6 +156,10 @@ class Backend(QObject):
         return self._enviar(args)
 
     @pyqtSlot(str)
+    def gestion(self, nombre):
+        self.orden(["gestion", nombre], lambda: self._estado.update(gestion=nombre))
+
+    @pyqtSlot(str)
     def perfil(self, nombre):
         self.orden(["perfil", nombre], lambda: self._estado.update(
             modo=nombre, perfil=self._estado["perfil"] if nombre == "auto" else nombre))
@@ -247,7 +251,7 @@ def main():
     def resumen():
         e = backend.estado
         for key, action in acciones.items():
-            action.setEnabled(backend.conectado and not backend.ocupado and (key == "auto" or key in e.get("perfiles", [])))
+            action.setEnabled(backend.conectado and not backend.ocupado and e.get("gestion") != "sistema" and (key == "auto" or key in e.get("perfiles", [])))
         if not backend.conectado:
             icono.setToolTip("Zenit · el servicio no responde")
             return

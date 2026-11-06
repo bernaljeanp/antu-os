@@ -3,7 +3,7 @@ Description=Zenit: perfiles térmicos, luces y teclas Alienware
 After=power-profiles-daemon.service
 
 [Service]
-ExecStart=/usr/bin/python3 /var/opt/zenit/zenit.py demonio
+ExecStart=/usr/bin/python3 /var/opt/zenit/zenit.py demonio --solo-luces
 StateDirectory=zenit
 Restart=on-failure
 RestartSec=5

@@ -28,7 +28,8 @@ ApplicationWindow {
     readonly property var fans: e.ventiladores || ({})
     readonly property int cpu: temps.CPU !== undefined ? temps.CPU : 0
     readonly property int gpu: temps.GPU !== undefined ? temps.GPU : 0
-    readonly property bool auto: e.modo === "auto"
+    readonly property bool sistema: e.gestion === "sistema"
+    readonly property bool auto: !sistema && e.modo === "auto"
     readonly property var perfiles: e.perfiles || []
     readonly property var capacidades: e.capacidades || ({})
     readonly property bool ocupado: backend.ocupado
@@ -423,11 +424,11 @@ ApplicationWindow {
                           : root.e.limitacion_termica_observada === true ? ["Limitación térmica observada", "Los contadores del procesador aumentaron durante el último intervalo. Revisa ventilación y condiciones de la prueba."]
                           : root.e.boost ? ["Performance Boost activo", "Perfil de rendimiento solicitado al firmware. Pulsa F6 para volver."]
                           : root.e.sigilo ? ["Modo Sigilo", "Luces tenues y perfil Silencioso. Pulsa F7 para volver."]
-                          : root.e.juego ? ["Jugando", root.e.juego + " corre en " + root.nombrePerfil(root.e.perfil) + ". Al cerrarlo vuelve tu perfil de siempre."]
+                          : root.e.juego ? ["Jugando", root.e.juego + " corre en " + root.nombrePerfil(root.e.perfil) + (root.sistema ? ". El sistema gestiona el perfil." : ". Al cerrarlo vuelve tu perfil de siempre.")]
                           : root.cpu >= 90 ? ["El procesador está muy caliente",
                                               "Revisa que las rejillas no estén tapadas, o elige un perfil con más ventilación."]
                           : root.cpu <= 0 ? ["Sin lectura del procesador", "El equipo no está entregando una temperatura válida. Esto no confirma su estado térmico."]
-                          : ["Perfil aplicado", root.nombrePerfil(root.e.perfil) + (root.e.cargador ? " con el cargador." : " con batería.")
+                          : [root.sistema ? "Perfil del sistema" : "Perfil aplicado", root.nombrePerfil(root.e.perfil) + (root.e.cargador ? " con el cargador." : " con batería.")
                                               + (root.auto ? " Zenit lo cambia solo al abrir un juego." : "")]
                         Text {
                             Layout.fillWidth: true
@@ -446,7 +447,7 @@ ApplicationWindow {
                             Layout.topMargin: 6 * root.u
                             spacing: 10 * root.u
                             visible: root.conectado
-                            Chip { texto: root.auto ? "Automático" : "Perfil fijo"; encendido: root.auto }
+                            Chip { texto: root.sistema ? "Gestiona el sistema" : root.auto ? "Automático" : "Perfil fijo"; encendido: root.auto }
                             Chip { texto: root.e.cargador ? "Con cargador" : "Con batería" }
                             Chip { texto: "Batería: " + (root.e.carga || "—") }
                         }
@@ -456,7 +457,18 @@ ApplicationWindow {
 
             // 2. Perfil térmico.
             Panel {
-                titulo: "Perfil térmico"
+                titulo: "Gestión del equipo"
+                Switch {
+                    text: "Solo luces y monitorización"
+                    checked: root.sistema
+                    enabled: root.conectado && !root.ocupado
+                    onToggled: backend.gestion(checked ? "sistema" : "zenit")
+                }
+                Nota {
+                    text: root.sistema
+                        ? "Bazzite o tu sistema conserva la gestión de energía, perfiles y batería. Zenit solo cambia las luces y muestra lecturas. Los valores anteriores de la BIOS no se revierten."
+                        : "Zenit gestiona perfiles térmicos y permite cambiar la carga. Evita usar otro gestor de perfiles simultáneamente."
+                }
                 GridLayout {
                     columns: root.compacta ? 1 : 4
                     uniformCellWidths: true
@@ -475,7 +487,7 @@ ApplicationWindow {
                             required property var modelData
                             titulo: root.nombrePerfil(modelData.id)
                             detalle: modelData.detalle
-                            enabled: root.conectado && !root.ocupado && root.perfiles.length > 0
+                            enabled: root.conectado && !root.ocupado && !root.sistema && root.perfiles.length > 0
                             activa: root.e.perfil === modelData.id
                             tenue: root.auto
                             onClicked: backend.perfil(modelData.id)
@@ -488,7 +500,7 @@ ApplicationWindow {
                     spacing: 18 * root.u
                     Switch {
                         checked: root.auto
-                        enabled: root.conectado && !root.ocupado && root.perfiles.length > 0
+                        enabled: root.conectado && !root.ocupado && !root.sistema && root.perfiles.length > 0
                         text: "Automático"
                         font.family: "Inter"
                         font.pixelSize: Antu.pixels(23, root.u)
@@ -500,7 +512,7 @@ ApplicationWindow {
                         onToggled: backend.perfil(checked ? "auto" : (root.e.perfil || "balanced"))
                     }
                     Nota {
-                        text: root.auto
+                        text: root.sistema ? "Perfil observado del sistema; Zenit no lo modifica." : root.auto
                               ? "Equilibrado+ con el cargador, Equilibrado con batería y Rendimiento al abrir un juego de Steam, Heroic, Lutris o Bottles."
                               : "Perfil fijo: Zenit no lo cambia solo. Activa Automático para que se ajuste a lo que haces."
                     }
@@ -569,7 +581,8 @@ ApplicationWindow {
                         delegate: RowLayout {
                             id: filaVentilador
                             required property string modelData
-                            readonly property int rpm: root.fans[modelData]
+                            readonly property var lectura: root.fans[modelData]
+                            readonly property int rpm: lectura === null || lectura === undefined ? 0 : lectura
                             spacing: 18 * root.u
                             Image {
                                 source: "ventilador.svg"
@@ -594,7 +607,11 @@ ApplicationWindow {
                                     font.pixelSize: Antu.pixels(20, root.u)
                                 }
                                 Text {
-                                    text: root.miles(filaVentilador.rpm) + " rpm"
+                                    text: filaVentilador.lectura === null || filaVentilador.lectura === undefined ? "Lectura no disponible"
+                                        : filaVentilador.rpm === 0 ? "0 rpm informadas · parada no confirmada"
+                                        : root.miles(filaVentilador.rpm) + " rpm"
+                                    wrapMode: Text.WordWrap
+                                    Layout.fillWidth: true
                                     color: root.ink
                                     font.family: "Inter"
                                     font.pixelSize: Antu.pixels(30, root.u)
@@ -769,7 +786,7 @@ ApplicationWindow {
                             implicitHeight: Math.max(84 * root.u, contentItem.implicitHeight + 16 * root.u)
                             titulo: modelData.titulo
                             detalle: modelData.detalle
-                            enabled: root.conectado && !root.ocupado && panelBateria.disponible
+                            enabled: root.conectado && !root.ocupado && !root.sistema && panelBateria.disponible
                                      && (modelData.id !== "adaptativa" || !!root.capacidades.carga_adaptativa)
                             activa: enabled && panelBateria.actual === modelData.id
                             onClicked: backend.carga(modelData.id)
@@ -834,6 +851,7 @@ ApplicationWindow {
                             Layout.preferredWidth: 360 * root.u
                             textRole: "text"
                             valueRole: "value"
+                            enabled: root.conectado && !root.ocupado && !root.sistema
                             Accessible.name: "Perfil para " + filaJuego.modelData
                             model: [
                                 { text: "Automático", value: "auto" },
