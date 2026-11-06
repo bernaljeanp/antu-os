@@ -594,6 +594,10 @@ class Zenit:
                                                        "tecla": candidates[codigo], "pulsaciones": 0})
             event["pulsaciones"] += 1
             return  # durante la prueba Zenit observa, sin ejecutar la acción de la tecla
+        # XKB asigna F20 a XF86AudioMicMute. En modo solo luces pertenece al escritorio:
+        # no ejecutar Sigilo, no mostrar avisos y no sustituir la última acción de Zenit.
+        if codigo == KEY_F20 and self.estado["gestion"] == "sistema":
+            return
         orden = TECLAS_ZENIT.get(codigo)
         if orden:
             result = self.orden([orden])
@@ -656,7 +660,8 @@ class Zenit:
                                             for path, codes in dispositivos_teclas().items()],
                            "ultima_especial": self.ultima_tecla, "prueba": self.estado_prueba_teclas(),
                            "f6_f7_bloqueadas_por_modo": self.estado["gestion"] == "sistema",
-                           "nota": "Se atienden F17/F18/F20. No se interceptan las teclas F6/F7/F9 normales ni se registran pulsaciones de texto."},
+                           "politica_f7": "escritorio_sin_accion_de_zenit" if self.estado["gestion"] == "sistema" else "sigilo",
+                           "nota": "F18 controla luces; F20 se deja al escritorio en modo solo luces. La prueba temporal puede contarla sin ejecutar acciones. No se interceptan F6/F7/F9 normales ni se registra texto."},
                 "modulos": {name: os.path.isdir(ruta("/sys/module/" + name))
                             for name in ("alienware_wmi", "dell_wmi_sysman", "dell_smm_hwmon", "nvidia", "i915", "xe")},
                 "gestion": state["gestion"], "perfil_observado": state["perfil"],

@@ -40,7 +40,7 @@ Alternativa por terminal (la redirección usa los permisos de tu shell):
 
 El servicio atiende F17 (Boost), F18 (luces) y F20 (Sigilo), que algunos Alienware envían con sus teclas Fn. Se abren dispositivos que anuncien cualquiera de ellas, no solo F17, y se vuelven a buscar cada tres segundos para cubrir arranque tardío o reconexión. El panel muestra cuántos están abiertos y la última tecla especial atendida.
 
-En modo solo luces, F9/F18 funciona, mientras F6/F17 y F7/F20 muestran un aviso y no modifican perfiles. Para usar perfiles desde esas teclas hay que elegir gestión completa de Zenit y comprobar que otro gestor no compita con él.
+En modo solo luces, F9/F18 controla las luces. F7/F20 se deja al escritorio sin acciones ni avisos de Zenit: XKB puede interpretarla como silenciar micrófono. F6/F17, si llega como ese código, muestra un aviso y no modifica perfiles. Para usar perfiles desde esas teclas hay que elegir gestión completa de Zenit y comprobar que otro gestor no compita con él. En gestión completa, F7/F20 sigue ejecutando Sigilo; el atajo de micrófono de KDE debe revisarse por separado si también responde a esa tecla.
 
 Para investigar una tecla sin efecto, usa **Gestión del equipo → Probar teclas (15 segundos)…** (también en la bandeja). Pulsa F6 y Fn+F6 y espera a que termine. Después exporta el informe. Solo durante ese intervalo se cuentan F6/F7/F9, F17–F20 y algunos códigos especiales conocidos. No se guardan letras ni texto y Zenit no ejecuta las acciones de esas teclas mientras dura la prueba; otras aplicaciones siguen recibiendo los eventos. Los resultados se conservan en memoria hasta otra prueba o reinicio del servicio.
 
@@ -86,7 +86,7 @@ Si el kernel no expone un control, la interfaz lo deshabilita. Comprueba tambié
 
 ## Validación y límites
 
-Se han ejecutado las 28 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
+Se han ejecutado las 31 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
 
 ```bash
 python3 ci/zenit-test.py

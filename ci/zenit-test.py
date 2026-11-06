@@ -202,6 +202,37 @@ class Zenit(unittest.TestCase):
             self.assertEqual(z.teclados(), {})
             self.assertEqual(z.teclados(prueba=True), {"/dev/input/event2": 42})
 
+    def test_f7_en_solo_luces_no_actua_ni_muestra_avisos(self):
+        self.service.estado["gestion"] = "sistema"
+        previous = {"codigo": z.KEY_F18, "accion": "luces", "aceptada": True}
+        self.service.ultima_tecla = previous.copy()
+        with patch.object(self.service, "orden") as order, patch.object(z, "aviso") as notice, patch.object(z, "poner_luces") as lights:
+            self.service.tecla(z.KEY_F20)
+            order.assert_not_called()
+            notice.assert_not_called()
+            lights.assert_not_called()
+        self.assertEqual(self.service.ultima_tecla, previous)
+        self.assertFalse(self.service.sigilo)
+        self.assertEqual(self.service.diagnostico()["teclas"]["politica_f7"], "escritorio_sin_accion_de_zenit")
+
+    def test_f7_se_conserva_en_gestion_completa(self):
+        with patch.object(z, "poner_luces") as lights, patch.object(z, "aviso") as notice:
+            self.service.tecla(z.KEY_F20)
+            self.assertTrue(self.service.sigilo)
+            self.assertTrue(self.service.ultima_tecla["aceptada"])
+            lights.assert_called_once_with("FFFFFF", 15)
+            notice.assert_called_once()
+        self.assertEqual(z.leer(z.ruta(self.profile + "profile")), "quiet")
+
+    def test_prueba_temporal_observa_f7_aunque_se_deje_al_escritorio(self):
+        self.service.estado["gestion"] = "sistema"
+        with patch.object(z.time, "monotonic", return_value=100):
+            self.service.orden(["probar-teclas"])
+        with patch.object(z.time, "monotonic", return_value=101), patch.object(z, "aviso") as notice:
+            self.service.tecla(z.KEY_F20, "/dev/input/event3")
+            notice.assert_not_called()
+            self.assertEqual(self.service.estado_prueba_teclas()["eventos"][0]["tecla"], "F20")
+
     def test_tecla_luces_y_aviso_de_perfil_bloqueado(self):
         self.service.estado["gestion"] = "sistema"
         with patch.object(z, "poner_luces"), patch.object(z, "aviso") as notice:
