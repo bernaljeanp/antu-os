@@ -145,6 +145,48 @@ class Zenit(unittest.TestCase):
         self.assertTrue(restored.orden(["perfil", "performance"])["ok"])
         self.assertEqual(z.leer(z.ruta(self.profile + "profile")), "performance")
 
+    def test_luces_reporte_incompleto_no_se_guarda(self):
+        before = dict(self.service.estado["luces"])
+        with patch.object(z, "controlador_luces", return_value="/dev/fake"), \
+             patch.object(z.os, "open", return_value=9), patch.object(z.os, "close"), \
+             patch.object(z.os, "write", return_value=12), patch.object(z.fcntl, "ioctl"):
+            self.assertFalse(self.service.orden(["color", "AABBCC", "80"])["ok"])
+        self.assertEqual(self.service.estado["luces"], before)
+        self.assertIsNone(self.service.luces_envio)
+        self.assertIn("incompleto", self.service.error_luces)
+
+    def test_luces_ocupadas_no_envian_reportes(self):
+        def busy(fd, cmd, buf):
+            buf[2] = 34
+        with patch.object(z, "controlador_luces", return_value="/dev/fake"), \
+             patch.object(z.os, "open", return_value=9), patch.object(z.os, "close"), \
+             patch.object(z.os, "write") as write, patch.object(z.fcntl, "ioctl", side_effect=busy), \
+             patch.object(z.time, "sleep"):
+            self.assertFalse(self.service.orden(["color", "AABBCC"])["ok"])
+            write.assert_not_called()
+        self.assertIn("ocupado", self.service.error_luces)
+
+    def test_luces_sin_lectura_no_afirma_color_confirmado(self):
+        with patch.object(z, "controlador_luces", return_value="/dev/fake"), \
+             patch.object(z.os, "open", return_value=9), patch.object(z.os, "close"), \
+             patch.object(z.os, "write", return_value=34), \
+             patch.object(z.fcntl, "ioctl", side_effect=OSError("no disponible")):
+            result = z.poner_luces("AABBCC", 50)
+        self.assertTrue(result["enviado"])
+        self.assertFalse(result["controlador_disponible"])
+        self.assertFalse(result["color_verificado"])
+
+    def test_luces_registra_ultimo_envio_y_error_posterior(self):
+        sent = {"enviado": True, "color": "AABBCC", "brillo": 50, "color_verificado": False}
+        with patch.object(z, "poner_luces", return_value=sent):
+            self.assertTrue(self.service.orden(["color", "AABBCC", "50"])["ok"])
+        with patch.object(z, "poner_luces", side_effect=OSError("USB desconectado")):
+            self.assertFalse(self.service.orden(["color", "123456", "40"])["ok"])
+        state = self.service.orden(["estado"])
+        self.assertEqual(state["luces_envio"], sent)
+        self.assertEqual(state["error_luces"], "USB desconectado")
+        self.assertEqual(state["luces"]["color"], "AABBCC")
+
     def test_actualizacion_bazzite_con_estado_antiguo_usa_solo_luces(self):
         self.write(z.ESTADO, '{"modo":"performance","carga":"80","luces":{"color":"123456","brillo":40}}')
         service = z.Zenit(procesos=lambda: [], gestion="sistema")

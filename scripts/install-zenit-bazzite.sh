@@ -28,18 +28,25 @@ cp -a "$repo/files/system/usr/lib/antu/zenit/." "$data/zenit/"
 cp -a "$repo/files/system/usr/lib/antu/inicio/." "$data/inicio/"
 install -m 644 "$repo/files/system/usr/share/icons/hicolor/256x256/apps/zenit.png" "$data/zenit/zenit.png"
 # Generar lanzadores con rutas absolutas y escape compatible con Desktop Entry.
-"$data/venv/bin/python" - "$data" "$config" <<'PY'
-import os, pathlib, shlex, sys
-base, config = map(pathlib.Path, sys.argv[1:])
+"$data/venv/bin/python" - "$data" "$config" "$repo" "$mode" <<'PY'
+import json, os, pathlib, shlex, sys
+base, config = map(pathlib.Path, sys.argv[1:3])
 def launcher(name, argv):
     path = base / name
     path.write_text('#!/bin/sh\nexec ' + shlex.join([str(a) for a in argv]) + ' "$@"\n')
     path.chmod(0o755)
 launcher('abrir', [base/'venv/bin/python', base/'zenit/app.py'])
+for action in ('actualizar', 'desinstalar'):
+    launcher(action, [base/'venv/bin/python', base/'zenit/mantenimiento.py', action])
 launcher('zenit-cli', ['/usr/bin/python3', base/'zenit/zenit.py'])
 def quote(s):
     return '"' + str(s).replace('\\', '\\\\').replace('"', '\\"').replace('`', '\\`').replace('$', '\\$').replace('%', '%%') + '"'
-entry = '[Desktop Entry]\nType=Application\nName=Zenit\nComment=Control del equipo\nExec=' + quote(base/'abrir') + '\nIcon=' + str(base/'zenit/zenit.png') + '\nCategories=System;Monitor;\nTerminal=false\n'
+entry = '[Desktop Entry]\nType=Application\nName=Zenit\nComment=Control del equipo\nExec=' + quote(base/'abrir') + '\nIcon=' + str(base/'zenit/zenit.png') + '\nCategories=System;Monitor;\nTerminal=false\nX-Zenit-Installer=true\n'
+info_file = base/'instalacion.json'
+previous = json.loads(info_file.read_text()) if info_file.exists() else {}
+info_file.write_text(json.dumps({'repositorio': sys.argv[3],
+    'servicio': sys.argv[4] == '' or previous.get('servicio', False),
+    'menu': str(base.parent/'applications/zenit.desktop'), 'autostart': str(config/'autostart/zenit.desktop')}))
 (base.parent/'applications/zenit.desktop').write_text(entry)
 (config/'autostart/zenit.desktop').write_text(entry.replace('\nIcon=', ' --bandeja\nIcon='))
 PY

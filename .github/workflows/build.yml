@@ -59,6 +59,7 @@ jobs:
           sudo apt-get install -y -qq restic
           python3 ci/diagnostico-test.py
           python3 ci/zenit-test.py
+          python3 ci/zenit-maintenance-test.py
           python3 ci/visual-test.py
           node ci/panel-test.cjs
           python3 ci/integracion-test.py

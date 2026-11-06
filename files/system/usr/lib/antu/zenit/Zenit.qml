@@ -639,6 +639,14 @@ ApplicationWindow {
                     id: panelLuces
                     Layout.horizontalStretchFactor: 3
                     titulo: "Luces del teclado"
+                    Nota {
+                        text: root.e.error_luces ? "Último cambio fallido: " + root.e.error_luces
+                            : root.e.luces_envio && root.e.luces_envio.enviado
+                            ? "Último envío: " + root.e.luces_envio.color + " · " + root.e.luces_envio.brillo + " %. "
+                              + (root.e.luces_envio.controlador_disponible ? "El controlador respondió disponible. " : "Sin lectura de disponibilidad. ")
+                              + "El color físico no se puede leer: compruébalo en el teclado."
+                            : "Preferencia guardada; aún no hay un envío registrado en esta sesión."
+                    }
                     Nota { visible: !root.capacidades.luces; text: "No se detectó un controlador de luces compatible. La vista del teclado es ilustrativa." }
                     readonly property string tono: (root.e.luces || {}).color || "FFFFFF"
                     readonly property int brillo: (root.e.luces || {}).brillo !== undefined ? root.e.luces.brillo : 100

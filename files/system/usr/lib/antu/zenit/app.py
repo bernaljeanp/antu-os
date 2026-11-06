@@ -12,6 +12,7 @@ import os
 import pathlib
 import re
 import socket
+import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
@@ -262,6 +263,16 @@ def main():
                           ("balanced-performance", "Equilibrado+"), ("performance", "Rendimiento")]:
         acciones[clave] = menu.addAction(nombre, lambda clave=clave: backend.perfil(clave))
     menu.addSeparator()
+    if (HERE.parent / "instalacion.json").is_file():
+        def mantenimiento(action):
+            from PyQt6.QtWidgets import QMessageBox
+            try:
+                subprocess.Popen(["konsole", "--hold", "-e", sys.executable, str(HERE / "mantenimiento.py"), action])
+            except OSError:
+                QMessageBox.information(None, "Zenit", "Abre una terminal y ejecuta: " + str(HERE.parent / action))
+        menu.addAction("Actualizar Zenit…", lambda: mantenimiento("actualizar"))
+        menu.addAction("Desinstalar Zenit…", lambda: mantenimiento("desinstalar"))
+        menu.addSeparator()
     menu.addAction("Salir", app.quit)
     icono.setContextMenu(menu)
     icono.activated.connect(lambda motivo: mostrar() if motivo == QSystemTrayIcon.ActivationReason.Trigger else None)

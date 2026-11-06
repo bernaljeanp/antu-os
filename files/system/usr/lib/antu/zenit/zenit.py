@@ -357,7 +357,9 @@ def poner_luces(color, brillo):
     fd = os.open(dispositivo, os.O_RDWR)
     try:
         def enviar(*orden):
-            os.write(fd, bytes([0]) + bytes(orden).ljust(33, b"\0"))
+            report = bytes([0]) + bytes(orden).ljust(33, b"\0")
+            if os.write(fd, report) != len(report):
+                raise OSError("Reporte de luces incompleto; vuelve a intentar el cambio.")
 
         def esperar():
             buf = bytearray(34)
@@ -365,10 +367,11 @@ def poner_luces(color, brillo):
                 try:
                     fcntl.ioctl(fd, (3 << 30) | (34 << 16) | (ord("H") << 8) | 0x0A, buf)  # HIDIOCGINPUT(34)
                 except OSError:
-                    return
+                    return False  # este dispositivo no permite consultar su disponibilidad
                 if buf[2] != 34:
-                    return
+                    return True
                 time.sleep(0.02)
+            raise RuntimeError("El controlador de luces sigue ocupado; no se confirmó su disponibilidad.")
 
         esperar()
         enviar(0x03, 0x21, 0x00, 0x04, 0xFF, 0xFF)
@@ -381,8 +384,11 @@ def poner_luces(color, brillo):
             rgb = int(color, 16)
             enviar(0x03, 0x27, rgb >> 16, (rgb >> 8) & 0xFF, rgb & 0xFF, 0x00, len(luces), *luces)
         enviar(0x03, 0x21, 0x00, 0x03, 0xFF, 0xFF)
-        esperar()
+        disponible = esperar()
         enviar(0x03, 0x26, 100 - brillo, 0x00, len(luces), *luces)
+        disponible = esperar() and disponible
+        return {"color": color, "brillo": brillo, "enviado": True,
+                "controlador_disponible": disponible, "color_verificado": False, "fecha": time.time()}
     finally:
         os.close(fd)
 
@@ -444,6 +450,8 @@ class Zenit:
         self.con_gamemode = {}  # juego -> pid que se le pidió a GameMode
         self.procesos = procesos or self.leer_procesos
         self.luces_puestas = False
+        self.luces_envio = None
+        self.error_luces = ""
         self.ultimo_error = ""
         self.ultima_muestra = None
         self.nvidia = {"estado": "sin consulta", "dispositivos": []}
@@ -462,6 +470,15 @@ class Zenit:
         finally:
             if os.path.exists(temporary):
                 os.unlink(temporary)
+
+    def enviar_luces(self, color, brillo):
+        try:
+            self.luces_envio = poner_luces(color, brillo)
+            self.error_luces = ""
+            self.luces_puestas = True
+        except (OSError, RuntimeError, ValueError) as error:
+            self.error_luces = str(error)
+            raise
 
     def restaurar_carga(self):
         if self.estado["gestion"] == "zenit" and topes_de_bateria() and self.estado.get("carga"):
@@ -529,7 +546,7 @@ class Zenit:
         if not self.luces_puestas and controlador_luces():  # al arrancar, cuando el USB ya está listo
             self.luces_puestas = True
             try:
-                poner_luces(self.estado["luces"]["color"], self.estado["luces"]["brillo"])
+                self.enviar_luces(self.estado["luces"]["color"], self.estado["luces"]["brillo"])
             except (OSError, RuntimeError, ValueError):
                 self.ultimo_error = "El controlador de luces no confirmó el cambio."
                 self.luces_puestas = False
@@ -569,6 +586,7 @@ class Zenit:
                     "carga_tope": carga_tope, "juegos": self.estado["juegos"],
                     "juego": self.juego, "boost": self.boost, "sigilo": self.sigilo, "temperaturas": temps,
                     "gestion": self.estado["gestion"], "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga(),
+                    "luces_envio": self.luces_envio, "error_luces": self.error_luces,
                     "capacidades": capacidades(), "baterias": bateria(), "limites_termicos": limites_termicos(),
                     "nvidia": self.nvidia, "limitacion_termica_observada": self.limitacion_termica,
                     "ultimo_error": self.ultimo_error, "ultima_muestra": self.ultima_muestra,
@@ -609,7 +627,7 @@ class Zenit:
             self.sigilo, self.boost = not self.sigilo, False
             luces = self.estado["luces"]
             try:
-                poner_luces(*(("FFFFFF", 15) if self.sigilo else (luces["color"], luces["brillo"])))
+                self.enviar_luces(*(("FFFFFF", 15) if self.sigilo else (luces["color"], luces["brillo"])))
             except (OSError, RuntimeError):
                 pass
             self.aplicar()
@@ -618,7 +636,7 @@ class Zenit:
         elif o == "luces":
             luces = self.estado["luces"]
             nivel = next((n for n in NIVELES_LUZ if n < luces["brillo"]), NIVELES_LUZ[0])
-            poner_luces(luces["color"], nivel)
+            self.enviar_luces(luces["color"], nivel)
             luces["brillo"] = nivel
             self.guardar()
             return {"ok": True, "aviso": ("Luces del teclado", {0: "Apagadas", 100: "Altas"}.get(nivel, "Bajas"))}
@@ -627,7 +645,7 @@ class Zenit:
             if color != "AURORA" and not re.fullmatch(r"[0-9A-F]{6}", color):
                 return {"ok": False, "error": "El color va como RRGGBB (por ejemplo FF5A1F) o «aurora»."}
             brillo = max(0, min(100, int(args[2]))) if len(args) == 3 else self.estado["luces"]["brillo"]
-            poner_luces(color, brillo)
+            self.enviar_luces(color, brillo)
             self.estado["luces"] = {"color": color, "brillo": brillo}
         elif o == "carga" and len(args) == 2 and args[1] in ("60", "80", "100", "adaptativa"):
             if args[1] == "adaptativa" and not capacidades()["carga_adaptativa"]:

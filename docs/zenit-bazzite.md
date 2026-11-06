@@ -62,16 +62,27 @@ Si el kernel no expone un control, la interfaz lo deshabilita. Comprueba tambié
 
 ## Validación y límites
 
-Se han ejecutado las 17 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
+Se han ejecutado las 21 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
 
 ```bash
 python3 ci/zenit-test.py
+python3 ci/zenit-maintenance-test.py
 python3 files/system/usr/lib/antu/zenit/zenit.py autoprueba
 # Con PyQt6 instalado:
 python3 ci/zenit-ui-test.py
 ```
 
-## Desinstalar (rutas por defecto)
+## Actualizar o desinstalar desde Zenit
+
+El menú del icono junto al reloj incluye **Actualizar Zenit…** y **Desinstalar Zenit…**. Abren Konsole para mostrar el progreso y las solicitudes de sudo. También puedes usar `~/.local/share/zenit/actualizar` o `~/.local/share/zenit/desinstalar` desde una terminal.
+
+El actualizador necesita conservar el checkout original de Antu OS. Solo acepta el origen oficial HTTPS, la rama main y un checkout sin cambios locales; hace `git pull --ff-only` y repite el instalador. No restablece ni descarta tu trabajo. Las instalaciones con rutas XDG personalizadas conservan sus rutas. Sal de Zenit y vuelve a abrirlo al terminar.
+
+El desinstalador pide escribir `DESINSTALAR`, detiene y elimina únicamente la unidad del instalador independiente, y conserva `/var/lib/zenit`. No revierte valores de la BIOS. No requiere acceso a Internet. En instalaciones que solo tienen interfaz no ejecuta sudo.
+
+La interfaz de luces distingue preferencias guardadas, último envío y último error. Un reporte incompleto o un controlador permanentemente ocupado hace fallar la operación. La disponibilidad HID se informa cuando se puede leer; **no confirma el color físico**, porque este protocolo no permite leerlo.
+
+## Desinstalar manualmente (rutas por defecto)
 
 ```bash
 sudo systemctl disable --now zenit.service
