@@ -22,6 +22,10 @@ journalctl -u zenit -b
 
 `--sin-servicio` instala únicamente la interfaz y CLI para probarlas; no prepara control de hardware. La interfaz acepta `--demo` para mostrar datos ficticios claramente indicados. Repetir el instalador actualiza las copias sin borrar las preferencias del motor. No sobrescribe un servicio incluido por la distribución.
 
+## Icono junto al reloj
+
+La bandeja usa un símbolo monocromo transparente, separado del icono completo del menú. Sigue el color de texto de la paleta de Qt y se actualiza al cambiar la paleta. Tras actualizar, elige **Salir** en el menú del icono antiguo y vuelve a abrir Zenit para cargarlo. La apariencia final en Plasma debe comprobarse en la sesión real.
+
 ## Alienware / Dell
 
 Objetivo solicitado: Alienware descrito como «X16 Aurora R6, RTX 5070, i9». El modelo DMI exacto y la versión del kernel deben comprobarse en el equipo; no se da por equivalente al AC16251 de referencia de Antu.

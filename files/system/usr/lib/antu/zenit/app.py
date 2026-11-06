@@ -15,8 +15,9 @@ import socket
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-from PyQt6.QtCore import QObject, QTimer, QUrl, pyqtProperty, pyqtSignal, pyqtSlot
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QByteArray, Qt, QObject, QTimer, QUrl, pyqtProperty, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QIcon, QPainter, QPalette, QPixmap
+from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
 from PyQt6.QtQml import QQmlApplicationEngine
 from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
@@ -38,6 +39,22 @@ DEMO = {
     "capacidades": {"perfil": True, "luces": True, "carga": True, "carga_adaptativa": True},
     "limites_termicos": {}, "baterias": [], "motivo": "Automático con cargador · datos de demostración",
 }
+
+
+def icono_bandeja(paleta):
+    """Símbolo sin fondo, con el color de texto de Qt y tamaños nativos de panel."""
+    color = paleta.color(QPalette.ColorRole.WindowText).name()
+    svg = (HERE / "zenit-symbolic.svg").read_text().replace("currentColor", color)
+    renderer = QSvgRenderer(QByteArray(svg.encode()))
+    icon = QIcon()
+    for size in (16, 22, 24, 32, 48, 64):
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        renderer.render(painter)
+        painter.end()
+        icon.addPixmap(pixmap)
+    return icon
 
 
 def pedir(args):
@@ -235,7 +252,8 @@ def main():
             connection.deleteLater()
         mostrar()
     unica.newConnection.connect(activar)
-    icono = QSystemTrayIcon(QIcon(ICONO))
+    icono = QSystemTrayIcon(icono_bandeja(app.palette()))
+    app.paletteChanged.connect(lambda paleta: icono.setIcon(icono_bandeja(paleta)))
     menu = QMenu()
     menu.addAction("Abrir Zenit", mostrar)
     menu.addSeparator()

@@ -8,6 +8,7 @@ import sys
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QT_QUICK_BACKEND", "software")
 from PyQt6.QtCore import QTimer, QUrl
+from PyQt6.QtGui import QColor, QPalette
 from PyQt6.QtQml import QQmlApplicationEngine
 from PyQt6.QtWidgets import QApplication
 from PyQt6 import sip
@@ -21,6 +22,14 @@ sys.path.insert(0, str(base / "inicio"))
 import preferencias
 
 app = QApplication([])
+# El símbolo debe conservar transparencia y adoptar colores claros y oscuros.
+for color in ("#eeeeee", "#222222"):
+    palette = QPalette()
+    palette.setColor(QPalette.ColorRole.WindowText, QColor(color))
+    image = module.icono_bandeja(palette).pixmap(22, 22).toImage()
+    assert image.pixelColor(0, 0).alpha() == 0
+    assert image.pixelColor(11, 7).name() == color
+assert hasattr(app, "paletteChanged")
 backend = module.Backend(True)
 engine = QQmlApplicationEngine()
 preferencias.instalar(app, engine)
