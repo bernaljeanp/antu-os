@@ -5,13 +5,21 @@ import QtQuick.Window
 Flickable {
     id: scroll
     clip: true
+    property bool onlyKeyboardFocus: false
     Connections {
         target: scroll.Window.window
         function onActiveFocusItemChanged() {
+            const targetFocus = scroll.Window.window ? scroll.Window.window.activeFocusItem : null
+            if (scroll.onlyKeyboardFocus) {
+                let control = targetFocus
+                while (control && control !== scroll.contentItem && control.focusReason === undefined)
+                    control = control.parent
+                if (!control || (control.focusReason !== Qt.TabFocusReason && control.focusReason !== Qt.BacktabFocusReason)) return
+            }
             Qt.callLater(function() {
                 const ventana = scroll.Window.window
                 const foco = ventana ? ventana.activeFocusItem : null
-                if (!foco) return
+                if (!foco || foco !== targetFocus) return
                 let padre = foco
                 while (padre && padre !== scroll.contentItem) padre = padre.parent
                 if (!padre) return

@@ -30,7 +30,26 @@ ApplicationWindow {
     readonly property int gpu: temps.GPU !== undefined ? temps.GPU : 0
     readonly property bool sistema: e.gestion === "sistema"
     readonly property bool auto: !sistema && e.modo === "auto"
-    readonly property var perfiles: e.perfiles || []
+    property var perfiles: []
+    property var nombresVentiladores: []
+    property var nombresBaterias: []
+    property var nombresJuegos: []
+
+    function actualizarModelos() {
+        // Mantener la identidad de los delegados mientras solo cambien sus lecturas.
+        function same(a, b) { return a.length === b.length && a.every((v, i) => v === b[i]) }
+        const state = backend.estado
+        const choices = state.perfiles || []
+        if (!same(perfiles, choices)) perfiles = choices
+        const fans = Object.keys(state.ventiladores || {})
+        if (!same(nombresVentiladores, fans)) nombresVentiladores = fans
+        const batteries = (state.baterias || []).map(b => b.nombre)
+        if (!same(nombresBaterias, batteries)) nombresBaterias = batteries
+        const steam = backend.juegosSteam()
+        const games = steam.concat(Object.keys(state.juegos || {}).filter(j => !steam.some(s => s.toLowerCase() === j)))
+        if (!same(nombresJuegos, games)) nombresJuegos = games
+    }
+    Component.onCompleted: actualizarModelos()
     readonly property var capacidades: e.capacidades || ({})
     readonly property bool ocupado: backend.ocupado
     property real ultimaMuestra: -1
@@ -47,6 +66,7 @@ ApplicationWindow {
     Connections {
         target: backend
         function onCambio() {
+            root.actualizarModelos()
             if (!root.conectado) return
             if (root.e.ultima_muestra !== undefined && root.ultimaMuestra === root.e.ultima_muestra) return
             root.ultimaMuestra = root.e.ultima_muestra || -1
@@ -316,6 +336,8 @@ ApplicationWindow {
 
     FocusScroll {
         id: pagina
+        objectName: "zenit-scroll"
+        onlyKeyboardFocus: true
         anchors.fill: parent
         contentHeight: contenido.implicitHeight + 120 * root.u
         boundsBehavior: Flickable.StopAtBounds
@@ -600,7 +622,7 @@ ApplicationWindow {
                     }
                     Nota { text: "El firmware controla los ventiladores según el perfil. Zenit muestra las velocidades que el equipo informa." }
                     Repeater {
-                        model: Object.keys(root.fans)
+                        model: root.nombresVentiladores
                         delegate: RowLayout {
                             id: filaVentilador
                             required property string modelData
@@ -831,12 +853,13 @@ ApplicationWindow {
                         font.pixelSize: Antu.pixels(19, root.u)
                     }
                     Repeater {
-                        model: root.e.baterias || []
+                        model: root.nombresBaterias
                         delegate: Nota {
-                            required property var modelData
-                            text: modelData.nombre + ": " + (modelData.porcentaje === null ? "sin lectura" : modelData.porcentaje + " %")
-                                  + (modelData.salud_porcentaje === null ? "" : " · capacidad respecto al diseño: " + modelData.salud_porcentaje + " %")
-                                  + (modelData.ciclos === null ? "" : " · " + modelData.ciclos + " ciclos")
+                            required property string modelData
+                            readonly property var lectura: (root.e.baterias || []).find(b => b.nombre === modelData) || ({porcentaje: null, salud_porcentaje: null, ciclos: null})
+                            text: modelData + ": " + (lectura.porcentaje === null ? "sin lectura" : lectura.porcentaje + " %")
+                                  + (lectura.salud_porcentaje === null ? "" : " · capacidad respecto al diseño: " + lectura.salud_porcentaje + " %")
+                                  + (lectura.ciclos === null ? "" : " · " + lectura.ciclos + " ciclos")
                         }
                     }
                 }
@@ -846,11 +869,7 @@ ApplicationWindow {
             Panel {
                 id: panelJuegos
                 titulo: "Perfil por juego"
-                readonly property var lista: {
-                    const steam = backend.juegosSteam()
-                    const otros = Object.keys(root.e.juegos || {}).filter(j => !steam.some(s => s.toLowerCase() === j))
-                    return steam.concat(otros)
-                }
+                readonly property var lista: root.nombresJuegos
                 Repeater {
                     model: panelJuegos.lista
                     delegate: GridLayout {
@@ -878,6 +897,7 @@ ApplicationWindow {
                             encendido: true
                         }
                         GlassCombo {
+                            objectName: "zenit-game-profile"
                             u: root.u
                             Layout.preferredWidth: 360 * root.u
                             textRole: "text"

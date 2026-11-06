@@ -46,6 +46,10 @@ Para investigar una tecla sin efecto, usa **Gestión del equipo → Probar tecla
 
 Otros modelos pueden enviar códigos diferentes o requerir Fn/Fn Lock. Zenit no intercepta F6/F7/F9 normales, que usan otras aplicaciones. Si no funciona F9, pulsa la tecla y exporta el informe: indica qué códigos anuncia cada dispositivo y si Zenit lo abrió. No contiene texto tecleado ni un registro del teclado. La compatibilidad física sigue pendiente de comprobar en el Alienware del usuario.
 
+## Actualización de lecturas y desplazamiento
+
+Las lecturas se actualizan conservando los controles existentes cuando no cambia la lista de sensores, baterías, juegos o perfiles. El desplazamiento automático para mostrar un control solo se activa al navegar con Tab o Mayús+Tab; una actualización o un cambio de foco incidental no debe bajar la página mientras la recorres con el ratón.
+
 ## Icono junto al reloj
 
 La bandeja usa un símbolo monocromo transparente, separado del icono completo del menú. Sigue el color de texto de la paleta de Qt y se actualiza al cambiar la paleta. Tras actualizar, elige **Salir** en el menú del icono antiguo y vuelve a abrir Zenit para cargarlo. La apariencia final en Plasma debe comprobarse en la sesión real.
@@ -94,6 +98,7 @@ python3 ci/zenit-maintenance-test.py
 python3 files/system/usr/lib/antu/zenit/zenit.py autoprueba
 # Con PyQt6 instalado:
 python3 ci/zenit-ui-test.py
+python3 ci/zenit-scroll-test.py
 ```
 
 ## Actualizar o desinstalar desde Zenit
