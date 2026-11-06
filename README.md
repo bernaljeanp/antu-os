@@ -75,6 +75,10 @@ Antu significa *sol* en mapudungun, y es también el nombre de uno de los telesc
 - **Primer arranque:** Brave se prepara cuando hay internet. Centro de Antu permite seleccionar las demás apps de Flathub, consultar su progreso real y pausar las descargas. La oficina de ArtCraft solo se prepara si se eligió. Las descargas pueden ocupar varios GB; las herramientas incluidas funcionan sin conexión.
 - **Datos y recuperación:** Centro de Antu crea respaldos cifrados con Restic, verifica sus datos y restaura en una carpeta nueva. Incluye un recorrido manual del hardware y comparación de CSV de MangoHud/PresentMon, sin atribuir pruebas de VM a una gráfica real.
 
+## Zenit en Bazzite
+
+Para instalar solo Zenit en Bazzite, sin reemplazar el sistema, consulta la [guía de instalación independiente](docs/zenit-bazzite.md). Usa el motor Linux incluido aquí; el soporte de cada control depende del kernel y aún requiere validación en el equipo físico.
+
 ## Instalar desde un USB
 
 1. Consulta la [página de descargas](https://bernaljeanp.github.io/antu-os/) o las [versiones públicas](https://github.com/bernaljeanp/antu-os/releases). Abre **Descargas de Antu** para Windows, o extrae y abre la versión Linux. Elige dónde guardar la ISO: la aplicación comprueba la firma y reúne sus partes. No necesita Python instalado ni comandos; permite detener y reanudar. `descargar-antu.py` queda como alternativa para automatización (Python 3 y OpenSSL). *Actions → iso →* última ejecución verde *→* `antu-live-iso` conserva también la ISO completa durante siete días.

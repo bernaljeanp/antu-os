@@ -335,7 +335,7 @@ ApplicationWindow {
                 columnSpacing: 18 * root.u
                 rowSpacing: 18 * root.u
                 Image {
-                    source: "file:///usr/share/icons/hicolor/256x256/apps/zenit.png"
+                    source: zenitIcon
                     sourceSize.width: 64 * root.u
                     sourceSize.height: 64 * root.u
                 }

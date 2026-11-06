@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 HERE = pathlib.Path(__file__).resolve().parent
 SOCKET = "/run/zenit.sock"
-ICONO = "/usr/share/icons/hicolor/256x256/apps/zenit.png"
+ICONO = str(HERE / "zenit.png") if (HERE / "zenit.png").exists() else str(HERE.parents[2] / "share/icons/hicolor/256x256/apps/zenit.png")
 PERFILES = {"quiet": "Silencioso", "balanced": "Equilibrado", "balanced-performance": "Equilibrado+",
             "performance": "Rendimiento", "cool": "Fresco", "low-power": "Ahorro de batería"}
 STEAM = pathlib.Path.home() / ".local/share/Steam/steamapps"
@@ -213,6 +213,7 @@ def main():
     import preferencias
     preferencias.instalar(app, engine)
     engine.rootContext().setContextProperty("backend", backend)
+    engine.rootContext().setContextProperty("zenitIcon", QUrl.fromLocalFile(ICONO))
     engine.load(QUrl.fromLocalFile(str(HERE / "Zenit.qml")))
     if not engine.rootObjects():
         sys.exit(1)
