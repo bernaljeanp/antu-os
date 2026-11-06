@@ -458,6 +458,12 @@ ApplicationWindow {
             // 2. Perfil térmico.
             Panel {
                 titulo: "Gestión del equipo"
+                Nota {
+                    text: "Teclas especiales: " + (root.e.entradas_abiertas || 0) + " dispositivos conectados a Zenit. "
+                        + (root.e.ultima_tecla ? "Última: " + root.e.ultima_tecla.accion
+                            + (root.e.ultima_tecla.aceptada ? " · aceptada." : " · no aplicada; revisa el modo o el diagnóstico.")
+                            : "Aún no se ha recibido una tecla compatible.")
+                }
                 Switch {
                     text: "Solo luces y monitorización"
                     checked: root.sistema
@@ -575,6 +581,11 @@ ApplicationWindow {
                     Layout.horizontalStretchFactor: 1
                     Layout.alignment: Qt.AlignTop
                     titulo: "Refrigeración"
+                    Button {
+                        text: "Exportar diagnóstico…"
+                        enabled: root.conectado && !root.ocupado
+                        onClicked: backend.exportarDiagnostico()
+                    }
                     Nota { text: "El firmware controla los ventiladores según el perfil. Zenit muestra las velocidades que el equipo informa." }
                     Repeater {
                         model: Object.keys(root.fans)

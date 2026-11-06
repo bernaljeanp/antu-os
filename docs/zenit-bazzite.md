@@ -22,6 +22,28 @@ journalctl -u zenit -b
 
 `--sin-servicio` instala únicamente la interfaz y CLI para probarlas; no prepara control de hardware. La interfaz acepta `--demo` para mostrar datos ficticios claramente indicados. Repetir el instalador actualiza las copias sin borrar las preferencias del motor. No sobrescribe un servicio incluido por la distribución.
 
+## Exportar diagnóstico
+
+Desde **Refrigeración → Exportar diagnóstico…** o el menú del icono junto al reloj, elige dónde guardar el JSON. El archivo se crea con permisos privados, se guarda de forma atómica y no se sube automáticamente. La demostración no exporta datos ficticios como diagnóstico real.
+
+Incluye modelo/fabricante DMI, kernel, ID y versión de la distribución, huella SHA-256 del motor, módulos relevantes, capacidades, perfil observado, temperaturas y lecturas de cada chip hwmon, fallos de ventiladores y controladores gráficos detectados. Un cero no confirma que el ventilador esté parado. No lee series, UUID, hostname, variables de entorno, procesos, nombres de juegos ni registros del sistema. No ejecuta nvidia-smi ni cambia el hardware.
+
+Para una comparación útil, guarda un informe en reposo y otro durante CS2, cuando escuches los ventiladores. Cada informe es una instantánea, no una prueba completa de compatibilidad.
+
+Alternativa por terminal (la redirección usa los permisos de tu shell):
+
+```bash
+~/.local/share/zenit/zenit-cli diagnostico > zenit-diagnostico.json
+```
+
+## Teclas especiales Alienware
+
+El servicio atiende F17 (Boost), F18 (luces) y F20 (Sigilo), que algunos Alienware envían con sus teclas Fn. Se abren dispositivos que anuncien cualquiera de ellas, no solo F17, y se vuelven a buscar cada tres segundos para cubrir arranque tardío o reconexión. El panel muestra cuántos están abiertos y la última tecla especial atendida.
+
+En modo solo luces, F9/F18 funciona, mientras F6/F17 y F7/F20 muestran un aviso y no modifican perfiles. Para usar perfiles desde esas teclas hay que elegir gestión completa de Zenit y comprobar que otro gestor no compita con él.
+
+Otros modelos pueden enviar códigos diferentes o requerir Fn/Fn Lock. Zenit no intercepta F6/F7/F9 normales, que usan otras aplicaciones. Si no funciona F9, pulsa la tecla y exporta el informe: indica qué códigos anuncia cada dispositivo y si Zenit lo abrió. No contiene texto tecleado ni un registro del teclado. La compatibilidad física sigue pendiente de comprobar en el Alienware del usuario.
+
 ## Icono junto al reloj
 
 La bandeja usa un símbolo monocromo transparente, separado del icono completo del menú. Sigue el color de texto de la paleta de Qt y se actualiza al cambiar la paleta. Tras actualizar, elige **Salir** en el menú del icono antiguo y vuelve a abrir Zenit para cargarlo. La apariencia final en Plasma debe comprobarse en la sesión real.
@@ -62,7 +84,7 @@ Si el kernel no expone un control, la interfaz lo deshabilita. Comprueba tambié
 
 ## Validación y límites
 
-Se han ejecutado las 21 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
+Se han ejecutado las 26 pruebas de `ci/zenit-test.py`, `zenit.py autoprueba`, instalación de usuario repetida y carga de la interfaz instalada con Qt sin pantalla. No se ha instalado ni iniciado el servicio privilegiado en Bazzite ni validado luces, teclas, batería o térmicas en el Alienware físico. Esta instalación independiente es experimental hasta completar esas comprobaciones.
 
 ```bash
 python3 ci/zenit-test.py

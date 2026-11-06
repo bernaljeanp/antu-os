@@ -124,8 +124,9 @@ class Zenit(unittest.TestCase):
             for command in (["perfil", "auto"], ["perfil", "quiet"], ["boost"], ["sigilo"],
                             ["carga", "80"], ["juego", "cs2", "performance"]):
                 self.assertFalse(service.orden(command)["ok"], command)
-            service.tecla(z.KEY_F17)
-            service.tecla(z.KEY_F20)
+            with patch.object(z, "aviso"):
+                service.tecla(z.KEY_F17)
+                service.tecla(z.KEY_F20)
             write.assert_not_called()
             charge.assert_not_called()
             gamemode.assert_not_called()
@@ -144,6 +145,97 @@ class Zenit(unittest.TestCase):
         self.assertTrue(restored.orden(["gestion", "zenit"])["ok"])
         self.assertTrue(restored.orden(["perfil", "performance"])["ok"])
         self.assertEqual(z.leer(z.ruta(self.profile + "profile")), "performance")
+
+    def keyboard(self, event, *codes):
+        bits = sum(1 << code for code in codes)
+        mask = (1 << (z.struct.calcsize("L") * 8)) - 1
+        words = []
+        while bits:
+            words.append(format(bits & mask, "x"))
+            bits >>= z.struct.calcsize("L") * 8
+        self.write("/sys/class/input/" + event + "/device/capabilities/key", " ".join(reversed(words)))
+
+    def test_teclado_solo_f18_se_abre_sin_exigir_f17(self):
+        self.keyboard("event1", z.KEY_F18)
+        self.keyboard("event2", 64, 65, 67)
+        with patch.object(z.os, "open", return_value=42) as opened:
+            handles = z.teclados()
+        self.assertEqual(handles, {"/dev/input/event1": 42})
+        opened.assert_called_once()
+        self.assertIn(67, z.dispositivos_teclas()["/dev/input/event2"])
+
+    def test_reintenta_teclado_y_cierra_dispositivo_desaparecido(self):
+        self.keyboard("event1", z.KEY_F18)
+        with patch.object(z.os, "open", side_effect=PermissionError):
+            self.assertEqual(z.teclados(), {})
+        with patch.object(z.os, "open", return_value=42):
+            handles = z.teclados()
+        with patch.object(z.os, "open") as opened:
+            self.assertEqual(z.teclados(handles), handles)
+            opened.assert_not_called()
+        self.write("/sys/class/input/event1/device/capabilities/key", "")
+        with patch.object(z.os, "close") as closed:
+            self.assertEqual(z.teclados(handles), {})
+            closed.assert_called_once_with(42)
+
+    def test_tecla_luces_y_aviso_de_perfil_bloqueado(self):
+        self.service.estado["gestion"] = "sistema"
+        with patch.object(z, "poner_luces"), patch.object(z, "aviso") as notice:
+            self.service.tecla(z.KEY_F18)
+            self.assertTrue(self.service.ultima_tecla["aceptada"])
+            self.service.tecla(z.KEY_F17)
+            self.assertFalse(self.service.ultima_tecla["aceptada"])
+            self.assertIn("Solo luces", notice.call_args.args[1])
+            last = self.service.ultima_tecla.copy()
+            self.service.tecla(30)  # texto normal: no se guarda ni ejecuta ninguna orden
+            self.assertEqual(self.service.ultima_tecla, last)
+        report = self.service.orden(["diagnostico"])["informe"]
+        self.assertTrue(report["teclas"]["f6_f7_bloqueadas_por_modo"])
+        self.assertEqual(report["teclas"]["ultima_especial"]["codigo"], z.KEY_F17)
+
+    def test_diagnostico_sin_identificadores_personales_ni_efectos(self):
+        self.write("/sys/class/dmi/id/product_name", "Alienware AC16251")
+        self.write("/sys/class/dmi/id/sys_vendor", "Dell Inc.")
+        self.write("/proc/sys/kernel/osrelease", "6.17-test")
+        self.write("/etc/os-release", 'ID=bazzite\nVERSION_ID="43"\nPRETTY_NAME="no_exportar"')
+        self.write("/sys/class/dmi/id/product_serial", "SERIAL_PRIVADA")
+        self.write("/sys/class/dmi/id/product_uuid", "UUID_PRIVADO")
+        self.write("/etc/hostname", "HOST_PRIVADO")
+        self.service.estado["juegos"] = {"JUEGO_PRIVADO": "performance"}
+        self.service.juego = "JUEGO_PRIVADO"
+        self.service.ultimo_error = "/home/USUARIO_PRIVADO/error"
+        self.service.error_luces = "ERROR_PRIVADO"
+        with patch.object(z, "escribir") as write, patch.object(z, "poner_luces") as lights, \
+             patch.object(z, "poner_carga") as charge, patch.object(z.subprocess, "run") as subprocess:
+            result = self.service.orden(["diagnostico"])
+            write.assert_not_called()
+            lights.assert_not_called()
+            charge.assert_not_called()
+            subprocess.assert_not_called()
+        self.assertTrue(result["ok"])
+        report = result["informe"]
+        self.assertEqual(report["modelo"], "Alienware AC16251")
+        self.assertEqual(report["kernel"], "6.17-test")
+        self.assertEqual(report["sistema"], {"ID": "bazzite", "VERSION_ID": "43"})
+        serialized = json.dumps(report)
+        for private in ("SERIAL_PRIVADA", "UUID_PRIVADO", "HOST_PRIVADO", "JUEGO_PRIVADO", "USUARIO_PRIVADO", "ERROR_PRIVADO", "no_exportar"):
+            self.assertNotIn(private, serialized)
+
+    def test_diagnostico_distingue_ventiladores_cero_error_y_ausentes(self):
+        path = "/sys/class/hwmon/hwmon0/"
+        self.write(path + "name", "alienware_wmi")
+        self.write(path + "fan1_input", "0")
+        self.write(path + "fan2_input", "1200")
+        self.write(path + "fan2_fault", "1")
+        self.write(path + "fan3_input", "no legible")
+        self.write(path + "fan4_input", "2400")
+        report = self.service.orden(["diagnostico"])["informe"]
+        fans = report["hwmon"][0]["ventiladores"]
+        self.assertEqual([f["rpm"] for f in fans], [0, None, None, 2400])
+        self.assertEqual(fans[0]["lectura"], "cero_sin_confirmar_parada")
+        self.assertEqual(fans[1]["lectura"], "no_disponible")
+        self.assertIsNone(report["modelo"])
+        self.assertEqual(report["graficas"], [])
 
     def test_luces_reporte_incompleto_no_se_guarda(self):
         before = dict(self.service.estado["luces"])

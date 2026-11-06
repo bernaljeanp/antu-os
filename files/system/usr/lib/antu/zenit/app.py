@@ -13,6 +13,7 @@ import pathlib
 import re
 import socket
 import subprocess
+import tempfile
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
@@ -58,6 +59,22 @@ def icono_bandeja(paleta):
     return icon
 
 
+def guardar_informe(path, report):
+    """Archivo privado y reemplazo atómico; no deja un JSON incompleto si falla."""
+    target = pathlib.Path(path)
+    fd, temporary = tempfile.mkstemp(prefix=".zenit-diagnostico-", dir=target.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as output:
+            json.dump(report, output, ensure_ascii=False, indent=2)
+            output.write("\n")
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(temporary, target)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def pedir(args):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
         s.settimeout(3)
@@ -98,6 +115,7 @@ class Backend(QObject):
         self._estado = dict(DEMO) if demo else {}
         self._connected = demo
         self._busy = False
+        self._export_path = None
         self._pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="zenit-io")
         self.resultado.connect(self._recibir)
         self.reloj = QTimer(self, interval=2000)
@@ -155,7 +173,17 @@ class Backend(QObject):
 
     def _recibir(self, args, value):
         self._busy = False
-        if args == ["estado"]:
+        if args == ["diagnostico"]:
+            path, self._export_path = self._export_path, None
+            if value.get("ok") and isinstance(value.get("informe"), dict) and path:
+                try:
+                    guardar_informe(path, value["informe"])
+                    self.aviso.emit("Informe guardado. Se exportó en tu equipo; no se envió a ningún servidor.")
+                except OSError as error:
+                    self.aviso.emit("No se pudo guardar el informe: " + str(error))
+            else:
+                self.aviso.emit(value.get("error", "El servicio no entregó un informe válido. Actualiza Zenit y vuelve a intentarlo."))
+        elif args == ["estado"]:
             self._connected = bool(value.get("ok"))
             if self._connected:
                 self._estado = value
@@ -172,6 +200,22 @@ class Backend(QObject):
             self.cambio.emit()
             return True
         return self._enviar(args)
+
+    @pyqtSlot()
+    def exportarDiagnostico(self):
+        from PyQt6.QtWidgets import QFileDialog
+        if self.demo:
+            self.aviso.emit("La demostración no exporta diagnósticos reales.")
+            return
+        if self._busy:
+            self.aviso.emit("Espera a que termine la lectura actual.")
+            return
+        path, _ = QFileDialog.getSaveFileName(None, "Guardar diagnóstico de Zenit",
+                    str(pathlib.Path.home() / "zenit-diagnostico.json"), "Informe JSON (*.json)")
+        if path:
+            self._export_path = path
+            if not self._enviar(["diagnostico"]):
+                self._export_path = None
 
     @pyqtSlot(str)
     def gestion(self, nombre):
@@ -257,6 +301,7 @@ def main():
     app.paletteChanged.connect(lambda paleta: icono.setIcon(icono_bandeja(paleta)))
     menu = QMenu()
     menu.addAction("Abrir Zenit", mostrar)
+    menu.addAction("Exportar diagnóstico…", backend.exportarDiagnostico)
     menu.addSeparator()
     acciones = {}
     for clave, nombre in [("auto", "Automático"), ("quiet", "Silencioso"), ("balanced", "Equilibrado"),

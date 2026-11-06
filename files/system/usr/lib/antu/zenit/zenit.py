@@ -6,6 +6,7 @@ fanN_boost), dell-wmi-sysman (atributos de la BIOS para la carga) y hidraw para 
 
   zenit gestion sistema|zenit   solo luces y monitorización, o control completo
   zenit demonio                 servicio de sistema (root): aplica perfiles, escucha las teclas, guarda el estado
+  zenit diagnostico             informe JSON sin datos personales, de solo lectura
   zenit estado                  temperaturas, ventiladores, perfil y modo
   zenit perfil auto|NOMBRE      automático (cargador, batería y juegos) o un perfil fijo
   zenit boost | sigilo | luces  lo mismo que F6, F7 y F9
@@ -18,6 +19,7 @@ import fcntl
 import copy
 import glob
 import grp
+import hashlib
 import json
 import math
 import os
@@ -395,18 +397,39 @@ def poner_luces(color, brillo):
 
 # ---------- Teclas Alienware: el firmware las envía como F17, F18 y F20 ----------
 
-def teclados():
-    abiertos = []
-    for d in glob.glob(ruta("/sys/class/input/event*")):
+TECLAS_ZENIT = {KEY_F17: "boost", KEY_F20: "sigilo", KEY_F18: "luces"}
+TECLAS_DIAGNOSTICO = {64: "F6", 65: "F7", 67: "F9", KEY_F17: "F17", KEY_F18: "F18", KEY_F20: "F20",
+                      228: "KEY_KBDILLUMTOGGLE", 229: "KEY_KBDILLUMDOWN", 230: "KEY_KBDILLUMUP"}
+
+
+def dispositivos_teclas():
+    devices = {}
+    for directory in sorted(glob.glob(ruta("/sys/class/input/event*"))):
         bits = 0
-        for palabra in leer(d + "/device/capabilities/key").split():
-            bits = (bits << 64) | int(palabra, 16)
-        if bits >> KEY_F17 & 1:
-            try:
-                abiertos.append(os.open("/dev/input/" + os.path.basename(d), os.O_RDONLY | os.O_NONBLOCK))
-            except OSError:
-                pass
-    return abiertos
+        try:
+            for word in leer(directory + "/device/capabilities/key").split():
+                bits = (bits << (struct.calcsize("L") * 8)) | int(word, 16)
+        except ValueError:
+            continue
+        codes = [code for code in TECLAS_DIAGNOSTICO if bits >> code & 1]
+        if codes:
+            devices["/dev/input/" + os.path.basename(directory)] = codes
+    return devices
+
+
+def teclados(abiertos=None):
+    """Reintenta dispositivos nuevos tras arrancar, reanudar o reconectar el teclado."""
+    opened = dict(abiertos or {})
+    devices = {path for path, codes in dispositivos_teclas().items() if any(c in TECLAS_ZENIT for c in codes)}
+    for path in list(opened):
+        if path not in devices:
+            os.close(opened.pop(path))
+    for path in devices - opened.keys():
+        try:
+            opened[path] = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+        except OSError:
+            pass  # se reintentará en el próximo ciclo; no cambia permisos del sistema
+    return opened
 
 
 def aviso(titulo, detalle):
@@ -453,6 +476,8 @@ class Zenit:
         self.luces_envio = None
         self.error_luces = ""
         self.ultimo_error = ""
+        self.ultima_tecla = None
+        self.entradas_abiertas = []
         self.ultima_muestra = None
         self.nvidia = {"estado": "sin consulta", "dispositivos": []}
         self.thermal_previous = contadores_termicos()
@@ -552,11 +577,80 @@ class Zenit:
                 self.luces_puestas = False
 
     def tecla(self, codigo):
-        orden = {KEY_F17: "boost", KEY_F20: "sigilo", KEY_F18: "luces"}.get(codigo)
+        orden = TECLAS_ZENIT.get(codigo)
         if orden:
-            titulo, detalle = self.orden([orden]).get("aviso", ("", ""))
-            if titulo:
-                aviso(titulo, detalle)
+            result = self.orden([orden])
+            self.ultima_tecla = {"codigo": codigo, "accion": orden, "aceptada": result.get("ok", False)}
+            if not result.get("ok"):
+                aviso("Zenit", result.get("error", "No se pudo aplicar la tecla."))
+            else:
+                titulo, detalle = result.get("aviso", ("", ""))
+                if titulo:
+                    aviso(titulo, detalle)
+
+    def diagnostico(self):
+        """Solo campos explícitos; no incluye el estado completo, errores ni rutas del usuario."""
+        def text(path):
+            return "".join(c for c in leer(ruta(path)) if c.isprintable())[:120] or None
+        def numeric(path):
+            raw = leer(ruta(path))
+            return int(raw) if raw.isdigit() else None
+        chips = []
+        for directory in sorted(glob.glob(ruta("/sys/class/hwmon/hwmon*"))):
+            name = text(directory.removeprefix(RAIZ) + "/name")
+            fans = []
+            for entry in sorted(glob.glob(directory + "/fan*_input")):
+                relative = entry.removeprefix(RAIZ)
+                raw = numeric(relative)
+                fault_path = relative.replace("_input", "_fault")
+                fault = numeric(fault_path) if os.path.exists(ruta(fault_path)) else 0
+                rpm = raw if fault == 0 else None
+                fans.append({"sensor": os.path.basename(entry).removesuffix("_input"),
+                             "etiqueta": text(relative.replace("_input", "_label")),
+                             "rpm": rpm, "fallo": fault,
+                             "lectura": "no_disponible" if rpm is None else "cero_sin_confirmar_parada" if rpm == 0 else "velocidad_informada"})
+            chips.append({"chip": os.path.basename(directory), "nombre": name, "ventiladores": fans})
+        graphics = []
+        for directory in sorted(glob.glob(ruta("/sys/bus/pci/devices/*"))):
+            if not leer(directory + "/class").startswith("0x03"):
+                continue
+            driver = os.path.basename(os.path.realpath(directory + "/driver"))
+            status = leer(directory + "/power/runtime_status")
+            graphics.append({"fabricante_pci": leer(directory + "/vendor")[:8],
+                             "dispositivo_pci": leer(directory + "/device")[:8],
+                             "controlador": driver if driver in ("nvidia", "i915", "xe", "amdgpu", "nouveau") else "otro_o_no_disponible",
+                             "estado_energia": status if status in ("active", "suspended", "suspending", "resuming", "unsupported") else "no_disponible"})
+        state = self._orden(["estado"])
+        os_info = {}
+        for line in leer(ruta("/etc/os-release")).splitlines():
+            key, _, value = line.partition("=")
+            if key in ("ID", "VERSION_ID"):
+                os_info[key] = value.strip('"')[:80]
+        with open(__file__, "rb") as source:
+            fingerprint = hashlib.sha256(source.read()).hexdigest()
+        return {"formato": "zenit-diagnostico", "version": 1,
+                "motor_sha256": fingerprint, "sistema": os_info,
+                "modelo": text("/sys/class/dmi/id/product_name"),
+                "fabricante": text("/sys/class/dmi/id/sys_vendor"),
+                "kernel": text("/proc/sys/kernel/osrelease"),
+                "teclas": {"dispositivos": [{"evento": os.path.basename(path),
+                                             "codigos_anunciados": [TECLAS_DIAGNOSTICO[c] for c in codes],
+                                             "abierto_por_zenit": os.path.basename(path) in self.entradas_abiertas}
+                                            for path, codes in dispositivos_teclas().items()],
+                           "ultima_especial": self.ultima_tecla,
+                           "f6_f7_bloqueadas_por_modo": self.estado["gestion"] == "sistema",
+                           "nota": "Se atienden F17/F18/F20. No se interceptan las teclas F6/F7/F9 normales ni se registran pulsaciones de texto."},
+                "modulos": {name: os.path.isdir(ruta("/sys/module/" + name))
+                            for name in ("alienware_wmi", "dell_wmi_sysman", "dell_smm_hwmon", "nvidia", "i915", "xe")},
+                "gestion": state["gestion"], "perfil_observado": state["perfil"],
+                "perfiles_disponibles": state["perfiles"], "capacidades": state["capacidades"],
+                "temperaturas_c": state["temperaturas"], "limites_termicos_c": state["limites_termicos"],
+                "hwmon": chips, "graficas": graphics,
+                "carga": {"modo": state["carga_modo"], "limite": state["carga_tope"]},
+                "luces": {"envio_registrado": bool(self.luces_envio), "ultimo_envio_fallo": bool(self.error_luces)},
+                "notas": ["Una instantánea de 0 rpm no confirma que el ventilador esté parado.",
+                          "No se consultó nvidia-smi ni se modificaron perfiles, luces o batería.",
+                          "No incluye usuario, hostname, series, UUID, procesos, juegos, registros ni variables de entorno."]}
 
     def orden(self, args):
         before = copy.deepcopy(self.estado)
@@ -574,6 +668,8 @@ class Zenit:
         if not isinstance(args, list) or len(args) > 3 or not all(isinstance(a, str) and len(a) <= 64 for a in args):
             return {"ok": False, "error": "Orden no válida."}
         o = args[0] if args else "estado"
+        if o == "diagnostico" and len(args) == 1:
+            return {"ok": True, "informe": self.diagnostico()}
         if o == "estado":
             temps, fans = sensores()
             gpu_temperatures = [d["temperatura"] for d in self.nvidia["dispositivos"] if d.get("temperatura") is not None]
@@ -585,6 +681,7 @@ class Zenit:
                     "perfiles": leer(opciones).split() if opciones else [], "carga_modo": carga_modo,
                     "carga_tope": carga_tope, "juegos": self.estado["juegos"],
                     "juego": self.juego, "boost": self.boost, "sigilo": self.sigilo, "temperaturas": temps,
+                    "ultima_tecla": self.ultima_tecla, "entradas_abiertas": len(self.entradas_abiertas),
                     "gestion": self.estado["gestion"], "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga(),
                     "luces_envio": self.luces_envio, "error_luces": self.error_luces,
                     "capacidades": capacidades(), "baterias": bateria(), "limites_termicos": limites_termicos(),
@@ -687,8 +784,10 @@ def demonio():
                 zenit.tic()
             except (OSError, RuntimeError, ValueError) as error:
                 zenit.ultimo_error = "No se pudo actualizar el estado: " + str(error)
+            teclas = teclados(teclas)
+            zenit.entradas_abiertas = [os.path.basename(path) for path in teclas]
             siguiente = time.monotonic() + 3
-        listos, _, _ = select.select([servidor, *teclas], [], [], max(0, siguiente - time.monotonic()))
+        listos, _, _ = select.select([servidor, *teclas.values()], [], [], max(0, siguiente - time.monotonic()))
         for fd in listos:
             if fd is servidor:
                 conexion, _ = servidor.accept()
@@ -715,7 +814,11 @@ def demonio():
             try:
                 datos = os.read(fd, evento.size * 32)
             except OSError:  # teclado desconectado: deja de vigilarlo (si no, select lo da por listo para siempre)
-                teclas.remove(fd)
+                teclas = {path: handle for path, handle in teclas.items() if handle != fd}
+                os.close(fd)
+                continue
+            if not datos:
+                teclas = {path: handle for path, handle in teclas.items() if handle != fd}
                 os.close(fd)
                 continue
             for i in range(0, len(datos) - evento.size + 1, evento.size):
@@ -740,7 +843,9 @@ def cliente(args):
         sys.exit("El servicio Zenit no está corriendo (systemctl status zenit).")
     if not respuesta.get("ok"):
         sys.exit(respuesta.get("error", "Zenit no pudo hacerlo."))
-    if args[0] == "estado":
+    if args[0] == "diagnostico":
+        print(json.dumps(respuesta["informe"], ensure_ascii=False, indent=2))
+    elif args[0] == "estado":
         r = respuesta
         print("Gestión: " + r.get("gestion", "zenit"))
         print(f"Perfil: {PERFILES.get(r['perfil'], r['perfil'] or 'no disponible')}"

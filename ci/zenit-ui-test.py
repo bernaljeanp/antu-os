@@ -4,6 +4,10 @@ import importlib.util
 import os
 from pathlib import Path
 import sys
+import json
+import stat
+import tempfile
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QT_QUICK_BACKEND", "software")
@@ -31,6 +35,28 @@ for color in ("#eeeeee", "#222222"):
     assert image.pixelColor(11, 7).name() == color
 assert hasattr(app, "paletteChanged")
 backend = module.Backend(True)
+# Exportación real: selección de archivo, respuesta del servicio y permisos privados.
+with tempfile.TemporaryDirectory() as directory:
+    target = Path(directory) / "diagnostico.json"
+    backend.demo = False
+    with patch("PyQt6.QtWidgets.QFileDialog.getSaveFileName", return_value=(str(target), "")), patch.object(backend, "_enviar", return_value=True) as send:
+        backend.exportarDiagnostico()
+        send.assert_called_once_with(["diagnostico"])
+    report = {"formato": "zenit-diagnostico", "version": 1}
+    with patch.object(backend, "refrescar"):
+        backend._recibir(["diagnostico"], {"ok": True, "informe": report})
+    assert json.loads(target.read_text()) == report
+    assert stat.S_IMODE(target.stat().st_mode) == 0o600
+    with patch.object(module.os, "replace", side_effect=OSError("fallo simulado")):
+        try:
+            module.guardar_informe(target, {"nuevo": True})
+        except OSError:
+            pass
+        else:
+            raise AssertionError("No propagó el fallo de guardado")
+    assert json.loads(target.read_text()) == report
+    assert list(Path(directory).glob(".zenit-diagnostico-*")) == []
+backend.demo = True
 engine = QQmlApplicationEngine()
 preferencias.instalar(app, engine)
 engine.rootContext().setContextProperty("backend", backend)
