@@ -458,6 +458,18 @@ ApplicationWindow {
             // 2. Perfil térmico.
             Panel {
                 titulo: "Gestión del equipo"
+                Button {
+                    text: root.e.prueba_teclas && root.e.prueba_teclas.segundos_restantes > 0
+                        ? "Pulsa F6 / Fn+F6 · " + root.e.prueba_teclas.segundos_restantes + " s"
+                        : "Probar teclas (15 segundos)…"
+                    enabled: root.conectado && !root.ocupado && !(root.e.prueba_teclas && root.e.prueba_teclas.segundos_restantes > 0)
+                    onClicked: backend.probarTeclas()
+                }
+                Nota {
+                    text: root.e.prueba_teclas && root.e.prueba_teclas.eventos.length > 0
+                        ? "Prueba: " + root.e.prueba_teclas.eventos.map(v => v.tecla + " × " + v.pulsaciones).join(" · ")
+                        : "La prueba solo recoge teclas de función concretas; no registra texto. Los resultados se incluyen en el diagnóstico."
+                }
                 Nota {
                     text: "Teclas especiales: " + (root.e.entradas_abiertas || 0) + " dispositivos conectados a Zenit. "
                         + (root.e.ultima_tecla ? "Última: " + root.e.ultima_tecla.accion

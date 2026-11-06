@@ -178,6 +178,30 @@ class Zenit(unittest.TestCase):
             self.assertEqual(z.teclados(handles), {})
             closed.assert_called_once_with(42)
 
+    def test_prueba_teclas_es_temporal_sin_texto_ni_acciones(self):
+        with patch.object(z.time, "monotonic", return_value=100):
+            self.assertTrue(self.service.orden(["probar-teclas"])["ok"])
+        with patch.object(z.time, "monotonic", return_value=101), patch.object(z, "poner_luces") as lights:
+            self.service.tecla(64, "/dev/input/event3")
+            self.service.tecla(64, "/dev/input/event3")
+            self.service.tecla(z.KEY_F18, "/dev/input/event3")
+            self.service.tecla(30, "/dev/input/event3")
+            lights.assert_not_called()
+            result = self.service.orden(["diagnostico"])["informe"]["teclas"]["prueba"]
+        self.assertEqual(result["segundos_restantes"], 14)
+        self.assertEqual([v["codigo"] for v in result["eventos"]], [64, z.KEY_F18])
+        self.assertEqual(result["eventos"][0]["pulsaciones"], 2)
+        with patch.object(z.time, "monotonic", return_value=116):
+            self.service.tecla(67, "/dev/input/event3")
+            self.assertEqual(len(self.service.estado_prueba_teclas()["eventos"]), 2)
+            self.assertEqual(self.service.estado_prueba_teclas()["segundos_restantes"], 0)
+
+    def test_prueba_abre_dispositivos_solo_prog_sin_hacerlo_normalmente(self):
+        self.keyboard("event2", 148)
+        with patch.object(z.os, "open", return_value=42):
+            self.assertEqual(z.teclados(), {})
+            self.assertEqual(z.teclados(prueba=True), {"/dev/input/event2": 42})
+
     def test_tecla_luces_y_aviso_de_perfil_bloqueado(self):
         self.service.estado["gestion"] = "sistema"
         with patch.object(z, "poner_luces"), patch.object(z, "aviso") as notice:

@@ -6,6 +6,7 @@ fanN_boost), dell-wmi-sysman (atributos de la BIOS para la carga) y hidraw para 
 
   zenit gestion sistema|zenit   solo luces y monitorización, o control completo
   zenit demonio                 servicio de sistema (root): aplica perfiles, escucha las teclas, guarda el estado
+  zenit probar-teclas           prueba de teclas de función durante 15 segundos, sin texto
   zenit diagnostico             informe JSON sin datos personales, de solo lectura
   zenit estado                  temperaturas, ventiladores, perfil y modo
   zenit perfil auto|NOMBRE      automático (cargador, batería y juegos) o un perfil fijo
@@ -399,7 +400,8 @@ def poner_luces(color, brillo):
 
 TECLAS_ZENIT = {KEY_F17: "boost", KEY_F20: "sigilo", KEY_F18: "luces"}
 TECLAS_DIAGNOSTICO = {64: "F6", 65: "F7", 67: "F9", KEY_F17: "F17", KEY_F18: "F18", KEY_F20: "F20",
-                      228: "KEY_KBDILLUMTOGGLE", 229: "KEY_KBDILLUMDOWN", 230: "KEY_KBDILLUMUP"}
+                      228: "KEY_KBDILLUMTOGGLE", 229: "KEY_KBDILLUMDOWN", 230: "KEY_KBDILLUMUP", 189: "F19", 148: "KEY_PROG1",
+                      149: "KEY_PROG2", 202: "KEY_PROG3", 203: "KEY_PROG4", 240: "KEY_UNKNOWN"}
 
 
 def dispositivos_teclas():
@@ -417,10 +419,10 @@ def dispositivos_teclas():
     return devices
 
 
-def teclados(abiertos=None):
+def teclados(abiertos=None, prueba=False):
     """Reintenta dispositivos nuevos tras arrancar, reanudar o reconectar el teclado."""
     opened = dict(abiertos or {})
-    devices = {path for path, codes in dispositivos_teclas().items() if any(c in TECLAS_ZENIT for c in codes)}
+    devices = {path for path, codes in dispositivos_teclas().items() if prueba or any(c in TECLAS_ZENIT for c in codes)}
     for path in list(opened):
         if path not in devices:
             os.close(opened.pop(path))
@@ -476,6 +478,8 @@ class Zenit:
         self.luces_envio = None
         self.error_luces = ""
         self.ultimo_error = ""
+        self.prueba_teclas_hasta = 0
+        self.prueba_teclas = {}
         self.ultima_tecla = None
         self.entradas_abiertas = []
         self.ultima_muestra = None
@@ -576,7 +580,20 @@ class Zenit:
                 self.ultimo_error = "El controlador de luces no confirmó el cambio."
                 self.luces_puestas = False
 
-    def tecla(self, codigo):
+    def estado_prueba_teclas(self):
+        remaining = max(0, math.ceil(self.prueba_teclas_hasta - time.monotonic()))
+        return {"segundos_restantes": remaining, "eventos": list(self.prueba_teclas.values())}
+
+    def tecla(self, codigo, dispositivo="no_disponible"):
+        # Solo durante una prueba solicitada: teclas de función y códigos especiales concretos.
+        # Nunca guarda texto ni bloquea el evento para las otras aplicaciones.
+        candidates = TECLAS_DIAGNOSTICO
+        if time.monotonic() < self.prueba_teclas_hasta and codigo in candidates:
+            key = (os.path.basename(dispositivo), codigo)
+            event = self.prueba_teclas.setdefault(key, {"evento": key[0], "codigo": codigo,
+                                                       "tecla": candidates[codigo], "pulsaciones": 0})
+            event["pulsaciones"] += 1
+            return  # durante la prueba Zenit observa, sin ejecutar la acción de la tecla
         orden = TECLAS_ZENIT.get(codigo)
         if orden:
             result = self.orden([orden])
@@ -637,7 +654,7 @@ class Zenit:
                                              "codigos_anunciados": [TECLAS_DIAGNOSTICO[c] for c in codes],
                                              "abierto_por_zenit": os.path.basename(path) in self.entradas_abiertas}
                                             for path, codes in dispositivos_teclas().items()],
-                           "ultima_especial": self.ultima_tecla,
+                           "ultima_especial": self.ultima_tecla, "prueba": self.estado_prueba_teclas(),
                            "f6_f7_bloqueadas_por_modo": self.estado["gestion"] == "sistema",
                            "nota": "Se atienden F17/F18/F20. No se interceptan las teclas F6/F7/F9 normales ni se registran pulsaciones de texto."},
                 "modulos": {name: os.path.isdir(ruta("/sys/module/" + name))
@@ -668,6 +685,10 @@ class Zenit:
         if not isinstance(args, list) or len(args) > 3 or not all(isinstance(a, str) and len(a) <= 64 for a in args):
             return {"ok": False, "error": "Orden no válida."}
         o = args[0] if args else "estado"
+        if o == "probar-teclas" and len(args) == 1:
+            self.prueba_teclas = {}
+            self.prueba_teclas_hasta = time.monotonic() + 15
+            return {"ok": True}
         if o == "diagnostico" and len(args) == 1:
             return {"ok": True, "informe": self.diagnostico()}
         if o == "estado":
@@ -681,6 +702,7 @@ class Zenit:
                     "perfiles": leer(opciones).split() if opciones else [], "carga_modo": carga_modo,
                     "carga_tope": carga_tope, "juegos": self.estado["juegos"],
                     "juego": self.juego, "boost": self.boost, "sigilo": self.sigilo, "temperaturas": temps,
+                    "prueba_teclas": self.estado_prueba_teclas(),
                     "ultima_tecla": self.ultima_tecla, "entradas_abiertas": len(self.entradas_abiertas),
                     "gestion": self.estado["gestion"], "ventiladores": fans, "luces": self.estado["luces"], "carga": leer_carga(),
                     "luces_envio": self.luces_envio, "error_luces": self.error_luces,
@@ -784,7 +806,7 @@ def demonio():
                 zenit.tic()
             except (OSError, RuntimeError, ValueError) as error:
                 zenit.ultimo_error = "No se pudo actualizar el estado: " + str(error)
-            teclas = teclados(teclas)
+            teclas = teclados(teclas, prueba=time.monotonic() < zenit.prueba_teclas_hasta)
             zenit.entradas_abiertas = [os.path.basename(path) for path in teclas]
             siguiente = time.monotonic() + 3
         listos, _, _ = select.select([servidor, *teclas.values()], [], [], max(0, siguiente - time.monotonic()))
@@ -825,7 +847,8 @@ def demonio():
                 _, _, tipo, codigo, valor = evento.unpack_from(datos, i)
                 if tipo == 1 and valor == 1:  # tecla pulsada
                     try:
-                        zenit.tecla(codigo)
+                        path = next((path for path, handle in teclas.items() if handle == fd), "no_disponible")
+                        zenit.tecla(codigo, path)
                     except (OSError, RuntimeError):
                         pass
 

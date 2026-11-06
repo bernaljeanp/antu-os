@@ -187,6 +187,8 @@ class Backend(QObject):
             self._connected = bool(value.get("ok"))
             if self._connected:
                 self._estado = value
+        elif args == ["probar-teclas"] and value.get("ok"):
+            self.aviso.emit("Prueba iniciada: pulsa F6 y Fn+F6 durante los próximos 15 segundos. Después exporta el diagnóstico.")
         elif not value.get("ok"):
             self.aviso.emit(value.get("error", "El equipo no confirmó el cambio."))
         self.cambio.emit()
@@ -200,6 +202,13 @@ class Backend(QObject):
             self.cambio.emit()
             return True
         return self._enviar(args)
+
+    @pyqtSlot()
+    def probarTeclas(self):
+        if self.demo:
+            self.aviso.emit("La prueba necesita el teclado real y el servicio actualizado.")
+            return
+        self.orden(["probar-teclas"])
 
     @pyqtSlot()
     def exportarDiagnostico(self):
@@ -302,6 +311,7 @@ def main():
     menu = QMenu()
     menu.addAction("Abrir Zenit", mostrar)
     menu.addAction("Exportar diagnóstico…", backend.exportarDiagnostico)
+    menu.addAction("Probar teclas (15 segundos)…", backend.probarTeclas)
     menu.addSeparator()
     acciones = {}
     for clave, nombre in [("auto", "Automático"), ("quiet", "Silencioso"), ("balanced", "Equilibrado"),
